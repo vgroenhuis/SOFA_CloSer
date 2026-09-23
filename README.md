@@ -13,3 +13,7 @@ run_docker.bat
 ```
 
 See [TestSimInDocker/README.md](TestSimInDocker/README.md) for details.
+
+## AI disclaimer
+
+Claude Code (Sonnet 5) was used to generate the whole simulation and most documentation.
