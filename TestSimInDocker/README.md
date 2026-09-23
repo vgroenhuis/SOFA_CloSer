@@ -51,3 +51,7 @@ python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ## Author
 
 Vincent Groenhuis
+
+## AI disclaimer
+
+Claude Code (Sonnet 5) was used to generate the whole simulation and most documentation.
