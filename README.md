@@ -7,6 +7,8 @@ cube falls under gravity, bounces, and settles on a floor, simulated
 headlessly and streamed live to a browser that renders it with three.js and
 plots its energy over time. Ships as a single Docker image.
 
+![Screenshot of the simulation: a cube bouncing on a floor, with live height and energy graphs and adjustable physics parameters](TestSimInDocker/docs/screenshot.png)
+
 ```bash
 cd TestSimInDocker
 run_docker.bat

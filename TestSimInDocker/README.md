@@ -5,6 +5,8 @@ under gravity onto a floor. The physics runs headlessly in Python
 (SofaPython3), and a browser page renders the scene live with three.js,
 receiving the cube's position/orientation over a WebSocket.
 
+![Screenshot of the simulation: a cube bouncing on a floor, with live height and energy graphs and adjustable physics parameters](docs/screenshot.png)
+
 ## Run
 
 ```bash
