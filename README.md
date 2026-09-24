@@ -16,6 +16,21 @@ run_docker.bat
 
 See [TestSimInDocker/README.md](TestSimInDocker/README.md) for details.
 
+## [MultiSimDocker](MultiSimDocker/)
+
+A multi-user web platform on top of such scenes: visitors claim a simulation
+from a limited pool of Docker containers (with a key to reclaim it), watch
+anyone else's running simulation read-only, and can hold one for a later
+demo; idle simulations return to the pool automatically. Includes a
+password-protected admin page.
+
+```bash
+cd MultiSimDocker
+run.bat
+```
+
+See [MultiSimDocker/README.md](MultiSimDocker/README.md) for details.
+
 ## AI disclaimer
 
 Claude Code (Sonnet 5) was used to generate the whole simulation and most documentation.

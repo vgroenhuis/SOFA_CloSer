@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>SOFA Cube Simulation</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+		html, body {
+			margin: 0;
+			height: 100%;
+			background: #1b1d22;
+			color: #e8e8e8;
+			font-family: system-ui, sans-serif;
+			overflow: hidden;
+		}
+		#viewer {
+			position: absolute;
+			inset: 0;
+		}
+		#top-controls {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			right: 12px;
+			z-index: 10;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			justify-content: space-between;
+			align-items: flex-start;
+			/* left/right:12px makes this box span the full viewport width, but
+			   its content (hud, params-panel) doesn't -- without this, the
+			   empty space between/around them still captures mouse events and
+			   blocks OrbitControls drag/rotate on the 3D view underneath. */
+			pointer-events: none;
+		}
+		#hud {
+			pointer-events: auto;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 10px;
+			background: rgba(20, 21, 26, 0.75);
+			padding: 8px 12px;
+			border-radius: 8px;
+			backdrop-filter: blur(4px);
+		}
+		#hud label {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			font-size: 13px;
+			color: #cfd3da;
+			cursor: pointer;
+			user-select: none;
+		}
+		#hud h1 {
+			font-size: 14px;
+			font-weight: 600;
+			margin: 0 10px 0 0;
+			color: #cfd3da;
+		}
+		#status {
+			font-size: 12px;
+			color: #8f97a3;
+		}
+		#status.connected { color: #6bcf7a; }
+		#status.disconnected { color: #e5636b; }
+		button {
+			background: #3a5bd9;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			padding: 6px 14px;
+			font-size: 13px;
+			cursor: pointer;
+		}
+		button:hover { background: #4a6bea; }
+		button:active { background: #2f4bbf; }
+		#charts {
+			position: absolute;
+			bottom: 12px;
+			left: 12px;
+			right: 12px;
+			z-index: 10;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			/* Same reasoning as #top-controls above: this box spans the full
+			   viewport width but the panels inside don't, so without this the
+			   dead space blocks dragging/rotating the 3D view underneath. */
+			pointer-events: none;
+		}
+		.chart-panel {
+			pointer-events: auto;
+			background: rgba(20, 21, 26, 0.75);
+			border-radius: 8px;
+			padding: 8px 10px 4px;
+			backdrop-filter: blur(4px);
+			/* flex-grow/shrink must be 0 -- otherwise the row's flex layout
+			   fights a user's manual resize and snaps the width back. Basis
+			   must stay "auto" so the `width` property (and the inline width
+			   a resize-drag sets) actually controls sizing instead of being
+			   overridden by an explicit flex-basis. */
+			flex: 0 0 auto;
+			width: 300px;
+			max-width: 1200px;
+			max-height: 180vh;
+			display: flex;
+			flex-direction: column;
+			resize: both;
+			overflow: hidden;
+			min-width: 220px;
+			min-height: 170px;
+			height: 210px;
+			position: relative;
+		}
+		.resize-handle-tr {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 16px;
+			height: 16px;
+			cursor: nesw-resize;
+			z-index: 5;
+			touch-action: none;
+		}
+		.resize-handle-tr::before {
+			content: "";
+			position: absolute;
+			top: 4px;
+			right: 4px;
+			width: 7px;
+			height: 7px;
+			border-top: 2px solid rgba(255, 255, 255, 0.35);
+			border-right: 2px solid rgba(255, 255, 255, 0.35);
+		}
+		.resize-handle-tr:hover::before {
+			border-color: rgba(255, 255, 255, 0.7);
+		}
+		.chart-panel h2 {
+			flex: 0 0 auto;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			margin: 0 0 4px 2px;
+			color: #8f97a3;
+		}
+		.chart-canvas-wrap {
+			position: relative;
+			flex: 1 1 auto;
+			min-height: 40px;
+		}
+		.chart-canvas-wrap canvas {
+			position: absolute;
+			inset: 0;
+			width: 100% !important;
+			height: 100% !important;
+		}
+		.energy-readout {
+			flex: 0 0 auto;
+			display: grid;
+			grid-template-columns: repeat(3, max-content);
+			column-gap: 18px;
+			row-gap: 2px;
+			margin-top: 6px;
+			font-size: 11px;
+		}
+		.energy-readout div {
+			display: flex;
+			gap: 5px;
+			white-space: nowrap;
+		}
+		.energy-readout .readout-label {
+			color: #8f97a3;
+		}
+		.energy-readout .readout-value {
+			color: #e8e8e8;
+			font-variant-numeric: tabular-nums;
+		}
+		#params-panel {
+			pointer-events: auto;
+			background: rgba(20, 21, 26, 0.75);
+			border-radius: 8px;
+			padding: 10px 14px 12px;
+			backdrop-filter: blur(4px);
+			width: 260px;
+			flex: 0 0 auto;
+		}
+		#params-panel h2 {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			margin: 0 0 8px 0;
+			color: #8f97a3;
+		}
+		.param-row {
+			margin-bottom: 8px;
+		}
+		.param-row:last-child {
+			margin-bottom: 0;
+		}
+		.param-row .param-label {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12px;
+			color: #cfd3da;
+			margin-bottom: 2px;
+		}
+		.param-row .param-label span:last-child {
+			color: #8f97a3;
+			font-variant-numeric: tabular-nums;
+		}
+		.param-row input[type="range"] {
+			width: 100%;
+			accent-color: #3a5bd9;
+		}
+		#params-panel-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 8px;
+		}
+		#params-panel-header h2 {
+			margin: 0;
+		}
+		#default-params-btn {
+			padding: 3px 10px;
+			font-size: 11px;
+		}
+		#info-overlay {
+			position: fixed;
+			inset: 0;
+			z-index: 50;
+			background: rgba(10, 11, 14, 0.7);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		#info-overlay.hidden {
+			display: none;
+		}
+		#info-modal {
+			background: #1f2128;
+			border-radius: 10px;
+			width: 100%;
+			max-width: 560px;
+			max-height: 85vh;
+			overflow-y: auto;
+			padding: 18px 22px 22px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+		}
+		#info-modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			position: sticky;
+			top: 0;
+		}
+		#info-modal-header h2 {
+			margin: 0;
+			font-size: 16px;
+		}
+		#info-close-btn {
+			background: transparent;
+			font-size: 20px;
+			line-height: 1;
+			padding: 2px 8px;
+		}
+		#info-close-btn:hover {
+			background: rgba(255, 255, 255, 0.1);
+		}
+		#info-modal h3 {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: #8f97a3;
+			margin: 18px 0 8px;
+		}
+		#info-modal h3:first-of-type {
+			margin-top: 4px;
+		}
+		#info-modal li {
+			font-size: 13px;
+			line-height: 1.5;
+			color: #cfd3da;
+			margin-bottom: 8px;
+		}
+		#info-modal a {
+			color: #7ea6ff;
+		}
+		#info-modal code {
+			background: rgba(255, 255, 255, 0.08);
+			border-radius: 3px;
+			padding: 0 4px;
+			font-size: 12px;
+		}
+		#info-sim-list {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 4px 14px;
+			margin: 0;
+		}
+		#info-sim-list dt {
+			font-size: 12px;
+			color: #8f97a3;
+		}
+		/* Watch-only mode (see isViewer in main.js). */
+		#viewer-note { display: none; font-size: 12px; color: #e8b33c; }
+		body.viewer #viewer-note { display: inline; }
+		body.viewer #reset-btn,
+		body.viewer #pause-btn,
+		body.viewer #default-params-btn,
+		body.viewer label:has(#auto-reset-checkbox) { display: none; }
+		body.viewer .param-row input[type="range"] { pointer-events: none; opacity: 0.6; }
+		#info-sim-list dd {
+			margin: 0;
+			font-size: 12px;
+			color: #e8e8e8;
+			font-variant-numeric: tabular-nums;
+		}
+	</style>
+</head>
+<body>
+	<div id="top-controls">
+		<div id="hud">
+			<h1>SOFA Cube Simulation</h1>
+			<button id="reset-btn">Reset</button>
+			<button id="pause-btn">Pause</button>
+			<button id="download-btn">Download data</button>
+			<button id="info-btn">Info</button>
+			<label><input type="checkbox" id="auto-reset-checkbox" checked /> Auto reset</label>
+			<span id="status">connecting...</span>
+			<span id="viewer-note">watching (read-only)</span>
+		</div>
+		<div id="params-panel">
+			<div id="params-panel-header">
+				<h2>Physics parameters</h2>
+				<button id="default-params-btn">Default</button>
+			</div>
+			<div class="param-row">
+				<div class="param-label"><span>Floor stiffness</span><span id="floorStiffness-value"></span></div>
+				<input type="range" id="floorStiffness" min="50" max="10000" step="50" />
+			</div>
+			<div class="param-row">
+				<div class="param-label"><span>Floor damping</span><span id="floorDamping-value"></span></div>
+				<input type="range" id="floorDamping" min="0" max="5" step="0.05" />
+			</div>
+			<div class="param-row">
+				<div class="param-label"><span>Rayleigh mass damping</span><span id="rayleighMass-value"></span></div>
+				<input type="range" id="rayleighMass" min="0" max="1" step="0.01" />
+			</div>
+			<div class="param-row">
+				<div class="param-label"><span>Rayleigh stiffness damping</span><span id="rayleighStiffness-value"></span></div>
+				<input type="range" id="rayleighStiffness" min="0" max="0.01" step="0.0001" />
+			</div>
+			<div class="param-row">
+				<div class="param-label"><span>Lateral friction damping</span><span id="lateralFrictionDamping-value"></span></div>
+				<input type="range" id="lateralFrictionDamping" min="0" max="1" step="0.01" />
+			</div>
+		</div>
+	</div>
+	<div id="viewer"></div>
+	<div id="charts">
+		<div class="chart-panel">
+			<div class="resize-handle-tr" title="Drag to resize (grows upward)"></div>
+			<h2>Centroid height (m)</h2>
+			<div class="chart-canvas-wrap"><canvas id="height-chart"></canvas></div>
+		</div>
+		<div class="chart-panel">
+			<div class="resize-handle-tr" title="Drag to resize (grows upward)"></div>
+			<h2>Energy (J)</h2>
+			<div class="chart-canvas-wrap"><canvas id="energy-chart"></canvas></div>
+			<div class="energy-readout">
+				<div><span class="readout-label">kinetic</span><span class="readout-value" id="readout-kinetic">--</span></div>
+				<div><span class="readout-label">potential</span><span class="readout-value" id="readout-potential">--</span></div>
+				<div><span class="readout-label">elastic</span><span class="readout-value" id="readout-elastic">--</span></div>
+				<div><span class="readout-label">dissipated</span><span class="readout-value" id="readout-dissipated">--</span></div>
+				<div><span class="readout-label">cube</span><span class="readout-value" id="readout-cube">--</span></div>
+				<div><span class="readout-label">sum</span><span class="readout-value" id="readout-sum">--</span></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="info-overlay" class="hidden">
+		<div id="info-modal">
+			<div id="info-modal-header">
+				<h2>About this simulation</h2>
+				<button id="info-close-btn">&times;</button>
+			</div>
+			<div id="info-modal-body">
+				<h3>Simulation</h3>
+				<dl id="info-sim-list"></dl>
+
+				<h3>Software &amp; Docker architecture</h3>
+				<ul>
+					<li><strong>Physics:</strong> <a href="https://www.sofa-framework.org/" target="_blank" rel="noopener">SOFA Framework</a>, run headless (no GUI) via the SofaPython3 bindings -- a rigid cube (<code>Rigid3d</code> MechanicalObject) with a corner-mapped <code>PlaneForceField</code> floor.</li>
+					<li><strong>Backend:</strong> Python + FastAPI/Uvicorn. The physics loop runs in a background thread, integrating at the fine physics timestep below and broadcasting a throttled snapshot over a WebSocket (<code>/ws/sim</code>). REST endpoints handle reset/pause/parameters/CSV export.</li>
+					<li><strong>Frontend:</strong> plain JS, no build step -- <a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a> for the 3D view and <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a> for the live graphs, both loaded from a CDN.</li>
+					<li><strong>Container:</strong> built on the official <code>sofaframework/sofa_nightly_ubuntu:v24.06-standard</code> image (which ships SOFA + SofaPython3 but not a usable <code>libpython3</code> or working <code>PYTHONPATH</code> out of the box -- both are fixed up in the Dockerfile). One container per simulation serves the static frontend, REST API, and WebSocket together on port 8000; the MultiSimDocker orchestrator starts these containers on demand and proxies them under <code>/sim/&lt;id&gt;/</code>.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+				"chart.js/auto": "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/auto/+esm"
+			}
+		}
+	</script>
+	<script type="module" src="main.js"></script>
+</body>
+</html>
