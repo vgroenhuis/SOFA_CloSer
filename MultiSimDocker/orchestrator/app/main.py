@@ -318,6 +318,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="MultiSimDocker", lifespan=lifespan, docs_url=None, redoc_url=None)
 
 
+@app.middleware("http")
+async def revalidate_by_default(request: Request, call_next):
+    # Without this, browsers heuristically cache the pages' scripts and
+    # keep running old code after an update. "no-cache" still allows
+    # caching, it just revalidates (cheap, via ETag / Last-Modified). Applies
+    # to proxied scene pages too, unless the scene sets its own policy.
+    response = await call_next(request)
+    if request.method == "GET" and "cache-control" not in response.headers:
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 # -- pages -----------------------------------------------------------------
 
 

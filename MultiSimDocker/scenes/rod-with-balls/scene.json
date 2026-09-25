@@ -1,0 +1,8 @@
+{
+	"title": "Rod with sliding balls",
+	"description": "A hinged rod swings under gravity while two beads slide freely along it, one of them tied to a spring. Watch the unspringed ball slingshot away, and experiment with masses, positions and the spring.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g"
+}

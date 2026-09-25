@@ -254,12 +254,17 @@ let paused = false;
 function syncPaused(serverPaused) {
 	if (serverPaused === undefined || serverPaused === paused) return;
 	paused = serverPaused;
-	pauseBtn.textContent = paused ? "Resume" : "Pause";
+	updatePauseLabels();
 	setStatus(paused ? "paused" : "connected", paused ? "" : "connected");
+}
+// While paused, the reset button only resets to the start (and stays paused).
+function updatePauseLabels() {
+	pauseBtn.textContent = paused ? "Resume" : "Pause";
+	resetBtn.textContent = paused ? "Reset" : "Restart";
 }
 pauseBtn.addEventListener("click", () => {
 	paused = !paused;
-	pauseBtn.textContent = paused ? "Resume" : "Pause";
+	updatePauseLabels();
 	fetch(paused ? "api/pause" : "api/resume", { method: "POST" }).catch(() => {});
 });
 

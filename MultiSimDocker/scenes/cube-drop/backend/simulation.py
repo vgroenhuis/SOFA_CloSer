@@ -332,6 +332,7 @@ class SimulationRunner:
 
     def _run(self) -> None:
         settled_steps = 0
+        pause_announced = False
         while not self._stop_requested.is_set():
             loop_start = time.monotonic()
 
@@ -349,8 +350,14 @@ class SimulationRunner:
                 self._broadcast_frame(reset=True)
 
             if self._paused:
+                # One frame on entering pause, so every browser learns the
+                # new state (no frames are sent while paused).
+                if not pause_announced:
+                    self._broadcast_frame(reset=False)
+                    pause_announced = True
                 time.sleep(0.05)
                 continue
+            pause_announced = False
 
             for _ in range(STEPS_PER_BROADCAST):
                 Sofa.Simulation.animate(self._root, PHYSICS_DT)

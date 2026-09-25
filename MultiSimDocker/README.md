@@ -59,14 +59,26 @@ It builds all scene images and starts the orchestrator:
   - `static/`: lobby, viewer and admin pages (plain JS, no build step).
 - **scenes/**: one folder per scene, each with its own Dockerfile. See
   [scenes/README.md](scenes/README.md) for how to add one and what contract
-  its web app must follow.
+  its web app must follow. Currently:
+  - `cube-drop`: rigid cube bouncing on a floor (from `../TestSimInDocker`).
+  - `double-pendulum`: chaotic double pendulum with live parameters (from
+    `verilogscripts/SOFA/DoublePendulum`).
+  - `rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
+    `pneunet-finger`: the original scripts from `verilogscripts/SOFA/`,
+    run unmodified through sofaweb.
+- **scenes/_base/**: the shared `msd-sofa-base` image (SOFA v26.06 with
+  SoftRobots) and **sofaweb**, a runtime that runs an existing SOFA scene
+  script headlessly and streams its visual models to a generic three.js
+  viewer, with parameter panel, charts, live controls and console. Adding
+  another script from `verilogscripts/SOFA/` is mostly writing a short
+  config file; see [scenes/README.md](scenes/README.md).
 
 ### Ownership and keys
 
 - A claim creates a random 80-bit key. Only its SHA-256 hash is stored.
 - The key is set as an HttpOnly cookie for that simulation, so the
-  claiming browser is recognised automatically. It's also shown to the
-  visitor once; the **Key** button shows it again later.
+  claiming browser is recognised automatically; the **Key** button in the
+  viewer's toolbar shows the key when it's needed elsewhere.
 - **Reclaiming**: enter the key in the lobby ("Have a key?") or on the
   viewer page ("I have the key"), or open a reclaim link
   `https://host/#reclaim=KEY`. The key is in the URL fragment, so it never
@@ -146,7 +158,12 @@ beyond `MAX_SIMS`.
   restart and are picked up again.
 - **Adding a scene**: add `scenes/<id>/` with a Dockerfile and `scene.json`,
   then run `build_scenes.bat <id>` or click **Build image** on the admin
-  page. No restart needed.
+  page. No restart needed. sofaweb scenes build `FROM msd-sofa-base`, which
+  `build_scenes` builds first; the admin page's button only builds the
+  scene itself, so run the script once after changing `scenes/_base`.
+- **Disk space**: `cube-drop` and `double-pendulum` still use the older
+  SOFA v24.06 image; the sofaweb scenes use v26.06-full. Both base images
+  are a few GB each.
 
 ## Possible extensions
 
@@ -163,5 +180,6 @@ Vincent Groenhuis
 
 ## AI disclaimer
 
-Claude Code (Opus 5.5) was used to generate the orchestrator, the
-multi-simulation adaptations of the cube scene, and most documentation.
+Claude Code (Opus 5.5) was used to generate the orchestrator, sofaweb, the
+web versions of the scenes, and most documentation. The scene scripts in
+`scenes/*/original/` are the unmodified originals from `verilogscripts/SOFA/`.

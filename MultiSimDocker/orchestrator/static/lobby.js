@@ -127,10 +127,8 @@ async function startScene(scene) {
 	renderStatus();
 	try {
 		const result = await api("/api/sims", { method: "POST", body: { sceneId: scene.id, ownerName: ownerNameInput.value.trim() } });
-		// Handed to the viewer page so it can show the key once, prominently.
-		try {
-			sessionStorage.setItem(`msd_newkey_${result.sim.id}`, result.key);
-		} catch {}
+		// The claim cookie set by this response is what identifies the owner;
+		// the key itself stays available from the viewer's Key button.
 		location.href = `/view/${result.sim.id}`;
 	} catch (err) {
 		starting = false;

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>SOFA Simulation</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="viewer.css" />
+</head>
+<body>
+	<div id="viewer"></div>
+
+	<div id="top-controls">
+		<div id="hud" class="panel">
+			<h1 id="title">SOFA Simulation</h1>
+			<button id="reset-btn" class="owner-only" title="Rebuild the scene from the start (stays paused if paused)">Restart</button>
+			<button id="pause-btn" class="owner-only">Pause</button>
+			<button id="download-btn" title="Probe values per frame, as CSV">Download data</button>
+			<button id="view-btn" class="secondary" title="Back to the scene's own camera">Reset view</button>
+			<button id="console-btn" class="secondary" title="The scene script's own console output">Console</button>
+			<button id="info-btn" class="secondary">Info</button>
+			<label class="owner-only" title="Start over automatically when a run ends"><input type="checkbox" id="auto-restart-checkbox" /> Auto restart</label>
+			<div id="status-line">
+				<span id="status">connecting...</span>
+				<span id="time"></span>
+				<span id="rtf" title="Simulated seconds per real second"></span>
+				<span id="viewer-note">watching (read-only)</span>
+			</div>
+		</div>
+		<details id="params-panel" class="panel" open>
+			<summary>Parameters</summary>
+			<form id="params-form" autocomplete="off" novalidate></form>
+			<div class="param-buttons owner-only">
+				<button id="apply-params-btn" type="submit" form="params-form" disabled>Apply &amp; restart</button>
+				<button id="default-params-btn" class="secondary" type="button" title="Back to the values from the original params.json">Defaults</button>
+			</div>
+			<p class="param-note"><span class="live-badge">live</span> fields take effect immediately; the others rebuild the scene, like the SOFA GUI's Reload.</p>
+		</details>
+	</div>
+
+	<div id="banner" class="hidden"></div>
+	<div id="building" class="hidden"><div class="spinner"></div><span>Building scene...</span></div>
+
+	<div id="bottom">
+		<div id="charts"></div>
+		<div id="console-panel" class="panel hidden">
+			<div class="console-head"><h2>Console</h2><button id="console-close" class="close-btn" title="Close">&times;</button></div>
+			<pre id="console-log"></pre>
+		</div>
+	</div>
+
+	<div id="info-overlay" class="hidden">
+		<div id="info-modal">
+			<div id="info-modal-header">
+				<h2 id="info-title">About this simulation</h2>
+				<button id="info-close-btn" class="close-btn">&times;</button>
+			</div>
+			<div id="info-about"></div>
+			<h3>Simulation</h3>
+			<dl id="info-sim-list"></dl>
+			<h3>How it runs here</h3>
+			<ul>
+				<li>The original SOFA scene script runs unmodified in this container, headless. Its OpenGL visual models are swapped for SOFA's GL-free <code>VisualModelImpl</code> as the scene is built, and their vertex positions are streamed to your browser, which draws them with <a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a> using the scene's own camera, lights and colors.</li>
+				<li>Parameters come from the scene's own <code>params.json</code> (labels from its parameter editor). Changing one rebuilds the scene from scratch, exactly like the SOFA GUI's Reload; fields marked <span class="live-badge">live</span> are applied to the running simulation instead.</li>
+				<li>The simulation never runs faster than real time; the <em>&times; real time</em> figure shows when it can't keep up.</li>
+				<li>Drag to rotate (or pan, in 2D scenes), right-drag to pan, scroll to zoom. Your view is your own.</li>
+			</ul>
+		</div>
+	</div>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+				"chart.js/auto": "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/auto/+esm"
+			}
+		}
+	</script>
+	<script type="module" src="viewer.js"></script>
+</body>
+</html>

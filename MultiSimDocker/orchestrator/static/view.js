@@ -356,11 +356,4 @@ $("have-key-btn").addEventListener("click", () => {
 
 // -- start -----------------------------------------------------------------
 
-let newKey = null;
-try {
-	newKey = sessionStorage.getItem(`msd_newkey_${simId}`);
-	sessionStorage.removeItem(`msd_newkey_${simId}`);
-} catch {}
-if (newKey) keyModal(newKey);
-
 poll();
