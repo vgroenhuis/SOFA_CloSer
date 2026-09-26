@@ -56,4 +56,4 @@ Vincent Groenhuis
 
 ## AI disclaimer
 
-Claude Code (Sonnet 5) was used to generate the whole simulation and most documentation.
+Claude Code was used to generate the whole simulation and most documentation.
