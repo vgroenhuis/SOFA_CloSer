@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Simulation</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="/assets/style.css" />
+	<style>
+		html, body { height: 100%; overflow: hidden; }
+		body { display: flex; flex-direction: column; }
+		#bar {
+			flex: 0 0 auto;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 8px 14px;
+			padding: 8px 14px;
+			background: var(--surface);
+			border-bottom: 1px solid var(--border);
+		}
+		#bar .group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+		#bar .spacer { flex: 1; }
+		#bar h1 { font-size: 15px; }
+		#role { font-size: 12px; }
+		#role.owner { color: var(--ok); }
+		#expiry { font-size: 12px; color: var(--muted); }
+		#expiry.soon { color: var(--warn); font-weight: 600; }
+		#stage { position: relative; flex: 1 1 auto; min-height: 0; }
+		#frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
+		.stage-overlay {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 14px;
+			text-align: center;
+			padding: 16px;
+			background: var(--bg);
+		}
+		#idle-banner {
+			position: absolute;
+			top: 12px;
+			left: 50%;
+			transform: translateX(-50%);
+			z-index: 20;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			background: #3b3220;
+			border: 1px solid var(--warn);
+			border-radius: 8px;
+			padding: 8px 14px;
+			max-width: calc(100% - 32px);
+		}
+	</style>
+</head>
+<body>
+	<div id="bar">
+		<div class="group">
+			<a href="/" class="button secondary small" title="Back to all simulations">&larr; All simulations</a>
+			<h1 id="title">Simulation</h1>
+			<span class="muted mono small" id="sim-id"></span>
+			<span id="status-badge" class="badge"></span>
+			<span id="held-badge" class="badge held hidden"></span>
+		</div>
+		<div class="group">
+			<span id="role"></span>
+			<span class="muted small" id="watchers"></span>
+		</div>
+		<div class="spacer"></div>
+		<div class="group" id="owner-controls" hidden>
+			<span id="expiry"></span>
+			<button class="secondary small" id="key-btn" title="Show the key that lets you reclaim this simulation">Key</button>
+			<button class="secondary small" id="hold-btn" title="Keep this simulation reserved for longer, e.g. for a demo later today">Hold...</button>
+			<button class="secondary small" id="restart-btn" title="Restart the simulation container from scratch">Restart</button>
+			<button class="danger small" id="release-btn" title="Stop the simulation and free the slot for others">Release</button>
+		</div>
+		<div class="group" id="viewer-controls" hidden>
+			<span class="muted small" id="viewer-expiry"></span>
+			<button class="secondary small" id="have-key-btn">I have the key</button>
+		</div>
+	</div>
+	<div id="stage">
+		<iframe id="frame" title="Simulation" allow="fullscreen"></iframe>
+		<div id="idle-banner" class="hidden">
+			<span id="idle-text"></span>
+			<button class="small" id="still-here-btn">I'm still here</button>
+		</div>
+		<div class="stage-overlay" id="starting-overlay">
+			<div class="spinner"></div>
+			<div id="starting-text">Connecting...</div>
+		</div>
+		<div class="stage-overlay hidden" id="ended-overlay">
+			<h3>This simulation has ended</h3>
+			<p class="muted" id="ended-reason"></p>
+			<a class="button" href="/">Back to all simulations</a>
+		</div>
+	</div>
+	<script type="module" src="/assets/view.js"></script>
+</body>
+</html>

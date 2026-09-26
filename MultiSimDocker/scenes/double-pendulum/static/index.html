@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>SOFA Double Pendulum</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+		html, body {
+			margin: 0;
+			height: 100%;
+			background: #c7deF5;
+			color: #e8e8e8;
+			font-family: system-ui, sans-serif;
+			overflow: hidden;
+		}
+		#viewer { position: absolute; inset: 0; }
+		.panel {
+			pointer-events: auto;
+			background: rgba(20, 21, 26, 0.8);
+			border-radius: 8px;
+			backdrop-filter: blur(4px);
+		}
+		#top-controls {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			right: 12px;
+			z-index: 10;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			justify-content: space-between;
+			align-items: flex-start;
+			/* The row spans the viewport; only its panels should catch the
+			   mouse, so dragging/zooming the view still works in the gaps. */
+			pointer-events: none;
+		}
+		#hud {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 12px;
+			max-width: 640px;
+		}
+		#hud h1 { font-size: 14px; font-weight: 600; margin: 0 10px 0 0; color: #cfd3da; }
+		#hud label {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			font-size: 13px;
+			color: #cfd3da;
+			cursor: pointer;
+			user-select: none;
+		}
+		#status { font-size: 12px; color: #8f97a3; }
+		#status.connected { color: #6bcf7a; }
+		#status.disconnected { color: #e5636b; }
+		#status.paused { color: #e8b33c; }
+		#viewer-note { display: none; font-size: 12px; color: #e8b33c; }
+		button {
+			background: #3a5bd9;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			padding: 6px 14px;
+			font-size: 13px;
+			cursor: pointer;
+		}
+		button:hover { background: #4a6bea; }
+		button:active { background: #2f4bbf; }
+		button.secondary { background: #4a4f5b; }
+		button.secondary:hover { background: #5a606d; }
+
+		#params-panel { width: 280px; padding: 10px 14px 12px; flex: 0 0 auto; }
+		#params-panel summary {
+			cursor: pointer;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: #8f97a3;
+			user-select: none;
+		}
+		#params-panel[open] summary { margin-bottom: 8px; }
+		.param-grid {
+			display: grid;
+			grid-template-columns: 1fr 88px;
+			gap: 5px 10px;
+			align-items: center;
+		}
+		.param-grid label { font-size: 12px; color: #cfd3da; }
+		.param-grid label .unit { color: #8f97a3; }
+		.param-grid input {
+			width: 100%;
+			box-sizing: border-box;
+			background: #1b1d22;
+			color: #e8e8e8;
+			border: 1px solid #3a3e48;
+			border-radius: 4px;
+			padding: 3px 6px;
+			font: inherit;
+			font-size: 12px;
+			font-variant-numeric: tabular-nums;
+		}
+		.param-grid input.dirty { border-color: #e8b33c; }
+		.param-grid .group-title {
+			grid-column: 1 / -1;
+			font-size: 11px;
+			color: #8f97a3;
+			margin-top: 4px;
+		}
+		.param-buttons { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+		.param-buttons button { padding: 5px 10px; font-size: 12px; }
+		.param-note { font-size: 11px; color: #8f97a3; margin: 8px 0 0; line-height: 1.35; }
+
+		/* Watch-only mode (?role=viewer): the proxy rejects changes anyway. */
+		body.viewer #viewer-note { display: inline; }
+		body.viewer .owner-only { display: none !important; }
+
+		#charts {
+			position: absolute;
+			bottom: 12px;
+			left: 12px;
+			right: 12px;
+			z-index: 10;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			pointer-events: none;
+		}
+		.chart-panel {
+			padding: 8px 10px 4px;
+			flex: 0 0 auto;
+			width: 320px;
+			height: 220px;
+			min-width: 220px;
+			min-height: 170px;
+			max-width: 1200px;
+			display: flex;
+			flex-direction: column;
+			resize: both;
+			overflow: hidden;
+			position: relative;
+		}
+		.resize-handle-tr {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 16px;
+			height: 16px;
+			cursor: nesw-resize;
+			z-index: 5;
+			touch-action: none;
+		}
+		.resize-handle-tr::before {
+			content: "";
+			position: absolute;
+			top: 4px;
+			right: 4px;
+			width: 7px;
+			height: 7px;
+			border-top: 2px solid rgba(255, 255, 255, 0.35);
+			border-right: 2px solid rgba(255, 255, 255, 0.35);
+		}
+		.chart-panel h2 {
+			flex: 0 0 auto;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			margin: 0 0 4px 2px;
+			color: #8f97a3;
+		}
+		.chart-canvas-wrap { position: relative; flex: 1 1 auto; min-height: 40px; }
+		.chart-canvas-wrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+		.readout {
+			flex: 0 0 auto;
+			display: grid;
+			grid-template-columns: repeat(3, max-content);
+			column-gap: 16px;
+			row-gap: 2px;
+			margin-top: 6px;
+			font-size: 11px;
+		}
+		.readout div { display: flex; gap: 5px; white-space: nowrap; }
+		.readout .readout-label { color: #8f97a3; }
+		.readout .readout-value { color: #e8e8e8; font-variant-numeric: tabular-nums; }
+
+		#info-overlay {
+			position: fixed;
+			inset: 0;
+			z-index: 50;
+			background: rgba(10, 11, 14, 0.7);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		#info-overlay.hidden { display: none; }
+		#info-modal {
+			background: #1f2128;
+			border-radius: 10px;
+			width: 100%;
+			max-width: 580px;
+			max-height: 85vh;
+			overflow-y: auto;
+			padding: 18px 22px 22px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+		}
+		#info-modal-header { display: flex; align-items: center; justify-content: space-between; }
+		#info-modal-header h2 { margin: 0; font-size: 16px; }
+		#info-close-btn { background: transparent; font-size: 20px; line-height: 1; padding: 2px 8px; }
+		#info-close-btn:hover { background: rgba(255, 255, 255, 0.1); }
+		#info-modal h3 {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: #8f97a3;
+			margin: 18px 0 8px;
+		}
+		#info-modal p, #info-modal li { font-size: 13px; line-height: 1.5; color: #cfd3da; }
+		#info-modal li { margin-bottom: 6px; }
+		#info-modal a { color: #7ea6ff; }
+		#info-modal code { background: rgba(255, 255, 255, 0.08); border-radius: 3px; padding: 0 4px; font-size: 12px; }
+		#info-sim-list { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; }
+		#info-sim-list dt { font-size: 12px; color: #8f97a3; }
+		#info-sim-list dd { margin: 0; font-size: 12px; color: #e8e8e8; font-variant-numeric: tabular-nums; }
+	</style>
+</head>
+<body>
+	<div id="top-controls">
+		<div id="hud" class="panel">
+			<h1>SOFA Double Pendulum</h1>
+			<button id="reset-btn" class="owner-only">Restart</button>
+			<button id="pause-btn" class="owner-only">Pause</button>
+			<button id="download-btn">Download data</button>
+			<button id="view-btn" class="secondary" title="Re-center and reset zoom">Reset view</button>
+			<button id="info-btn" class="secondary">Info</button>
+			<label title="Draw the path of the outer mass"><input type="checkbox" id="trail-checkbox" checked /> Trail</label>
+			<span id="status">connecting...</span>
+			<span id="viewer-note">watching (read-only)</span>
+		</div>
+		<details id="params-panel" class="panel" open>
+			<summary>Parameters</summary>
+			<!-- novalidate: the step attribute is only for the spinner arrows; the
+			     server clamps values to their allowed range. -->
+			<form id="params-form" class="param-grid" autocomplete="off" novalidate>
+				<div class="group-title">Rod 1 (from the fixed anchor)</div>
+				<label for="l1">Length <span class="unit">m</span></label><input type="number" id="l1" step="0.05" />
+				<label for="m1_kg">Mass <span class="unit">kg</span></label><input type="number" id="m1_kg" step="0.1" />
+				<label for="theta1_initial_deg">Start angle <span class="unit">deg</span></label><input type="number" id="theta1_initial_deg" step="5" />
+				<label for="omega1_initial">Start ang. velocity <span class="unit">rad/s</span></label><input type="number" id="omega1_initial" step="0.5" />
+				<div class="group-title">Rod 2 (from mass 1)</div>
+				<label for="l2">Length <span class="unit">m</span></label><input type="number" id="l2" step="0.05" />
+				<label for="m2_kg">Mass <span class="unit">kg</span></label><input type="number" id="m2_kg" step="0.1" />
+				<label for="theta2_initial_deg">Start angle <span class="unit">deg</span></label><input type="number" id="theta2_initial_deg" step="5" />
+				<label for="omega2_initial">Start ang. velocity <span class="unit">rad/s</span></label><input type="number" id="omega2_initial" step="0.5" />
+				<div class="group-title">World</div>
+				<label for="anchor_z">Anchor height <span class="unit">m</span></label><input type="number" id="anchor_z" step="0.1" />
+				<label for="gravity">Gravity <span class="unit">m/s&sup2;</span></label><input type="number" id="gravity" step="0.1" />
+			</form>
+			<div class="param-buttons owner-only">
+				<button id="apply-params-btn" type="submit" form="params-form">Apply &amp; restart</button>
+				<button id="default-params-btn" class="secondary" type="button">Defaults</button>
+			</div>
+			<p class="param-note">Angles are measured from each rod's own downward vertical, positive to the right. 180&deg; for rod 2 means it starts pointing straight up. All parameters take effect on restart.</p>
+		</details>
+	</div>
+	<div id="viewer"></div>
+	<div id="charts">
+		<div class="chart-panel panel">
+			<div class="resize-handle-tr" title="Drag to resize (grows upward)"></div>
+			<h2>Rod angles (deg)</h2>
+			<div class="chart-canvas-wrap"><canvas id="angle-chart"></canvas></div>
+		</div>
+		<div class="chart-panel panel">
+			<div class="resize-handle-tr" title="Drag to resize (grows upward)"></div>
+			<h2>Energy (J)</h2>
+			<div class="chart-canvas-wrap"><canvas id="energy-chart"></canvas></div>
+			<div class="readout">
+				<div><span class="readout-label">PE1</span><span class="readout-value" id="readout-pe1">--</span></div>
+				<div><span class="readout-label">KE1</span><span class="readout-value" id="readout-ke1">--</span></div>
+				<div><span class="readout-label">total</span><span class="readout-value" id="readout-e">--</span></div>
+				<div><span class="readout-label">PE2</span><span class="readout-value" id="readout-pe2">--</span></div>
+				<div><span class="readout-label">KE2</span><span class="readout-value" id="readout-ke2">--</span></div>
+				<div><span class="readout-label">drift</span><span class="readout-value" id="readout-drift">--</span></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="info-overlay" class="hidden">
+		<div id="info-modal">
+			<div id="info-modal-header">
+				<h2>About this simulation</h2>
+				<button id="info-close-btn">&times;</button>
+			</div>
+			<p>A double pendulum: two point masses on massless rigid rods, swinging in a vertical plane. It is chaotic -- two runs that start almost identically soon look completely different -- so the path of the outer mass is unpredictable, while the total energy stays constant.</p>
+			<h3>Simulation</h3>
+			<dl id="info-sim-list"></dl>
+			<h3>How it's simulated</h3>
+			<ul>
+				<li>The state is just the two rod angles and their angular velocities. They're integrated in a SOFA <code>Controller</code> each animation step with classical Runge-Kutta (RK4), using the Euler-Lagrange equations of motion. The mass positions follow exactly from the angles, so the rods can't stretch.</li>
+				<li>The <em>energy drift</em> readout is the relative change in total energy since the start: the accuracy check for a chaotic system, where no single trajectory can be "right".</li>
+				<li>SOFA runs headless in the container; the browser draws the scene with <a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a> and the graphs with <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a>, fed over a WebSocket.</li>
+				<li>Drag to pan, scroll to zoom. The view is yours alone; it doesn't affect anyone else watching.</li>
+			</ul>
+		</div>
+	</div>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+				"chart.js/auto": "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/auto/+esm"
+			}
+		}
+	</script>
+	<script type="module" src="main.js"></script>
+</body>
+</html>

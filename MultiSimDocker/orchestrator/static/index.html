@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>SOFA Simulations</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+	<div class="page">
+		<header class="page-header">
+			<div>
+				<h1>SOFA Simulations</h1>
+				<p>Start an interactive physics simulation, or watch one that someone else is running.</p>
+			</div>
+			<div class="capacity" title="Simulation slots in use">
+				<div class="capacity-slots" id="capacity-slots"></div>
+				<span id="capacity-text" class="muted small">loading...</span>
+			</div>
+		</header>
+
+		<section id="mine-section" class="hidden">
+			<h2>Your simulations</h2>
+			<div class="sim-list" id="mine-list"></div>
+		</section>
+
+		<section>
+			<h2>Start a simulation</h2>
+			<div class="inline-form" style="margin-bottom: 14px">
+				<label for="owner-name">Your name <span class="muted">(optional, shown to others)</span></label>
+				<input id="owner-name" maxlength="40" placeholder="e.g. Vincent" autocomplete="nickname" />
+			</div>
+			<div class="grid" id="scene-grid"></div>
+			<div id="start-notice" class="notice hidden"></div>
+		</section>
+
+		<section>
+			<h2>Running now</h2>
+			<div class="sim-list" id="running-list"></div>
+		</section>
+
+		<section>
+			<h2>Have a key?</h2>
+			<form class="inline-form" id="reclaim-form">
+				<input id="reclaim-key" class="mono" placeholder="XXXX-XXXX-XXXX-XXXX" size="24" autocomplete="off" spellcheck="false" />
+				<button type="submit">Reclaim simulation</button>
+				<span id="reclaim-status" class="small"></span>
+			</form>
+		</section>
+
+		<footer class="muted small" id="footer"></footer>
+	</div>
+	<script type="module" src="/assets/lobby.js"></script>
+</body>
+</html>

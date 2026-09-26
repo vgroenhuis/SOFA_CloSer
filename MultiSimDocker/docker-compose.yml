@@ -1,0 +1,38 @@
+# The orchestrator is the only long-running service defined here; it starts
+# and stops one simulation container per claimed session itself (through the
+# Docker socket), on the shared "msd-net" network.
+#
+# Build the scene images first (build_scenes.bat / build_scenes.sh), then:
+#   docker compose up -d --build
+
+services:
+  orchestrator:
+    build: ./orchestrator
+    image: msd-orchestrator
+    container_name: msd-orchestrator
+    restart: unless-stopped
+    ports:
+      - "${MSD_PORT:-8080}:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MSD_SCENES_DIR: /scenes
+      MSD_DATA_DIR: /data
+      MSD_DOCKER_NETWORK: msd-net
+    volumes:
+      # Full control over the host's Docker daemon -- this is what lets the
+      # orchestrator spawn simulation containers. Treat the orchestrator as
+      # root-equivalent on the host.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scenes:/scenes:ro
+      - msd-data:/data
+    networks:
+      - msd-net
+
+networks:
+  msd-net:
+    name: msd-net
+
+volumes:
+  msd-data:
