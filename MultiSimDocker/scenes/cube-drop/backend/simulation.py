@@ -313,6 +313,7 @@ class SimulationRunner:
         self._on_frame(
             {
                 "t": round(row[0], 4),
+                "step": round(row[0] / PHYSICS_DT),  # fixed timestep, so exact
                 "position": list(row[1:4]),
                 "quaternion": list(row[4:8]),
                 "height": row[8],

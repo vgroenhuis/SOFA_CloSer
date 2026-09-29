@@ -47,8 +47,13 @@ CONFIG = SceneConfig(
     params_file="original/params.json",
     editor_file="original/params_editor.py",
     env={"HOLLOWCUBE_NO_EDITOR": "1"},
-    # Both are GL-only debug drawing (SOFA's force-field display flags).
-    forced_params={"show_pressure_overlay": False, "show_fem_elements": False},
+    # The first two are GL-only debug drawing (SOFA's force-field display
+    # flags). Mirroring is done by the browser (Display panel) instead of the
+    # scene's per-step MirrorController, which costs simulation time. The
+    # Z mirror plane depends on the geometry, and the script itself notes Z
+    # symmetry isn't valid for this scene, so it has no mirror control.
+    forced_params={"show_pressure_overlay": False, "show_fem_elements": False,
+                   "mirror_visual_x": False, "mirror_visual_y": False, "mirror_visual_z": False},
     hidden_params={"theme"},
     param_limits={
         "block_size": (1.0, 50.0),
@@ -78,7 +83,16 @@ CONFIG = SceneConfig(
         ("Material", ["young_modulus", "poisson_ratio", "density", "gravity_enabled"]),
         ("Symmetry", ["symmetry_x", "symmetry_y", "symmetry_z", "symmetry_buffer_blocks",
                       "prevent_symmetry_crossing", "mirror_visual_x", "mirror_visual_y", "mirror_visual_z"]),
-        ("Display", ["wall_alpha", "interior_alpha", "cutaway", "interior_cutaway"]),
+        ("Cutaway (rebuilds the skin)", ["cutaway", "interior_cutaway"]),
+    ],
+    display=[
+        {"key": "wall_alpha", "label": "Wall opacity", "type": "opacity", "models": r"(^|/)cube/visu/visual$"},
+        {"key": "interior_alpha", "label": "Interior opacity", "type": "opacity",
+         "models": r"(^|/)cube/interior_visu/visual$"},
+        {"key": "mirror_visual_x", "label": "Mirror across X symmetry plane", "type": "mirror", "axis": "X",
+         "models": r"(^|/)cube/(interior_)?visu/visual$", "requires": "symmetry_x"},
+        {"key": "mirror_visual_y", "label": "Mirror across Y symmetry plane", "type": "mirror", "axis": "Y",
+         "models": r"(^|/)cube/(interior_)?visu/visual$", "requires": "symmetry_y"},
     ],
     live_params=LIVE,
     probes=probes,

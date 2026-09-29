@@ -167,5 +167,7 @@ def light_list(capture: Capture) -> list[dict]:
             entry["direction"] = [float(v) for v in stub.direction.value]
         if stub.position.value is not None:
             entry["position"] = [float(v) for v in stub.position.value]
+        if stub.name.value:
+            entry["name"] = str(stub.name.value)  # labels the viewer's intensity slider
         lights.append(entry)
     return lights

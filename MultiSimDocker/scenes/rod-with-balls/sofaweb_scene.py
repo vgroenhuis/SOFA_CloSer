@@ -48,7 +48,8 @@ CONFIG = SceneConfig(
     params_file="original/params.json",
     editor_file="original/params_editor.py",
     env={"RODWITHBALLS_NO_EDITOR": "1"},
-    forced_params={"console_log_enabled": False},
+    # The markers are always built; the Display panel shows or hides them.
+    forced_params={"console_log_enabled": False, "show_pivot_marker": True, "show_spring_anchor_marker": True},
     hidden_params={"theme"},
     labels={"run_duration": "Run duration (then restart)"},
     param_limits={
@@ -76,7 +77,11 @@ CONFIG = SceneConfig(
         ("Balls", ["ball1_mass_kg", "ball1_initial_x", "ball1_initial_z", "ball2_mass_kg", "ball2_initial_x", "ball2_initial_z"]),
         ("Spring (ball 2 to a fixed point)", ["spring_anchor_x", "spring_anchor_z", "spring_rest_length", "spring_stiffness"]),
         ("Simulation", ["gravity", "dt", "run_duration"]),
-        ("Display", ["show_pivot_marker", "show_spring_anchor_marker"]),
+    ],
+    display=[
+        {"key": "show_pivot_marker", "label": "Show hinge marker", "type": "visible", "models": r"^/pivotMarker/"},
+        {"key": "show_spring_anchor_marker", "label": "Show spring anchor marker", "type": "visible",
+         "models": r"^/springAnchorMarker/"},
     ],
     probes=probes,
     charts=[

@@ -1,4 +1,6 @@
-"""PneuNetFinger, run unmodified through sofaweb (see scenes/_base)."""
+"""Better finger (BetterFinger.py), run through sofaweb (see scenes/_base)."""
+
+import math
 
 from sofaweb.config import SceneConfig
 
@@ -7,17 +9,35 @@ def _ramp(root):
     return root.getObject("PressureRamp")
 
 
+def _end_frame(root):
+    """The Rigid3 frame holding the +X channel far-end plane (the last one
+    when both ends are built), or None when channel_end_constraint is off
+    or no duct is built."""
+    finger = root.getChild("finger")
+    rigid = finger.getChild("rigidEnds") if finger is not None else None
+    return rigid.getObject("dofs") if rigid is not None else None
+
+
 def probes(root, module):
-    """The same quantities PressureRamp logs every 0.2 s."""
+    """PressureRamp's own quantities, plus the far-end plane's motion read
+    straight from its rigid frame (its only free DOFs: X and rotation about Y)."""
     ramp = _ramp(root)
     volume = float(ramp.pressure.cavityVolume.value)
     volume0 = float(ramp.pressure.initialCavityVolume.value)
-    return {
+    values = {
         "target": float(ramp.targetPressure.value) / 1000.0,
         "applied": float(ramp.pressure.pressure.value) / 1000.0,
         "volume": volume * 1e6,
         "growth": (volume / volume0 - 1.0) * 100.0 if volume0 else 0.0,
     }
+    frame = _end_frame(root)
+    if frame is not None:
+        position = frame.position.value[-1]
+        rest = frame.rest_position.value[-1]
+        qy, qw = float(position[4]), float(position[6])
+        values["end_shift"] = (float(position[0]) - float(rest[0])) * 1000.0
+        values["end_angle"] = math.degrees(2.0 * math.atan2(qy, qw))
+    return values
 
 
 def _set(data_name, cast):
@@ -41,11 +61,11 @@ def settle_time(p):
 
 
 CONFIG = SceneConfig(
-    title="PneuNet finger",
-    script="original/PneuNetFinger.py",
+    title="Better finger",
+    script="original/BetterFinger.py",
     params_file="original/params.json",
     editor_file="original/params_editor.py",
-    env={"PNEUNETFINGER_NO_EDITOR": "1"},
+    env={"BETTERFINGER_NO_EDITOR": "1"},
     # The first two are GL-only debug drawing (SOFA's force-field display
     # flags). Mirroring is done by the browser (Display panel) instead of the
     # scene's per-step MirrorController, which costs simulation time.
@@ -110,21 +130,37 @@ CONFIG = SceneConfig(
             ],
         },
         {"title": "Chamber volume growth", "unit": "%", "series": [{"key": "growth", "label": "growth", "color": "#2a78d6"}]},
+        {
+            "title": "Channel end plane",
+            "unit": "deg / mm",
+            "series": [
+                {"key": "end_angle", "label": "rotation (deg)", "color": "#c77dff"},
+                {"key": "end_shift", "label": "X shift (mm)", "color": "#1baf7a"},
+            ],
+        },
     ],
     readouts=[
         {"key": "applied", "label": "pressure", "digits": 3, "unit": "kPa"},
         {"key": "volume", "label": "chamber volume", "digits": 2, "unit": "cm³"},
         {"key": "growth", "label": "volume growth", "digits": 1, "unit": "%"},
+        {"key": "end_angle", "label": "end plane rotation", "digits": 2, "unit": "deg"},
+        {"key": "end_shift", "label": "end plane X shift", "digits": 3, "unit": "mm"},
     ],
     stop_at=settle_time,
     extend_by=settle_time,
     about=[
-        "One chamber of a PneuNet soft pneumatic finger: a silicone chamber with a channel duct, clamped to a "
-        "rigid trunk, inflated with SoftRobots' SurfacePressureConstraint on a corotational tetrahedral FEM "
-        "mesh. The channel duct's far end can be held as a rigid plane (magenta) that follows the chamber.",
-        "Target pressure, ramp time and 'instant' are live: change them and the running simulation follows, "
-        "just like editing PressureRamp's Data fields in the SOFA GUI. The run pauses once the pressure has "
-        "settled (ramp time + 2 s), and continues when you change the pressure or press play.",
+        "One chamber of a PneuNet soft pneumatic finger, as in the PneuNet finger scene, with one improvement: "
+        "the far end of each channel duct -- the midpoint to the neighbouring chamber -- is held by a hard "
+        "constraint instead of a stiff-spring truss. Its FEM nodes are rigidly mapped from a frame that can only "
+        "shift along X and rotate about Y, so that cross-section stays an exact rigid copy of its rest shape "
+        "(the spring version deviates by over a millimetre). That is what lets copies of this chamber be placed "
+        "side by side to form a whole finger.",
+        "The guard that stops the chamber wall from bulging past that far-end plane follows the frame exactly, "
+        "tilt included, so the bellows can expand all the way to the tilted plane (in the PneuNet finger scene it "
+        "only follows the plane's X shift, and stops the wall at a copy of the rest orientation).",
+        "The end plane's rotation and X shift are read directly from that frame and charted. Target pressure, "
+        "ramp time and 'instant' are live. The run pauses once the pressure has settled (ramp time + 2 s), and "
+        "continues when you change the pressure or press play.",
     ],
-    origin="Original scene: verilogscripts/SOFA/PneuNetFinger/PneuNetFinger.py.",
+    origin="Scene script: scenes/better-finger/original/BetterFinger.py (derived from verilogscripts/SOFA/PneuNetFinger).",
 )

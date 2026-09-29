@@ -26,15 +26,26 @@
 				<span id="viewer-note">watching (read-only)</span>
 			</div>
 		</div>
-		<details id="params-panel" class="panel" open>
-			<summary>Parameters</summary>
-			<form id="params-form" autocomplete="off" novalidate></form>
-			<div class="param-buttons owner-only">
-				<button id="apply-params-btn" type="submit" form="params-form" disabled>Apply &amp; restart</button>
-				<button id="default-params-btn" class="secondary" type="button" title="Back to the values from the original params.json">Defaults</button>
-			</div>
-			<p class="param-note"><span class="live-badge">live</span> fields take effect immediately; the others rebuild the scene, like the SOFA GUI's Reload.</p>
-		</details>
+		<div id="side-panels">
+			<details id="display-panel" class="panel side-panel" open>
+				<summary>Display</summary>
+				<form id="display-form" autocomplete="off"></form>
+				<div id="display-lights"></div>
+				<div class="param-buttons">
+					<button id="display-reset-btn" class="secondary" type="button" title="Back to the scene's own display settings">Reset</button>
+				</div>
+				<p class="display-note">Changes only what you see, immediately; the simulation isn't affected.</p>
+			</details>
+			<details id="params-panel" class="panel side-panel" open>
+				<summary>Parameters</summary>
+				<form id="params-form" autocomplete="off" novalidate></form>
+				<div class="param-buttons owner-only">
+					<button id="apply-params-btn" type="submit" form="params-form" disabled>Apply &amp; restart</button>
+					<button id="default-params-btn" class="secondary" type="button" title="Back to the values from the original params.json">Defaults</button>
+				</div>
+				<p class="param-note"><span class="live-badge">live</span> fields take effect immediately; the others rebuild the scene, like the SOFA GUI's Reload.</p>
+			</details>
+		</div>
 	</div>
 
 	<div id="banner" class="hidden"></div>

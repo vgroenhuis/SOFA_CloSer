@@ -43,8 +43,9 @@ function sofaColor(rgba) {
 }
 
 function disposeScene() {
-	for (const { object, geometry } of models.values()) {
+	for (const { object, geometry, mirrors } of models.values()) {
 		scene.remove(object);
+		for (const copy of mirrors || []) scene.remove(copy.mesh); // shares geometry/material
 		geometry.dispose();
 		object.material.dispose();
 	}
@@ -54,15 +55,19 @@ function disposeScene() {
 	ambientLight = null;
 }
 
+// Fixed-function GL: material ambient is 0.2 x the model color (SOFA's
+// Material::setColor), times the LightManager's ambient; each light adds
+// its color x max(0, n.l). three.js' Lambert BRDF divides by PI, so the
+// intensities are scaled back up by PI. The Display panel's lighting
+// sliders scale these (see applyDisplay).
+const AMBIENT_INTENSITY = 0.2 * Math.PI;
+const DIRECTIONAL_INTENSITY = Math.PI;
+
 function buildLights(ambient, lights) {
-	// Fixed-function GL: material ambient is 0.2 x the model color (SOFA's
-	// Material::setColor), times the LightManager's ambient; each light adds
-	// its color x max(0, n.l). three.js' Lambert BRDF divides by PI, so the
-	// intensities are scaled back up by PI.
-	ambientLight = new THREE.AmbientLight(sofaColor(ambient), 0.2 * Math.PI);
+	ambientLight = new THREE.AmbientLight(sofaColor(ambient), AMBIENT_INTENSITY);
 	scene.add(ambientLight);
 	for (const light of lights) {
-		const dir = new THREE.DirectionalLight(sofaColor(light.color), Math.PI);
+		const dir = new THREE.DirectionalLight(sofaColor(light.color), DIRECTIONAL_INTENSITY);
 		scene.add(dir);
 		scene.add(dir.target);
 		directionalLights.push(dir);
@@ -116,7 +121,7 @@ function buildModel(info, order) {
 		object.renderOrder = 1000 + order;
 	}
 	scene.add(object);
-	models.set(info.id, { object, geometry, info });
+	models.set(info.id, { object, geometry, info, order });
 }
 
 function applyPositions(entry, packed) {
@@ -208,6 +213,9 @@ function applySetup(message) {
 	document.body.style.background = `#${scene.background.getHexString()}`;
 	buildLights(message.ambient, message.lights);
 	message.models.forEach((info, order) => buildModel(info, order));
+	buildMirrorCopies();
+	buildLightControls(message);
+	applyDisplay(); // this viewer's display settings, onto the fresh models and lights
 	// Keep the visitor's own view across rebuilds unless the scene's
 	// camera itself changed (e.g. a geometry parameter moved it).
 	if (firstSetup || cameraChanged) makeCamera();
@@ -387,7 +395,7 @@ function handleFrame(buffer) {
 		if (entry) applyPositions(entry, packed);
 	}
 	if (header.lights) updateLights(header.lights);
-	$("time").textContent = `t = ${header.t.toFixed(2)} s`;
+	$("time").textContent = `t = ${header.t.toFixed(2)} s · step ${header.step ?? "--"}`;
 	const rtfEl = $("rtf");
 	if (header.rtf > 0 && !header.paused && !header.finished) {
 		rtfEl.textContent = `${header.rtf.toFixed(2)}× real time`;
@@ -509,6 +517,7 @@ function showParams(params) {
 		input.classList.remove("dirty");
 	}
 	$("apply-params-btn").disabled = true;
+	applyDisplay(); // mirrored copies depend on the symmetry parameters
 }
 
 function readField({ field, input }) {
@@ -561,6 +570,222 @@ async function loadParams() {
 }
 
 // ---------------------------------------------------------------------------
+// Display settings: applied to this browser's three.js models only -- no
+// rebuild, the simulation isn't touched, and every viewer (watchers too)
+// has their own, remembered in localStorage.
+// ---------------------------------------------------------------------------
+
+let displaySpec = [];
+const displayState = {};
+const displayStoreKey = () => `sofaweb-display:${sceneInfo.title}`;
+
+function hexFromRgb(c) {
+	return "#" + c.slice(0, 3).map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, "0")).join("");
+}
+function rgbFromHex(hex) {
+	return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+}
+
+function displayDefault(d, value) {
+	if (d.type === "opacity") return Number.isFinite(+value) ? Math.min(1, Math.max(0, +value)) : 1;
+	if (d.type === "color") return Array.isArray(value) && value.length >= 3 ? value.slice(0, 3).map(Number) : [1, 1, 1];
+	return value === undefined || value === null ? true : !!value;
+}
+
+function applyDisplay() {
+	if (!setup) return;
+	if (ambientLight) ambientLight.intensity = AMBIENT_INTENSITY * lightScale("ambient");
+	directionalLights.forEach((light, i) => (light.intensity = DIRECTIONAL_INTENSITY * lightScale(i)));
+	for (const entry of models.values()) {
+		const name = entry.info.name;
+		let [r, g, b, alpha] = entry.info.color;
+		let color = [r, g, b];
+		let visible = true;
+		for (const d of displaySpec) {
+			const value = displayState[d.key];
+			if (d.type === "mirror" || !d.re || !d.re.test(name)) continue;
+			if (d.type === "opacity") alpha = value;
+			else if (d.type === "color") color = value;
+			else if (d.type === "visible") visible = visible && value;
+		}
+		const material = entry.object.material;
+		material.color.setRGB(color[0], color[1], color[2]);
+		const transparent = alpha < 0.999;
+		if (material.transparent !== transparent) {
+			material.transparent = transparent;
+			material.needsUpdate = true;
+		}
+		material.opacity = alpha;
+		if (setup.view !== "2d") {
+			material.depthWrite = !transparent;
+			entry.object.renderOrder = transparent ? 1000 + entry.order : 0;
+		}
+		entry.object.visible = visible && alpha > 0.001;
+		for (const copy of entry.mirrors || []) {
+			copy.mesh.renderOrder = entry.object.renderOrder;
+			copy.mesh.visible =
+				entry.object.visible &&
+				copy.specs.every((d) => displayState[d.key] && (!d.requires || currentParams[d.requires]));
+		}
+	}
+}
+
+// Mirrored copies across symmetry planes, drawn here rather than simulated
+// or copied on the server: the same geometry and material, reflected by a
+// negative scale (plus an offset for a plane that isn't at 0). Every
+// combination of mirror axes gets a copy (X, Y and XY for two axes), shown
+// when all of its axes are switched on and the scene actually uses that
+// symmetry (the `requires` parameter).
+function buildMirrorCopies() {
+	const mirrors = displaySpec.filter((d) => d.type === "mirror");
+	if (!mirrors.length) return;
+	const axisIndex = { X: 0, Y: 1, Z: 2 };
+	for (const entry of models.values()) {
+		const specs = mirrors.filter((d) => d.re && d.re.test(entry.info.name));
+		if (!specs.length || entry.info.kind !== "mesh") continue;
+		entry.mirrors = [];
+		for (let mask = 1; mask < 1 << specs.length; mask++) {
+			const subset = specs.filter((_, i) => mask & (1 << i));
+			const mesh = new THREE.Mesh(entry.geometry, entry.object.material);
+			mesh.frustumCulled = false;
+			for (const d of subset) {
+				const i = axisIndex[d.axis];
+				mesh.scale.setComponent(i, -1);
+				mesh.position.setComponent(i, 2 * (d.plane || 0));
+			}
+			scene.add(mesh);
+			entry.mirrors.push({ mesh, specs: subset });
+		}
+	}
+}
+
+function saveDisplay() {
+	try {
+		localStorage.setItem(displayStoreKey(), JSON.stringify(displayState));
+	} catch {}
+}
+
+// Per-light intensity, as a factor on the scene's own intensity. The
+// lights themselves (color, direction, a rotating key light) stay the
+// scene's; only their brightness in this browser changes.
+let savedDisplay = {};
+let lightSignature = null;
+
+function lightScale(id) {
+	const value = displayState[`light:${id}`];
+	return Number.isFinite(value) ? value : 1;
+}
+
+function lightLabel(name, index) {
+	if (!name) return `Light ${index + 1}`;
+	const words = name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+	return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function buildLightControls(message) {
+	const lights = [
+		{ id: "ambient", label: "Ambient light" },
+		...message.lights.map((light, i) => ({ id: i, label: lightLabel(light.name, i) })),
+	];
+	const signature = JSON.stringify(lights);
+	if (signature === lightSignature) return; // same lights as before this rebuild
+	lightSignature = signature;
+	const box = $("display-lights");
+	box.replaceChildren();
+	const heading = document.createElement("h3");
+	heading.textContent = "Light intensity";
+	box.appendChild(heading);
+	for (const light of lights) {
+		const key = `light:${light.id}`;
+		const initial = key in savedDisplay ? +savedDisplay[key] : 1;
+		displayState[key] = Number.isFinite(initial) ? initial : 1;
+		const row = document.createElement("div");
+		row.className = "display-row opacity";
+		const label = document.createElement("label");
+		label.htmlFor = `d-${key}`;
+		label.textContent = light.label;
+		const input = document.createElement("input");
+		input.id = `d-${key}`;
+		input.type = "range";
+		Object.assign(input, { min: 0, max: 2, step: 0.05 });
+		input.value = displayState[key];
+		const shown = document.createElement("span");
+		shown.className = "display-value";
+		shown.textContent = `${(+input.value).toFixed(2)}×`;
+		input.addEventListener("input", () => {
+			shown.textContent = `${(+input.value).toFixed(2)}×`;
+			displayState[key] = +input.value;
+			saveDisplay();
+			applyDisplay();
+		});
+		row.append(label, input, shown);
+		box.appendChild(row);
+	}
+	$("display-panel").classList.remove("hidden");
+}
+
+function buildDisplayPanel(spec, useSaved = true) {
+	displaySpec = spec.map((d) => ({ ...d, re: d.models ? new RegExp(d.models) : null }));
+	let saved = {};
+	if (useSaved) {
+		try {
+			saved = JSON.parse(localStorage.getItem(displayStoreKey()) || "{}");
+		} catch {}
+	}
+	savedDisplay = saved;
+	const form = $("display-form");
+	form.replaceChildren();
+	for (const d of displaySpec) {
+		displayState[d.key] = displayDefault(d, d.key in saved ? saved[d.key] : d.value);
+		const row = document.createElement("div");
+		row.className = `display-row ${d.type}`;
+		const label = document.createElement("label");
+		label.htmlFor = `d-${d.key}`;
+		label.textContent = d.label;
+		const input = document.createElement("input");
+		input.id = `d-${d.key}`;
+		row.append(label, input);
+		const changed = (value) => {
+			displayState[d.key] = value;
+			saveDisplay();
+			applyDisplay();
+		};
+		if (d.type === "opacity") {
+			input.type = "range";
+			Object.assign(input, { min: 0, max: 1, step: 0.01 });
+			input.value = displayState[d.key];
+			const shown = document.createElement("span");
+			shown.className = "display-value";
+			shown.textContent = (+input.value).toFixed(2);
+			row.appendChild(shown);
+			input.addEventListener("input", () => {
+				shown.textContent = (+input.value).toFixed(2);
+				changed(+input.value);
+			});
+		} else if (d.type === "color") {
+			input.type = "color";
+			input.value = hexFromRgb(displayState[d.key]);
+			input.addEventListener("input", () => changed(rgbFromHex(input.value)));
+		} else {
+			input.type = "checkbox";
+			input.checked = displayState[d.key];
+			input.addEventListener("change", () => changed(input.checked));
+		}
+		form.appendChild(row);
+	}
+}
+
+$("display-reset-btn").addEventListener("click", () => {
+	try {
+		localStorage.removeItem(displayStoreKey());
+	} catch {}
+	buildDisplayPanel(sceneInfo.display || [], false);
+	lightSignature = null;
+	if (setup) buildLightControls(setup);
+	applyDisplay();
+});
+
+// ---------------------------------------------------------------------------
 // Buttons, console, info
 // ---------------------------------------------------------------------------
 
@@ -573,11 +798,13 @@ const ICONS = {
 };
 function showPlayState(button, running, pausedLabel = "Play") {
 	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.classList.toggle("running", running); // green play / blue pause
 	button.title = running ? "Pause" : pausedLabel;
 	button.setAttribute("aria-label", button.title);
 }
 
-showPlayState($("play-btn"), true);
+// Simulations start paused; the status message corrects this if not.
+showPlayState($("play-btn"), false);
 $("stop-btn").innerHTML = ICONS.stop;
 $("play-btn").addEventListener("click", () => {
 	const resume = lastStatus && (lastStatus.paused || lastStatus.finished);
@@ -724,6 +951,8 @@ async function init() {
 	}
 	buildParamsPanel(sceneInfo.spec);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
+	buildDisplayPanel(sceneInfo.display || []);
+	if (!displaySpec.length) $("display-panel").classList.add("hidden");
 	buildCharts(sceneInfo);
 	await loadParams();
 	if (isViewer) setInterval(loadParams, 3000);

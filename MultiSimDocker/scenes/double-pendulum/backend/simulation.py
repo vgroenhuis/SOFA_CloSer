@@ -277,6 +277,7 @@ class SimulationRunner:
         self._on_frame(
             {
                 "t": round(t, 4),
+                "step": round(t / PHYSICS_DT),  # fixed timestep, so exact
                 "theta1": _wrap_deg(th1),
                 "theta2": _wrap_deg(th2),
                 "omega1": om1,

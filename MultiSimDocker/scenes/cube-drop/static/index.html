@@ -66,6 +66,7 @@
 		}
 		#status.connected { color: #6bcf7a; }
 		#status.disconnected { color: #e5636b; }
+		#time { font-size: 12px; color: #8f97a3; font-variant-numeric: tabular-nums; }
 		button {
 			background: #3a5bd9;
 			color: white;
@@ -80,6 +81,14 @@
 		/* Media-style controls: play/pause toggle + stop (back to the start). */
 		.icon-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; }
 		.icon-btn svg { width: 14px; height: 14px; fill: currentColor; display: block; }
+		/* Play is green; while running it shows pause, in the theme's blue.
+		   Stop is red. */
+		#play-btn { background: #2e9e4f; color: #fff; }
+		#play-btn:hover { background: #37b35b; }
+		#play-btn.running { background: #3a5bd9; color: #fff; }
+		#play-btn.running:hover { background: #4a6bea; }
+		#stop-btn { background: #c9423f; color: #fff; }
+		#stop-btn:hover { background: #dc5552; }
 		#charts {
 			position: absolute;
 			bottom: 12px;
@@ -338,6 +347,7 @@
 			<button id="info-btn">Info</button>
 			<label><input type="checkbox" id="auto-reset-checkbox" checked /> Auto reset</label>
 			<span id="status">connecting...</span>
+			<span id="time"></span>
 			<span id="viewer-note">watching (read-only)</span>
 		</div>
 		<div id="params-panel">

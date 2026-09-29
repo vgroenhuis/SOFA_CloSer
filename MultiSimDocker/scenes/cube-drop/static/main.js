@@ -226,7 +226,7 @@ function connect() {
 	wsUrl.search = "";
 	const ws = new WebSocket(wsUrl);
 
-	ws.addEventListener("open", () => setStatus("connected", "connected"));
+	ws.addEventListener("open", () => updatePauseLabels()); // "paused" or "connected"
 	ws.addEventListener("close", () => {
 		setStatus("disconnected -- retrying...", "disconnected");
 		setTimeout(connect, 1000);
@@ -235,6 +235,7 @@ function connect() {
 	ws.addEventListener("message", (event) => {
 		const frame = JSON.parse(event.data);
 		syncPaused(frame.paused);
+		document.getElementById("time").textContent = `t = ${frame.t.toFixed(2)} s · step ${frame.step ?? "--"}`;
 		const [x, y, z] = frame.position;
 		const [qx, qy, qz, qw] = frame.quaternion;
 		cube.position.set(x, y, z);
@@ -253,11 +254,13 @@ const ICONS = {
 };
 function showPlayState(button, running, pausedLabel = "Play") {
 	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.classList.toggle("running", running); // green play / blue pause
 	button.title = running ? "Pause" : pausedLabel;
 	button.setAttribute("aria-label", button.title);
 }
 
-let paused = false;
+// Simulations start paused; the first frame corrects this if not.
+let paused = true;
 // The owner may pause from another tab, and watchers need to see it too, so
 // the pause state follows what the simulation broadcasts.
 function syncPaused(serverPaused) {
@@ -270,7 +273,7 @@ function updatePauseLabels() {
 	setStatus(paused ? "paused" : "connected", paused ? "" : "connected");
 }
 stopBtn.innerHTML = ICONS.stop;
-showPlayState(playBtn, true);
+showPlayState(playBtn, false);
 playBtn.addEventListener("click", () => {
 	paused = !paused;
 	updatePauseLabels();

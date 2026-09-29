@@ -49,7 +49,10 @@ CONFIG = SceneConfig(
     editor_file="original/params_editor.py",
     env={"ASYMMETRICSQUARETUBE_NO_EDITOR": "1"},
     # show_fem_elements is SOFA's GL-only debug drawing of the tetrahedra.
-    forced_params={"console_log_enabled": False, "show_fem_elements": False},
+    # The edge overlay and platen are always built; the Display panel shows
+    # or hides them in the browser.
+    forced_params={"console_log_enabled": False, "show_fem_elements": False,
+                   "block_show_edges": True, "show_platen": True},
     hidden_params={"theme", "run_duration"},
     param_limits={
         "outer_width": (0.01, 1.0),
@@ -84,9 +87,16 @@ CONFIG = SceneConfig(
         ("Loads", ["top_pressure", "top_ramp_start", "top_ramp_time",
                    "cavity_pressure", "cavity_ramp_start", "cavity_ramp_time", "gravity", "gravity_enabled"]),
         ("Simulation", ["dt"]),
-        ("Appearance", ["block_fill_color", "block_alpha", "block_show_edges", "block_edge_color", "show_platen"]),
-        ("Lighting", ["ambient_color", "key_light_direction", "key_light_color", "fill_light_direction",
-                      "fill_light_color", "key_light_rotate_enabled", "key_light_rotate_period"]),
+        ("Lighting (rebuilds; intensities are in the Display panel)",
+         ["ambient_color", "key_light_direction", "key_light_color", "fill_light_direction",
+          "fill_light_color", "key_light_rotate_enabled", "key_light_rotate_period"]),
+    ],
+    display=[
+        {"key": "block_fill_color", "label": "Block color", "type": "color", "models": r"(^|/)cube/visu/visual$"},
+        {"key": "block_alpha", "label": "Block opacity", "type": "opacity", "models": r"(^|/)cube/visu/visual$"},
+        {"key": "block_show_edges", "label": "Show block edges", "type": "visible", "models": r"(^|/)cube/visuEdges/visual$"},
+        {"key": "block_edge_color", "label": "Edge color", "type": "color", "models": r"(^|/)cube/visuEdges/visual$"},
+        {"key": "show_platen", "label": "Show platen", "type": "visible", "models": r"^/platen/"},
     ],
     probes=probes,
     charts=[

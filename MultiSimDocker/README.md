@@ -69,6 +69,9 @@ It builds all scene images and starts the orchestrator:
   - `rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
     `pneunet-finger`: the original scripts from `verilogscripts/SOFA/`,
     run unmodified through sofaweb.
+  - `better-finger`: the PneuNet chamber with its channel far-end planes
+    held rigid by a hard constraint (a new script, derived from
+    PneuNetFinger.py, also runnable in the SOFA desktop GUI).
 - **scenes/_base/**: the shared `msd-sofa-base` image (SOFA v26.06 with
   SoftRobots) and **sofaweb**, a runtime that runs an existing SOFA scene
   script headlessly and streams its visual models to a generic three.js

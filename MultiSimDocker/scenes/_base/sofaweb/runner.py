@@ -212,6 +212,7 @@ class Runner:
         self._capture: Optional[Capture] = None
         self._models: list[Model] = []
         self._sim_time = 0.0
+        self._steps = 0  # animation steps since the scene was (re)built
         self._stop_at: Optional[float] = None
         self._last_good_params: Optional[Params] = None
         self._diverged = False
@@ -240,9 +241,12 @@ class Runner:
                 fields.append({"key": key, "label": key, "type": "number", "scale": 1, "decimals": 3, "unit": ""})
             elif isinstance(value, list) and all(isinstance(v, (int, float)) for v in value):
                 fields.append({"key": key, "label": key, "type": "vector", "length": len(value), "decimals": 3, "unit": ""})
+        display_keys = {d["key"] for d in self.cfg.display}
         visible = [
             f for f in fields
-            if f["key"] not in self.cfg.hidden_params and f["key"] not in self.cfg.forced_params
+            if f["key"] not in self.cfg.hidden_params
+            and f["key"] not in self.cfg.forced_params
+            and f["key"] not in display_keys
         ]
         for f in visible:
             f["label"] = self.cfg.labels.get(f["key"], f["label"])
@@ -436,6 +440,7 @@ class Runner:
         self._root, self._module, self._capture = root, module, capture
         self._models = [m for m in (_build_model(i, r) for i, r in enumerate(capture.visuals)) if m is not None]
         self._sim_time = 0.0
+        self._steps = 0
         self._diverged = False
         self._stop_at = self.cfg.stop_at(effective) if self.cfg.stop_at else None
         self._last_lights = None
@@ -529,6 +534,7 @@ class Runner:
             "type": "frame",
             "generation": self.generation,
             "t": self._sim_time,
+            "step": self._steps,
             "rtf": self.rtf,
             "paused": self.paused,
             "finished": self.finished,
@@ -705,6 +711,7 @@ class Runner:
                         self._emit_status()
                         continue
                 self._sim_time += dt
+                self._steps += 1
                 if target - self._sim_time > 0.5:
                     wall_anchor, sim_anchor = time.monotonic(), self._sim_time
 

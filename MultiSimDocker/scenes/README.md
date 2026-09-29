@@ -10,7 +10,7 @@ There are two ways to make a scene:
 - **Custom web app** (`cube-drop`, `double-pendulum`): your own backend and
   frontend, following the contract below. Most work, full control.
 - **sofaweb** (`rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
-  `pneunet-finger`): drop in an existing SOFA scene script unmodified, plus a
+  `pneunet-finger`, `better-finger`): drop in an existing SOFA scene script unmodified, plus a
   short config file. The generic viewer draws its visual models, camera and
   lights; parameters, charts and live controls come from the config.
 
@@ -146,6 +146,7 @@ In `sofaweb_scene.py`, at minimum set `title` and `script`. Useful extras
 | `probes`, `charts`, `readouts` | `fn(root, module) -> {name: value}` sampled every frame, plotted and shown |
 | `stop_at`, `extend_by`, `end_condition`, `auto_restart` | when a run ends and what happens then |
 | `view` | `"3d"` (orbit) or `"2d"` (pan/zoom, drawn in creation order for flat scenes) |
+| `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes, each tied to a params.json key and a pattern for the visual models' SOFA paths. Every scene also gets an intensity slider per light source there automatically. |
 
 The Dockerfile's `python3 -m sofaweb check sofaweb_scene.py` step builds
 the scene and steps it for 0.2 s during `docker build`, printing the

@@ -111,6 +111,8 @@ def create_app(config_path: Path) -> FastAPI:
             "charts": config.charts,
             "readouts": config.readouts,
             "spec": runner.spec,
+            # Initial values come from the original params.json.
+            "display": [{**d, "value": runner.defaults.get(d["key"])} for d in config.display],
             "view": config.view,
         }
 

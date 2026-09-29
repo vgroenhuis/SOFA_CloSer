@@ -298,7 +298,8 @@ let chartsDirty = false;
 // Connection and controls
 // ---------------------------------------------------------------------------
 
-let paused = false;
+// Simulations start paused; the first frame corrects this if not.
+let paused = true;
 let connected = false;
 
 function renderStatus() {
@@ -335,6 +336,7 @@ function connect() {
 	ws.addEventListener("message", (event) => {
 		const frame = JSON.parse(event.data);
 		syncPaused(frame.paused);
+		$("time").textContent = `t = ${frame.t.toFixed(2)} s · step ${frame.step ?? "--"}`;
 		applyFrameToScene(frame);
 		updateCharts(frame);
 		chartsDirty = true;
@@ -354,11 +356,12 @@ const ICONS = {
 };
 function showPlayState(button, running, pausedLabel = "Play") {
 	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.classList.toggle("running", running); // green play / blue pause
 	button.title = running ? "Pause" : pausedLabel;
 	button.setAttribute("aria-label", button.title);
 }
 
-showPlayState(playBtn, true);
+showPlayState(playBtn, false);
 stopBtn.innerHTML = ICONS.stop;
 playBtn.addEventListener("click", () => {
 	const next = !paused;

@@ -60,6 +60,23 @@ class SceneConfig:
     # When a run ends: restart automatically (after a short pause) or stop.
     auto_restart: bool = False
 
+    # Display controls, applied in each viewer's browser without a rebuild
+    # (and per viewer: watchers can change them too). Each is tied to a
+    # params.json key, which supplies its initial value and is left out of
+    # the parameter panel:
+    #   {"key", "label", "type": "opacity" | "color" | "visible", "models": regex}
+    #       -- applies to the visual models whose SOFA path matches `models`;
+    #   {"key", "label", "type": "mirror", "axis": "X" | "Y" | "Z", "models": regex,
+    #    "plane": float (default 0), "requires": param key (optional)}
+    #       -- the browser draws reflected copies of the matching models
+    #          across that axis's plane (free for the server: shared
+    #          geometry, negative scale), shown only while `requires` (e.g.
+    #          symmetry_x) is on; combinations of axes (XY) are included.
+    # A "visible" control only has something to show if the model is
+    # built, so force its params.json flag on in forced_params (and force a
+    # scene's own server-side mirroring off when using "mirror").
+    display: list[dict] = field(default_factory=list)
+
     # "3d": orbit/pan/zoom; "2d": pan/zoom only, painter's-order drawing.
     view: str = "3d"
     up: tuple[float, float, float] = (0.0, 0.0, 1.0)
