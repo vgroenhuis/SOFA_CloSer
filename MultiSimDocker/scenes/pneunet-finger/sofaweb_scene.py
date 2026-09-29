@@ -110,7 +110,7 @@ CONFIG = SceneConfig(
         "mesh. The channel duct's far end can be held as a rigid plane (magenta) that follows the chamber.",
         "Target pressure, ramp time and 'instant' are live: change them and the running simulation follows, "
         "just like editing PressureRamp's Data fields in the SOFA GUI. The run pauses once the pressure has "
-        "settled (ramp time + 2 s), and continues when you change the pressure or press Resume.",
+        "settled (ramp time + 2 s), and continues when you change the pressure or press play.",
     ],
     origin="Original scene: verilogscripts/SOFA/PneuNetFinger/PneuNetFinger.py.",
 )

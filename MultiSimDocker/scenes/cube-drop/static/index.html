@@ -77,6 +77,9 @@
 		}
 		button:hover { background: #4a6bea; }
 		button:active { background: #2f4bbf; }
+		/* Media-style controls: play/pause toggle + stop (back to the start). */
+		.icon-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; }
+		.icon-btn svg { width: 14px; height: 14px; fill: currentColor; display: block; }
 		#charts {
 			position: absolute;
 			bottom: 12px;
@@ -312,8 +315,8 @@
 		/* Watch-only mode (see isViewer in main.js). */
 		#viewer-note { display: none; font-size: 12px; color: #e8b33c; }
 		body.viewer #viewer-note { display: inline; }
-		body.viewer #reset-btn,
-		body.viewer #pause-btn,
+		body.viewer #play-btn,
+		body.viewer #stop-btn,
 		body.viewer #default-params-btn,
 		body.viewer label:has(#auto-reset-checkbox) { display: none; }
 		body.viewer .param-row input[type="range"] { pointer-events: none; opacity: 0.6; }
@@ -329,8 +332,8 @@
 	<div id="top-controls">
 		<div id="hud">
 			<h1>SOFA Cube Simulation</h1>
-			<button id="reset-btn">Restart</button>
-			<button id="pause-btn">Pause</button>
+			<button id="play-btn" class="icon-btn" title="Pause" aria-label="Pause"></button>
+			<button id="stop-btn" class="icon-btn" title="Stop: back to the start, paused" aria-label="Stop"></button>
 			<button id="download-btn">Download data</button>
 			<button id="info-btn">Info</button>
 			<label><input type="checkbox" id="auto-reset-checkbox" checked /> Auto reset</label>

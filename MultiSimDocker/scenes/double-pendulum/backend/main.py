@@ -40,6 +40,10 @@ class ParamUpdate(BaseModel):
 _STATIC_DIR = Path(__file__).parent.parent / "static"
 
 _clients: set[WebSocket] = set()
+# The most recent frame, sent to each browser as it connects: nothing is
+# broadcast while paused, so without it a browser joining a paused
+# simulation would never learn its state.
+_last_message: Optional[str] = None
 _loop: Optional[asyncio.AbstractEventLoop] = None
 _runner: Optional[SimulationRunner] = None
 
@@ -50,7 +54,9 @@ def _on_frame(frame: dict) -> None:
 
 
 async def _broadcast(frame: dict) -> None:
+    global _last_message
     message = json.dumps(frame)
+    _last_message = message
     dead = []
     for ws in _clients:
         try:
@@ -78,6 +84,8 @@ app = FastAPI(title="SOFA Double Pendulum", lifespan=lifespan)
 @app.websocket("/ws/sim")
 async def ws_sim(websocket: WebSocket) -> None:
     await websocket.accept()
+    if _last_message is not None:
+        await websocket.send_text(_last_message)
     _clients.add(websocket)
     try:
         while True:

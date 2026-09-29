@@ -9,7 +9,8 @@ if (isViewer) document.body.classList.add("viewer");
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
-const pauseBtn = $("pause-btn");
+const playBtn = $("play-btn");
+const stopBtn = $("stop-btn");
 
 // ---------------------------------------------------------------------------
 // Scene: the original's flat cartoon look -- everything lies in the X-Z
@@ -309,9 +310,7 @@ function renderStatus() {
 function syncPaused(serverPaused) {
 	if (serverPaused === undefined || serverPaused === paused) return;
 	paused = serverPaused;
-	pauseBtn.textContent = paused ? "Resume" : "Pause";
-	// While paused this only resets to the start (and stays paused).
-	$("reset-btn").textContent = paused ? "Reset" : "Restart";
+	showPlayState(playBtn, !paused);
 	renderStatus();
 }
 
@@ -346,14 +345,32 @@ function connect() {
 }
 connect();
 
-$("reset-btn").addEventListener("click", () => {
-	fetch("api/reset", { method: "POST" }).catch(() => {});
-});
+// Media-style controls: one play/pause toggle, and stop = pause + back to
+// the start (the simulation stays paused there until play is pressed).
+const ICONS = {
+	play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z"/></svg>',
+	pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h3.2v11H3.5zM9.3 2.5h3.2v11H9.3z"/></svg>',
+	stop: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>',
+};
+function showPlayState(button, running, pausedLabel = "Play") {
+	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.title = running ? "Pause" : pausedLabel;
+	button.setAttribute("aria-label", button.title);
+}
 
-pauseBtn.addEventListener("click", () => {
+showPlayState(playBtn, true);
+stopBtn.innerHTML = ICONS.stop;
+playBtn.addEventListener("click", () => {
 	const next = !paused;
 	fetch(next ? "api/pause" : "api/resume", { method: "POST" }).catch(() => {});
 	syncPaused(next);
+});
+stopBtn.addEventListener("click", async () => {
+	syncPaused(true);
+	try {
+		await fetch("api/pause", { method: "POST" });
+		await fetch("api/reset", { method: "POST" });
+	} catch {}
 });
 
 $("download-btn").addEventListener("click", async () => {

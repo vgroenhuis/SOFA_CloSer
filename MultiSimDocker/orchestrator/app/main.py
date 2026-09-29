@@ -55,6 +55,7 @@ class State:
 
 
 S = State()
+_background: set[asyncio.Task] = set()
 
 
 # -- helpers ---------------------------------------------------------------
@@ -168,13 +169,22 @@ async def create_sim(
     ignore_capacity: bool = False,
     hold_until: Optional[float] = None,
     hold_reason: str = "",
+    replace_for: Optional[HTTPConnection] = None,
 ) -> tuple[Sim, str]:
+    """Claims a new simulation. With `replace_for`, the simulations that
+    browser owns and that aren't on hold are released in the same step:
+    visitors usually try scenes one after another, and only a held
+    simulation is meant to outlive the next one."""
     if not await asyncio.to_thread(S.docker.image_exists, scene.image):
         raise api_error(503, f"The image for '{scene.title}' hasn't been built yet. Ask the administrator.")
 
     async with S.claim_lock:
         limits = S.store.get_limits()
-        sims = S.store.list_sims()
+        all_sims = S.store.list_sims()
+        replaced = [s for s in all_sims if replace_for is not None and owns(replace_for, s) and not s.is_held()]
+        replaced_ids = {s.id for s in replaced}
+        # The slots of replaced simulations count as free.
+        sims = [s for s in all_sims if s.id not in replaced_ids]
         if len(sims) >= limits.max_sims and not ignore_capacity:
             next_free = min((s.expires_at(limits.idle_timeout_minutes) for s in sims), default=None)
             raise api_error(
@@ -183,11 +193,14 @@ async def create_sim(
                 nextFreeAt=next_free,
             )
         if enforce_client_limit and limits.max_claims_per_client > 0:
-            mine = [s for s in sims if s.client_addr == addr]
+            # Held simulations don't count: holding one for later while
+            # trying other scenes is the point of a hold.
+            mine = [s for s in sims if s.client_addr == addr and not s.is_held()]
             if len(mine) >= limits.max_claims_per_client:
                 raise api_error(
                     429,
-                    "You already have a simulation running. Release it before starting another.",
+                    "A simulation started from your address in another browser is still running. "
+                    "Release it (or open it there) before starting another.",
                     simIds=[s.id for s in mine],
                 )
 
@@ -209,10 +222,18 @@ async def create_sim(
             hold_until=hold_until,
             hold_reason=hold_reason if hold_until else "",
         )
+        for old in replaced:
+            S.store.delete_sim(old.id)
+            S.store.log("released", old.id, f"replaced by the owner's new simulation {sim_id} ({scene.title})")
+            log.info("Released %s (replaced by %s)", old.id, sim_id)
         S.store.insert_sim(sim)
         S.busy.add(sim_id)
 
     S.store.log("claimed", sim_id, f"scene={scene.id} by={owner_name or '-'} from={addr}")
+    for old in replaced:
+        task = asyncio.create_task(asyncio.to_thread(S.docker.remove, old.container_name))
+        _background.add(task)  # keep a reference until it's done
+        task.add_done_callback(_background.discard)
     try:
         await asyncio.to_thread(S.docker.start, sim_id, sim.container_name, scene)
     except Exception as exc:
@@ -406,7 +427,7 @@ async def api_create_sim(body: CreateSimRequest, request: Request) -> JSONRespon
     scene = catalog.get_scene(body.sceneId)
     if scene is None:
         raise api_error(404, "Unknown scene.")
-    sim, token = await create_sim(scene, body.ownerName.strip(), client_addr(request))
+    sim, token = await create_sim(scene, body.ownerName.strip(), client_addr(request), replace_for=request)
     response = JSONResponse({"sim": sim_info(sim), "key": token})
     set_claim_cookie(response, request, sim.id, token)
     return response

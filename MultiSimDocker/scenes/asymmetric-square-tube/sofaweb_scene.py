@@ -122,7 +122,7 @@ CONFIG = SceneConfig(
         "with an off-center rectangular cavity, so each wall has a different thickness. The bottom is pinned "
         "vertically; a rigid platen on top presses down with a uniform pressure and is free to tilt, following "
         "a least-squares line fitted to the top row every step. Then the cavity is pressurized.",
-        "The run ends one second after both pressure ramps have finished. Resume to keep it going.",
+        "The run ends one second after both pressure ramps have finished. Press play to keep it going.",
     ],
     origin="Original scene: verilogscripts/SOFA/AsymmetricSquareTube/AsymmetricSquareTube.py.",
 )

@@ -211,7 +211,8 @@ class SimulationRunner:
         self._ctrl = build_scene(self._root, self._params)
         Sofa.Simulation.init(self._root)
         self._initial_energy = sum(self._ctrl.energies())
-        self._paused = False
+        # Start paused: a new simulation waits for the user to press play.
+        self._paused = True
         # Guards _log (and the scene) against get_log_csv copying it from a
         # request thread while the sim thread appends.
         self._lock = threading.Lock()

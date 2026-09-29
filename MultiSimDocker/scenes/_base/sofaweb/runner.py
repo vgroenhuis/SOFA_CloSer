@@ -195,7 +195,8 @@ class Runner:
         self.generation = 0
         self.status = "building"
         self.error: Optional[str] = None
-        self.paused = False
+        # Start paused: a new simulation waits for the user to press play.
+        self.paused = True
         self.finished = False
         self.end_reason: Optional[str] = None
         self.rtf = 0.0

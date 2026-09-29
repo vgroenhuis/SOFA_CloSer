@@ -349,9 +349,7 @@ function renderStatus() {
 	statusEl.textContent = text;
 	statusEl.className = cls;
 	$("building").classList.toggle("hidden", s.status !== "building");
-	$("pause-btn").textContent = s.paused || s.finished ? "Resume" : "Pause";
-	// While paused this only resets to the start (and stays paused).
-	$("reset-btn").textContent = s.paused ? "Reset" : "Restart";
+	showPlayState($("play-btn"), !(s.paused || s.finished), s.finished ? "Continue the finished run" : "Play");
 	$("auto-restart-checkbox").checked = !!s.autoRestart;
 
 	let message = "";
@@ -360,7 +358,7 @@ function renderStatus() {
 		message = s.error;
 		banner.className = "error";
 	} else if (s.finished && !s.autoRestart) {
-		message = `Run finished (${s.endReason}).` + (isViewer ? "" : " Resume to continue, or Restart to run it again.");
+		message = `Run finished (${s.endReason}).` + (isViewer ? "" : " Press ▶ to continue it, or ■ to go back to the start.");
 	} else if (s.finished && s.autoRestart) {
 		message = `Run finished (${s.endReason}) -- restarting...`;
 	}
@@ -566,10 +564,30 @@ async function loadParams() {
 // Buttons, console, info
 // ---------------------------------------------------------------------------
 
-$("reset-btn").addEventListener("click", () => fetch("api/reset", { method: "POST" }).catch(() => {}));
-$("pause-btn").addEventListener("click", () => {
+// Media-style controls: one play/pause toggle, and stop = pause + back to
+// the start (the simulation stays paused there until play is pressed).
+const ICONS = {
+	play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z"/></svg>',
+	pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h3.2v11H3.5zM9.3 2.5h3.2v11H9.3z"/></svg>',
+	stop: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>',
+};
+function showPlayState(button, running, pausedLabel = "Play") {
+	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.title = running ? "Pause" : pausedLabel;
+	button.setAttribute("aria-label", button.title);
+}
+
+showPlayState($("play-btn"), true);
+$("stop-btn").innerHTML = ICONS.stop;
+$("play-btn").addEventListener("click", () => {
 	const resume = lastStatus && (lastStatus.paused || lastStatus.finished);
 	fetch(resume ? "api/resume" : "api/pause", { method: "POST" }).catch(() => {});
+});
+$("stop-btn").addEventListener("click", async () => {
+	try {
+		await fetch("api/pause", { method: "POST" });
+		await fetch("api/reset", { method: "POST" });
+	} catch {}
 });
 $("auto-restart-checkbox").addEventListener("change", (event) => {
 	fetch(`api/auto-restart?enabled=${event.target.checked}`, { method: "POST" }).catch(() => {});

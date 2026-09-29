@@ -184,7 +184,8 @@ class SimulationRunner:
         self._apply_random_spin()
         self._sim_time = 0.0
         self._initial_energy = sum(self._mechanical_energy())
-        self._paused = False
+        # Start paused: a new simulation waits for the user to press play.
+        self._paused = True
         self._auto_reset_enabled = True
         # Full-resolution (PHYSICS_DT) log since the last reset, for the
         # "download data" button -- the browser itself only ever sees the

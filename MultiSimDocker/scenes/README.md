@@ -71,7 +71,13 @@ app must:
    connected at once (the owner in multiple tabs, plus watchers). Anything
    a watcher should see, such as pause state or changed parameters, must
    come from the server (broadcast it, or let watchers poll a GET endpoint).
-6. **Not depend on persistent state.** A container is removed when its
+6. **Start paused, with media-style controls.** A new simulation waits at
+   its start until the owner presses play. Use a play/pause toggle plus a
+   stop button (pause, then back to the start; it stays paused there). The
+   existing scenes share the same inline SVG icons. Because nothing is
+   broadcast while paused, send the latest state to each browser as it
+   connects.
+7. **Not depend on persistent state.** A container is removed when its
    simulation is released and started fresh for the next claim. The
    `MSD_SIM_ID` environment variable holds the simulation's id if useful.
 

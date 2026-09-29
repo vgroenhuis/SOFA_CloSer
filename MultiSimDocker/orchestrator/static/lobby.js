@@ -104,6 +104,8 @@ function renderStatus() {
 	const mine = status.sims.filter((s) => s.mine);
 	mineSection.classList.toggle("hidden", mine.length === 0);
 	mineList.replaceChildren(...mine.map(simRow));
+	// Starting a new simulation releases the visitor's un-held ones.
+	document.getElementById("mine-note").classList.toggle("hidden", !mine.some((s) => !s.held));
 
 	const others = status.sims.filter((s) => !s.mine);
 	runningList.replaceChildren(

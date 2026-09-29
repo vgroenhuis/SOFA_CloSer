@@ -27,6 +27,9 @@ button {
 }
 button:hover { background: #4a6bea; }
 button:active { background: #2f4bbf; }
+/* Media-style controls: play/pause toggle + stop (back to the start). */
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; }
+.icon-btn svg { width: 14px; height: 14px; fill: currentColor; display: block; }
 button:disabled { opacity: 0.45; cursor: default; }
 button.secondary { background: #4a4f5b; }
 button.secondary:hover { background: #5a606d; }

@@ -303,6 +303,7 @@ $("hold-btn").addEventListener("click", async () => {
 			{},
 			`Normally a simulation returns to the pool after ${limits.idleTimeoutMinutes} minutes without activity. ` +
 				`A hold keeps it reserved for you -- for example for a live demo later today -- for up to ${maxHours} hours. ` +
+				`It also keeps it when you start another simulation, which otherwise releases this one. ` +
 				`Slots are scarce, so please release it when you're done.`
 		),
 		sim?.held ? el("p", { class: "small" }, el("strong", {}, `Currently held until ${fmtTime(sim.holdUntil)}.`), " Setting a new hold replaces it.") : null,

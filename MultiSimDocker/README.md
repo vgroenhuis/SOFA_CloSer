@@ -6,7 +6,9 @@ Docker container, drawn from a pool of limited size:
 
 - **Claim**: a visitor picks a scene in the lobby and gets their own live
   simulation, plus a **key** (`XXXX-XXXX-XXXX-XXXX`) that lets them take
-  control again from any browser.
+  control again from any browser. Visitors usually try scenes one after
+  another, so starting a new simulation releases the ones that browser
+  already owns, unless they're on hold.
 - **Watch**: every running simulation is public. Anyone can open it
   read-only and navigate the 3D scene themselves, but only the key holder
   can change it.
@@ -15,6 +17,7 @@ Docker container, drawn from a pool of limited size:
 - **Hold**: an owner can reserve their simulation for longer, e.g. for a
   live demo later in the day, by giving a duration or end time plus a reason
   (up to 12 h by default; only 1 simulation can be on hold at a time).
+  A held simulation also survives its owner starting another one.
 - **Admin**: a password-protected page to see everything, release or
   restart simulations, set or clear holds, issue a new key, read container
   logs, change limits at runtime, start simulations, and build scene images.
@@ -133,7 +136,7 @@ and override `.env` until you click **Reset to server defaults**.
 | `MSD_IDLE_TIMEOUT_MINUTES` | 15 | Minutes without owner activity before release |
 | `MSD_MAX_HOLD_HOURS` | 12 | Longest hold a visitor can set |
 | `MSD_MAX_HELD_SIMS` | 1 | Simultaneous holds (so holds can't take every slot) |
-| `MSD_MAX_CLAIMS_PER_CLIENT` | 1 | Simulations per client IP (0 = unlimited) |
+| `MSD_MAX_CLAIMS_PER_CLIENT` | 1 | Simulations per client IP not on hold (0 = unlimited); matters for other browsers at the same address, since a browser's own un-held simulation is replaced anyway |
 | `MSD_SIM_CPUS` / `MSD_SIM_MEMORY` | 1.0 / 2g | Per-container resource caps |
 
 Admins aren't bound by the hold limits. They can also start a simulation

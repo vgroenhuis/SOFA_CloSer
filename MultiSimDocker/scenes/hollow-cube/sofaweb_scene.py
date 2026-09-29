@@ -106,7 +106,7 @@ CONFIG = SceneConfig(
         "shell, solved with a Gauss-Seidel constraint solver. Blue is the outer wall, orange the cavity.",
         "Target pressure, ramp time and 'instant' are live: change them and the running simulation follows, "
         "just like editing PressureRamp's Data fields in the SOFA GUI. The run pauses once the pressure has "
-        "settled (ramp time + 2 s), and continues when you change the pressure or press Resume.",
+        "settled (ramp time + 2 s), and continues when you change the pressure or press play.",
     ],
     origin="Original scene: verilogscripts/SOFA/HollowCube/HollowCubeInflation.py.",
 )

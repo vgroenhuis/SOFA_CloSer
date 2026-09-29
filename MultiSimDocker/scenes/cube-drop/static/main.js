@@ -4,8 +4,8 @@ import Chart from "chart.js/auto";
 
 const viewerEl = document.getElementById("viewer");
 const statusEl = document.getElementById("status");
-const resetBtn = document.getElementById("reset-btn");
-const pauseBtn = document.getElementById("pause-btn");
+const playBtn = document.getElementById("play-btn");
+const stopBtn = document.getElementById("stop-btn");
 const downloadBtn = document.getElementById("download-btn");
 const autoResetCheckbox = document.getElementById("auto-reset-checkbox");
 const infoBtn = document.getElementById("info-btn");
@@ -244,9 +244,18 @@ function connect() {
 }
 connect();
 
-resetBtn.addEventListener("click", () => {
-	fetch("api/reset", { method: "POST" }).catch(() => {});
-});
+// Media-style controls: one play/pause toggle, and stop = pause + back to
+// the start (the simulation stays paused there until play is pressed).
+const ICONS = {
+	play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z"/></svg>',
+	pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h3.2v11H3.5zM9.3 2.5h3.2v11H9.3z"/></svg>',
+	stop: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>',
+};
+function showPlayState(button, running, pausedLabel = "Play") {
+	button.innerHTML = running ? ICONS.pause : ICONS.play;
+	button.title = running ? "Pause" : pausedLabel;
+	button.setAttribute("aria-label", button.title);
+}
 
 let paused = false;
 // The owner may pause from another tab, and watchers need to see it too, so
@@ -255,17 +264,25 @@ function syncPaused(serverPaused) {
 	if (serverPaused === undefined || serverPaused === paused) return;
 	paused = serverPaused;
 	updatePauseLabels();
+}
+function updatePauseLabels() {
+	showPlayState(playBtn, !paused);
 	setStatus(paused ? "paused" : "connected", paused ? "" : "connected");
 }
-// While paused, the reset button only resets to the start (and stays paused).
-function updatePauseLabels() {
-	pauseBtn.textContent = paused ? "Resume" : "Pause";
-	resetBtn.textContent = paused ? "Reset" : "Restart";
-}
-pauseBtn.addEventListener("click", () => {
+stopBtn.innerHTML = ICONS.stop;
+showPlayState(playBtn, true);
+playBtn.addEventListener("click", () => {
 	paused = !paused;
 	updatePauseLabels();
 	fetch(paused ? "api/pause" : "api/resume", { method: "POST" }).catch(() => {});
+});
+stopBtn.addEventListener("click", async () => {
+	paused = true;
+	updatePauseLabels();
+	try {
+		await fetch("api/pause", { method: "POST" });
+		await fetch("api/reset", { method: "POST" });
+	} catch {}
 });
 
 autoResetCheckbox.addEventListener("change", () => {

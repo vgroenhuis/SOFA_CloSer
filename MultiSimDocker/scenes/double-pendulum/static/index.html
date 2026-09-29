@@ -71,6 +71,9 @@
 		button:active { background: #2f4bbf; }
 		button.secondary { background: #4a4f5b; }
 		button.secondary:hover { background: #5a606d; }
+		/* Media-style controls: play/pause toggle + stop (back to the start). */
+		.icon-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; }
+		.icon-btn svg { width: 14px; height: 14px; fill: currentColor; display: block; }
 
 		#params-panel { width: 280px; padding: 10px 14px 12px; flex: 0 0 auto; }
 		#params-panel summary {
@@ -233,8 +236,8 @@
 	<div id="top-controls">
 		<div id="hud" class="panel">
 			<h1>SOFA Double Pendulum</h1>
-			<button id="reset-btn" class="owner-only">Restart</button>
-			<button id="pause-btn" class="owner-only">Pause</button>
+			<button id="play-btn" class="icon-btn owner-only" title="Pause" aria-label="Pause"></button>
+			<button id="stop-btn" class="icon-btn owner-only" title="Stop: back to the start, paused" aria-label="Stop"></button>
 			<button id="download-btn">Download data</button>
 			<button id="view-btn" class="secondary" title="Re-center and reset zoom">Reset view</button>
 			<button id="info-btn" class="secondary">Info</button>
