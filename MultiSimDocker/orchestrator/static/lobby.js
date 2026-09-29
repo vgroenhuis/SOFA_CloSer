@@ -1,4 +1,4 @@
-import { api, el, fmtTime, now, syncClock } from "./common.js";
+import { api, el, fmtTime, now, openModal, syncClock } from "./common.js";
 
 const sceneGrid = document.getElementById("scene-grid");
 const runningList = document.getElementById("running-list");
@@ -55,9 +55,41 @@ function simRow(sim) {
 		el(
 			"div",
 			{ class: "actions" },
-			el("a", { class: sim.mine ? "button" : "button secondary", href: `/view/${sim.id}` }, sim.mine ? "Open" : "Watch")
+			el("a", { class: sim.mine ? "button" : "button secondary", href: `/view/${sim.id}` }, sim.mine ? "Open" : "Watch"),
+			sim.mine ? el("button", { class: "danger", onclick: () => confirmRelease(sim) }, "Release") : null
 		)
 	);
+}
+
+function confirmRelease(sim) {
+	const errorEl = el("p", { class: "error small hidden" });
+	const { close } = openModal([
+		el("h3", {}, `Release ${sim.sceneTitle} (${sim.id})?`),
+		el("p", {}, "The simulation is stopped and its slot is returned to the pool for someone else. This can't be undone."),
+		errorEl,
+		el(
+			"div",
+			{ class: "buttons" },
+			el("button", { class: "secondary", onclick: () => close() }, "Cancel"),
+			el(
+				"button",
+				{
+					class: "danger",
+					onclick: async () => {
+						try {
+							await api(`/api/sims/${sim.id}/release`, { method: "POST" });
+							close();
+							refresh();
+						} catch (err) {
+							errorEl.textContent = err.message;
+							errorEl.classList.remove("hidden");
+						}
+					},
+				},
+				"Release"
+			)
+		),
+	]);
 }
 
 function renderStatus() {
@@ -177,6 +209,17 @@ async function refresh() {
 		capacityText.textContent = "server unreachable";
 	}
 }
+
+// Going back to the lobby after starting a simulation restores this page
+// from the browser's back/forward cache exactly as it was left: mid-start,
+// with the start buttons disabled. Reset that and fetch fresh state.
+window.addEventListener("pageshow", (event) => {
+	if (!event.persisted) return;
+	starting = false;
+	startNotice.dataset.kind = "";
+	showNotice(null);
+	refresh();
+});
 
 async function init() {
 	try {
