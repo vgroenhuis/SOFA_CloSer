@@ -111,10 +111,22 @@ def create_app(config_path: Path) -> FastAPI:
             "charts": config.charts,
             "readouts": config.readouts,
             "spec": runner.spec,
-            # Initial values come from the original params.json.
+            # Initial values come from params.json ...
             "display": [{**d, "value": runner.defaults.get(d["key"])} for d in config.display],
+            # ... unless an admin set the Display / Lighting panels' state
+            # as the scene's default (see Runner.apply_saved_defaults).
+            "displayDefaults": {
+                **(runner.saved_defaults.get("display") or {}),
+                **(runner.saved_defaults.get("lighting") or {}),
+            },
             "view": config.view,
         }
+
+    @app.post("/api/defaults")
+    async def set_defaults(body: dict[str, Any]) -> dict:
+        # From the orchestrator only (its proxy refuses this path to browsers).
+        runner.apply_saved_defaults(body)
+        return {"ok": True}
 
     @app.get("/api/info")
     async def info() -> dict:

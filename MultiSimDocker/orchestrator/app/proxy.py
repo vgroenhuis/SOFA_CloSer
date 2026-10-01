@@ -54,6 +54,15 @@ class SimProxy:
         except httpx.HTTPError:
             return False
 
+    async def post_json(self, url: str, payload: dict) -> bool:
+        """A direct POST to a container (not on a browser's behalf); a
+        scene that doesn't implement the endpoint just answers 404."""
+        try:
+            response = await self._client.post(url, json=payload, timeout=5.0)
+            return response.status_code < 400
+        except httpx.HTTPError:
+            return False
+
     async def http(self, request: Request, base_url: str, path: str) -> Response:
         url = f"{base_url}/{path}"
         if request.url.query:

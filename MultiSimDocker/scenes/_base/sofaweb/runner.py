@@ -212,6 +212,15 @@ def _fem_models(root, first_id: int) -> list[Model]:
     return found
 
 
+def _env_saved_defaults() -> dict:
+    """MSD_SCENE_DEFAULTS, set by the orchestrator (see Runner.apply_saved_defaults)."""
+    try:
+        value = json.loads(os.environ.get("MSD_SCENE_DEFAULTS") or "{}")
+    except ValueError:
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
 def pack_frame(header: dict, arrays: list[np.ndarray]) -> bytes:
     head = json.dumps(header, separators=(",", ":")).encode()
     pad = (-(4 + len(head))) % 4
@@ -233,9 +242,12 @@ class Runner:
         self._on_message = on_message  # str (JSON text) or bytes (frame)
         self.console = ConsoleBuffer()
 
-        self.defaults = self._load_defaults()
-        self.params: Params = dict(self.defaults)
+        self.original_defaults = self._load_defaults()  # params.json
+        self.defaults = dict(self.original_defaults)
         self.spec = self._build_spec()
+        self.saved_defaults: dict = {}
+        self.apply_saved_defaults(_env_saved_defaults())
+        self.params: Params = dict(self.defaults)
         self.auto_restart = config.auto_restart
 
         self._commands: "queue.Queue[tuple[str, dict, Future]]" = queue.Queue()
@@ -277,6 +289,17 @@ class Runner:
             if path.is_file():
                 params = json.loads(path.read_text(encoding="utf-8"))
         return params
+
+    def apply_saved_defaults(self, saved: Any) -> None:
+        """Defaults an admin set with the viewer's "Set as default" buttons
+        (handed over by the orchestrator: MSD_SCENE_DEFAULTS at start, or
+        POST /api/defaults later): {"params": {...}, "display": {...},
+        "lighting": {...}}. Their params replace params.json's as what a
+        new simulation starts with and the Defaults button returns to; the
+        display/lighting ones are passed on to the browser (/api/scene)."""
+        self.saved_defaults = saved if isinstance(saved, dict) else {}
+        params = self.saved_defaults.get("params")
+        self.defaults = {**self.original_defaults, **self.coerce(params if isinstance(params, dict) else {})}
 
     def _build_spec(self) -> list[dict]:
         editor = self.base_dir / self.cfg.editor_file if self.cfg.editor_file else None

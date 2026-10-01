@@ -74,16 +74,23 @@ function disposeScene() {
 // Fixed-function GL: material ambient is 0.2 x the model color (SOFA's
 // Material::setColor), times the LightManager's ambient; each light adds
 // its color x max(0, n.l). three.js' Lambert BRDF divides by PI, so the
-// intensities are scaled back up by PI. The Display panel's lighting
-// sliders scale these (see applyDisplay).
+// intensities are scaled back up by PI.
 const AMBIENT_INTENSITY = 0.2 * Math.PI;
 const DIRECTIONAL_INTENSITY = Math.PI;
 
+// The scene's own lights, as last streamed (a controller may move them,
+// e.g. a rotating key light). The Lighting panel can override, per viewer,
+// each light's brightness and a directional light's yaw/pitch; whatever
+// isn't overridden follows the scene.
+let sceneAmbient = [1, 1, 1];
+let sceneLights = [];
+
 function buildLights(ambient, lights) {
-	ambientLight = new THREE.AmbientLight(sofaColor(ambient), AMBIENT_INTENSITY);
+	sceneAmbient = ambient || [1, 1, 1];
+	ambientLight = new THREE.AmbientLight(0xffffff, AMBIENT_INTENSITY);
 	scene.add(ambientLight);
-	for (const light of lights) {
-		const dir = new THREE.DirectionalLight(sofaColor(light.color), DIRECTIONAL_INTENSITY);
+	for (const _ of lights) {
+		const dir = new THREE.DirectionalLight(0xffffff, DIRECTIONAL_INTENSITY);
 		scene.add(dir);
 		scene.add(dir.target);
 		directionalLights.push(dir);
@@ -92,13 +99,72 @@ function buildLights(ambient, lights) {
 }
 
 function updateLights(lights) {
-	lights.forEach((light, i) => {
+	sceneLights = lights;
+	applyLights();
+	syncLightSliders();
+}
+
+// A SOFA light's brightness is its color's largest component (1 for
+// white); the color divided by it is its hue, which stays the scene's.
+function splitColor(rgb) {
+	const m = Math.max(rgb[0], rgb[1], rgb[2]);
+	return m > 0 ? { hue: [rgb[0] / m, rgb[1] / m, rgb[2] / m], brightness: m } : { hue: [1, 1, 1], brightness: 0 };
+}
+
+function lightColor(id) {
+	return id === "ambient" ? sceneAmbient : sceneLights[id]?.color || [1, 1, 1];
+}
+
+function lightBrightness(id) {
+	const value = displayState[`light:${id}:brightness`];
+	return Number.isFinite(value) ? value : splitColor(lightColor(id)).brightness;
+}
+
+// Yaw/pitch (degrees) of a direction pointing towards the light: pitch is
+// the elevation above the plane perpendicular to the scene's up axis, yaw
+// the angle within that plane from its first axis (world X, or Y when up
+// is X).
+function upBasis() {
+	const u = new THREE.Vector3(...((setup && setup.up) || [0, 0, 1])).normalize();
+	const f = Math.abs(u.x) > 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+	f.addScaledVector(u, -f.dot(u)).normalize();
+	return { u, f, g: new THREE.Vector3().crossVectors(u, f) };
+}
+
+function anglesFromDirection(d) {
+	const { u, f, g } = upBasis();
+	const v = new THREE.Vector3(d[0], d[1], d[2]).normalize();
+	const deg = 180 / Math.PI;
+	return [Math.atan2(v.dot(g), v.dot(f)) * deg, Math.asin(Math.min(1, Math.max(-1, v.dot(u)))) * deg];
+}
+
+function directionFromAngles(yaw, pitch) {
+	const { u, f, g } = upBasis();
+	const y = (yaw * Math.PI) / 180, p = (pitch * Math.PI) / 180;
+	return f.multiplyScalar(Math.cos(p) * Math.cos(y)).addScaledVector(g, Math.cos(p) * Math.sin(y)).addScaledVector(u, Math.sin(p));
+}
+
+function lightAngles(i) {
+	const override = displayState[`light:${i}:dir`];
+	if (Array.isArray(override) && override.length === 2) return override.map(Number);
+	return anglesFromDirection(sceneLights[i]?.direction || [0, 0, 1]);
+}
+
+function applyLights() {
+	if (ambientLight) {
+		ambientLight.color.setRGB(...splitColor(sceneAmbient).hue);
+		ambientLight.intensity = AMBIENT_INTENSITY * lightBrightness("ambient");
+	}
+	sceneLights.forEach((light, i) => {
 		const dir = directionalLights[i];
 		if (!dir) return;
-		dir.color.copy(sofaColor(light.color));
+		dir.color.setRGB(...splitColor(light.color || [1, 1, 1]).hue);
+		dir.intensity = DIRECTIONAL_INTENSITY * lightBrightness(i);
 		// SOFA's DirectionalLight.direction points towards the light.
-		const d = light.direction || [0, 0, 1];
-		dir.position.set(d[0], d[1], d[2]).normalize().multiplyScalar(100);
+		const override = displayState[`light:${i}:dir`];
+		if (Array.isArray(override)) dir.position.copy(directionFromAngles(...lightAngles(i)));
+		else dir.position.set(...(light.direction || [0, 0, 1]));
+		dir.position.normalize().multiplyScalar(100);
 		dir.target.position.set(0, 0, 0);
 	});
 }
@@ -115,6 +181,7 @@ const TETRA_COLORS = [[0, 0, 1], [0, 0.5, 1], [0, 1, 1], [0.5, 1, 1]];
 // so the shape stays readable.
 const STRAIN_SCALE = [[0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0]];
 const STRAIN_SHADES = [1, 0.88, 0.76, 0.64];
+const STRAIN_SCALE_MIN = 1e-3; // the color scale's smallest maximum
 
 function strainColor(s) {
 	const x = Math.min(1, Math.max(0, s)) * (STRAIN_SCALE.length - 1);
@@ -140,11 +207,13 @@ function buildTetraModel(info, order) {
 		for (let v = 0; v < 3; v++) faceColors.set(TETRA_COLORS[face % 4], (face * 3 + v) * 3);
 	}
 	geometry.setAttribute("color", new THREE.BufferAttribute(faceColors.slice(), 3).setUsage(THREE.DynamicDrawUsage));
+	geometry.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(faceCount * 9), 3).setUsage(THREE.DynamicDrawUsage));
 	// forceSinglePass: three.js otherwise draws a transparent double-sided
 	// mesh in two passes (all back-facing triangles, then all front-facing),
-	// which would undo the explicit back-to-front order of writeTetraFaces --
-	// and the faces' winding isn't consistently outward anyway.
+	// which would undo the explicit back-to-front order of writeTetraFaces.
+	// Unlit (SOFA style, strain colors) or lit (the "lit" color mode).
 	const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, forceSinglePass: true });
+	const litMaterial = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, forceSinglePass: true });
 	const object = new THREE.Mesh(geometry, material);
 	object.frustumCulled = false;
 	object.visible = false;
@@ -168,7 +237,16 @@ function buildTetraModel(info, order) {
 	// Strain needs each element's rest shape: the inverse of its rest edge
 	// matrix Dm = [r1-r0, r2-r0, r3-r0] (row-major, 9 values per element).
 	let restInverse = null;
+	let restCentre = null;
 	if (Array.isArray(info.rest) && info.rest.length >= info.vertexCount * 3) {
+		// Rest centres, for hiding elements by region (femRegion controls).
+		restCentre = new Float64Array(tetraCount * 3);
+		for (let t = 0; t < tetraCount; t++) {
+			for (let k = 0; k < 4; k++) {
+				const n = info.index[t * 4 + k] * 3;
+				for (let c = 0; c < 3; c++) restCentre[t * 3 + c] += info.rest[n + c] / 4;
+			}
+		}
 		restInverse = new Float64Array(tetraCount * 9);
 		const r = info.rest;
 		const m = new THREE.Matrix3();
@@ -194,13 +272,18 @@ function buildTetraModel(info, order) {
 		nodes,
 		edges,
 		points,
-		faceVerts: new Float32Array(faceCount * 9), // shrunk faces, canonical order
+		faceVerts: new Float32Array(faceCount * 9), // shrunk faces, canonical order, wound outward
+		faceNormals: new Float32Array(faceCount * 9), // outward unit normal, per vertex
 		faceColors,
+		materials: { unlit: material, lit: litMaterial },
 		baseColors: faceColors.slice(), // the blue shades
 		restInverse,
+		restCentre,
+		hiddenTets: null, // Uint8Array, 1 = hidden by a femRegion control; null = none hidden
+		hiddenKey: "",
 		strain: new Float64Array(tetraCount),
 		maxStrain: 0,
-		colorMode: "base", // what faceColors currently hold: "base" or "strain"
+		colorMode: "sofa", // what faceColors currently hold: see femColorMode
 		tetCentre: new Float64Array(tetraCount * 3),
 		tetDepth: new Float64Array(tetraCount),
 		tetOrder: new Uint32Array(tetraCount).map((_, i) => i),
@@ -212,6 +295,7 @@ function applyTetraPositions(entry, packed) {
 	const nodes = entry.nodes;
 	nodes.set(packed.subarray(0, nodes.length));
 	const out = entry.faceVerts;
+	const normals = entry.faceNormals;
 	const tets = entry.tets;
 	const corner = [0, 0, 0, 0];
 	for (let t = 0, o = 0; t < tets.length / 4; t++) {
@@ -230,11 +314,36 @@ function applyTetraPositions(entry, packed) {
 		entry.tetCentre[t * 3 + 1] = cy;
 		entry.tetCentre[t * 3 + 2] = cz;
 		for (const face of TETRA_FACES) {
+			const f = o;
 			for (const k of face) {
 				const n = corner[k];
 				out[o++] = cx + TETRA_SHRINK * (nodes[n] - cx);
 				out[o++] = cy + TETRA_SHRINK * (nodes[n + 1] - cy);
 				out[o++] = cz + TETRA_SHRINK * (nodes[n + 2] - cz);
+			}
+			// Outward (away from the element's centre) unit normal; flip the
+			// winding to match, so front faces are the outside ones.
+			const ax = out[f + 3] - out[f], ay = out[f + 4] - out[f + 1], az = out[f + 5] - out[f + 2];
+			const bx = out[f + 6] - out[f], by = out[f + 7] - out[f + 1], bz = out[f + 8] - out[f + 2];
+			let nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
+			const fx = (out[f] + out[f + 3] + out[f + 6]) / 3 - cx;
+			const fy = (out[f + 1] + out[f + 4] + out[f + 7]) / 3 - cy;
+			const fz = (out[f + 2] + out[f + 5] + out[f + 8]) / 3 - cz;
+			if (nx * fx + ny * fy + nz * fz < 0) {
+				nx = -nx;
+				ny = -ny;
+				nz = -nz;
+				for (let c = 0; c < 3; c++) {
+					const tmp = out[f + 3 + c];
+					out[f + 3 + c] = out[f + 6 + c];
+					out[f + 6 + c] = tmp;
+				}
+			}
+			const len = Math.hypot(nx, ny, nz) || 1;
+			for (let v = 0; v < 3; v++) {
+				normals[f + v * 3] = nx / len;
+				normals[f + v * 3 + 1] = ny / len;
+				normals[f + v * 3 + 2] = nz / len;
 			}
 		}
 	}
@@ -283,31 +392,62 @@ function computeTetraStrain(entry) {
 	entry.strainFresh = true;
 }
 
-// Fills faceColors with either the blue shades or the strain colors
-// (scaled to the current maximum), and updates the max-strain readout.
-// Returns whether the colors changed.
+// How FEM elements are colored (the Overlays panel's "Element colors"):
+//   "sofa":   SOFA's showForceFields look, 4 unlit shades of blue per element;
+//   "lit":    one blue, lit by the scene's lights like the visual models;
+//   "strain": strain colors (unlit, 4 shades per element), see STRAIN_SCALE;
+//   "strainLit": strain colors, lit -- the default.
+const FEM_LIT_COLOR = [0.3, 0.5, 1.0];
+const isStrainMode = (mode) => mode === "strain" || mode === "strainLit";
+const isLitMode = (mode) => mode === "lit" || mode === "strainLit";
+
+function femColorMode(entry) {
+	const mode = displayState["overlay:femColor"];
+	if (mode === "sofa" || mode === "lit") return mode;
+	// No strain before the first positions arrive (the nodes are all zero),
+	// nor without the mesh's rest shape.
+	if (!entry.restInverse || !entry.hasPositions) return "sofa";
+	return mode === "strain" ? "strain" : "strainLit";
+}
+
+// Fills faceColors for the current color mode -- for strain, scaled to the
+// color scale's maximum (see strainPeak) -- and updates the max-strain
+// readout. Returns whether the colors changed.
 function updateTetraColors(entry, positionsChanged = false) {
-	// No strain before the first positions arrive (the nodes are all zero).
-	const wanted = displayState["overlay:femStrain"] && entry.restInverse && entry.hasPositions ? "strain" : "base";
-	if (wanted === "base") {
-		if (entry.colorMode === "base") return false;
-		entry.faceColors.set(entry.baseColors);
-		entry.colorMode = "base";
+	const wanted = femColorMode(entry);
+	// The material goes with the mode -- also when the mode itself changes
+	// on its own, e.g. from "sofa" to strain once the first positions arrive.
+	const material = isLitMode(wanted) ? entry.materials.lit : entry.materials.unlit;
+	if (entry.object.material !== material) {
+		entry.object.material = material;
+		entry.sortedFor = null;
+	}
+	if (!isStrainMode(wanted)) {
+		if (entry.colorMode === wanted) return false;
+		if (wanted === "sofa") {
+			entry.faceColors.set(entry.baseColors);
+		} else {
+			for (let i = 0; i < entry.faceColors.length; i += 3) entry.faceColors.set(FEM_LIT_COLOR, i);
+		}
+		entry.colorMode = wanted;
 		return true;
 	}
-	if (entry.colorMode === "strain" && !positionsChanged) return false;
+	if (entry.colorMode === wanted && !positionsChanged) return false;
 	if (!entry.strainFresh) computeTetraStrain(entry);
 	if (entry.maxStrain > strainPeak) setStrainPeak(entry.maxStrain);
-	const scale = strainPeak > 1e-9 ? 1 / strainPeak : 0;
+	// At least 0.1 %: an undeformed mesh's float rounding (~1e-7) would
+	// otherwise fill the whole color range.
+	const scale = 1 / Math.max(strainPeak, STRAIN_SCALE_MIN);
 	const colors = entry.faceColors;
+	const lit = isLitMode(wanted); // the lighting shades the faces instead
 	for (let t = 0; t < entry.strain.length; t++) {
 		const [r, g, b] = strainColor(entry.strain[t] * scale);
 		for (let k = 0; k < 4; k++) {
-			const shade = STRAIN_SHADES[k];
+			const shade = lit ? 1 : STRAIN_SHADES[k];
 			for (let v = 0; v < 3; v++) colors.set([r * shade, g * shade, b * shade], ((t * 4 + k) * 3 + v) * 3);
 		}
 	}
-	entry.colorMode = "strain";
+	entry.colorMode = wanted;
 	updateStrainReadout();
 	return true;
 }
@@ -333,7 +473,7 @@ function setStrainPeak(value) {
 function resetStrainPeak() {
 	setStrainPeak(0);
 	for (const entry of models.values()) {
-		if (entry.info.kind === "tetra" && entry.colorMode === "strain") {
+		if (entry.info.kind === "tetra" && isStrainMode(entry.colorMode)) {
 			updateTetraColors(entry, true);
 			entry.sortedFor = null;
 			writeTetraFaces(entry);
@@ -348,10 +488,10 @@ function updateStrainReadout() {
 	if (!shown) return;
 	let max = null;
 	for (const entry of models.values()) {
-		if (entry.info.kind === "tetra" && entry.colorMode === "strain") max = Math.max(max ?? 0, entry.maxStrain);
+		if (entry.info.kind === "tetra" && isStrainMode(entry.colorMode)) max =Math.max(max ?? 0, entry.maxStrain);
 	}
 	const percent = (v) => `${(v * 100).toFixed(1)} %`;
-	shown.textContent = max === null ? "" : `max now ${percent(max)} · scale ${percent(strainPeak)}`;
+	shown.textContent = max === null ? "" : `max now ${percent(max)} · scale ${percent(Math.max(strainPeak, STRAIN_SCALE_MIN))}`;
 	$("d-strain-info")?.classList.toggle("hidden", max === null);
 }
 
@@ -362,9 +502,8 @@ function updateStrainReadout() {
 //   * within an element, the faces turned away from the camera before the
 //     ones turned towards it -- exact for a convex shape, unlike sorting
 //     faces by their own centres (a far-side face of a thin element can have
-//     a nearer centre than a near-side face). "Away" uses the outward normal,
-//     taken from the geometry (pointing away from the element centre), since
-//     the faces' winding isn't consistently outward.
+//     a nearer centre than a near-side face). "Away" uses the outward normal
+//     (pointing away from the element centre, see applyTetraPositions).
 // A few thousand elements take well under a millisecond, and it only runs
 // after the camera moved or new positions arrived.
 function writeTetraFaces(entry) {
@@ -374,9 +513,24 @@ function writeTetraFaces(entry) {
 	entry.sortedFor = key;
 	const pos = entry.geometry.attributes.position.array;
 	const col = entry.geometry.attributes.color.array;
-	if (!transparent) {
+	const nor = entry.geometry.attributes.normal.array;
+	const hidden = entry.hiddenTets;
+	let w = 0; // faces written
+	if (!transparent && !hidden) {
 		pos.set(entry.faceVerts);
 		col.set(entry.faceColors);
+		nor.set(entry.faceNormals);
+		w = entry.faceVerts.length / 9;
+	} else if (!transparent) {
+		// Canonical order, minus the hidden elements.
+		for (let t = 0; t < hidden.length; t++) {
+			if (hidden[t]) continue;
+			const src = t * 36;
+			pos.set(entry.faceVerts.subarray(src, src + 36), w * 9);
+			col.set(entry.faceColors.subarray(src, src + 36), w * 9);
+			nor.set(entry.faceNormals.subarray(src, src + 36), w * 9);
+			w += 4;
+		}
 	} else {
 		// The matrix's z row gives view-space depth; it's also the world
 		// vector pointing from the scene towards an orthographic camera.
@@ -389,31 +543,25 @@ function writeTetraFaces(entry) {
 		const order = entry.tetOrder.sort((a, b) => depth[a] - depth[b]); // most negative (farthest) first
 		const v = entry.faceVerts;
 		const colors = entry.faceColors;
+		const normals = entry.faceNormals;
 		const ortho = camera.isOrthographicCamera;
 		const eye = camera.position;
 		const front = [0, 0, 0, 0];
-		let w = 0;
 		const write = (face) => {
 			const src = face * 9;
 			pos.set(v.subarray(src, src + 9), w * 9);
 			col.set(colors.subarray(src, src + 9), w * 9);
+			nor.set(normals.subarray(src, src + 9), w * 9);
 			w++;
 		};
 		for (const t of order) {
+			if (hidden && hidden[t]) continue;
 			for (let k = 0; k < 4; k++) {
 				const o = (t * 4 + k) * 9;
-				const ax = v[o + 3] - v[o], ay = v[o + 4] - v[o + 1], az = v[o + 5] - v[o + 2];
-				const bx = v[o + 6] - v[o], by = v[o + 7] - v[o + 1], bz = v[o + 8] - v[o + 2];
-				let nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
+				const nx = normals[o], ny = normals[o + 1], nz = normals[o + 2]; // outward
 				const fx = (v[o] + v[o + 3] + v[o + 6]) / 3;
 				const fy = (v[o + 1] + v[o + 4] + v[o + 7]) / 3;
 				const fz = (v[o + 2] + v[o + 5] + v[o + 8]) / 3;
-				// Outward: away from the element's centre.
-				if (nx * (fx - centre[t * 3]) + ny * (fy - centre[t * 3 + 1]) + nz * (fz - centre[t * 3 + 2]) < 0) {
-					nx = -nx;
-					ny = -ny;
-					nz = -nz;
-				}
 				const toCamera = ortho
 					? nx * m[2] + ny * m[6] + nz * m[10]
 					: nx * (eye.x - fx) + ny * (eye.y - fy) + nz * (eye.z - fz);
@@ -423,8 +571,59 @@ function writeTetraFaces(entry) {
 			for (let k = 0; k < 4; k++) if (front[k]) write(t * 4 + k);
 		}
 	}
+	entry.geometry.setDrawRange(0, w * 3); // fills and edges share this geometry
 	entry.geometry.attributes.position.needsUpdate = true;
 	entry.geometry.attributes.color.needsUpdate = true;
+	entry.geometry.attributes.normal.needsUpdate = true;
+}
+
+// femRegion display controls: while one is switched off, the elements whose
+// rest centre lies in any of its regions (half-spaces such as "X below 0",
+// each counted only while its `requires` parameter is on) are hidden, with
+// the nodes that only they use. Returns whether anything changed.
+function updateTetraHidden(entry) {
+	const regions = [];
+	for (const d of displaySpec) {
+		if (d.type !== "femRegion" || displayState[d.key] !== false) continue;
+		for (const r of d.regions || []) {
+			if (!r.requires || currentParams[r.requires]) regions.push(r);
+		}
+	}
+	const key = entry.restCentre ? JSON.stringify(regions) : "";
+	if (key === entry.hiddenKey) return false;
+	entry.hiddenKey = key;
+	const tetraCount = entry.tets.length / 4;
+	let hidden = null;
+	if (regions.length && entry.restCentre) {
+		const axisIndex = { X: 0, Y: 1, Z: 2 };
+		const eps = 1e-9;
+		hidden = new Uint8Array(tetraCount);
+		for (let t = 0; t < tetraCount; t++) {
+			for (const r of regions) {
+				const c = entry.restCentre[t * 3 + axisIndex[r.axis]];
+				if (("below" in r && c < r.below - eps) || ("above" in r && c > r.above + eps)) {
+					hidden[t] = 1;
+					break;
+				}
+			}
+		}
+	}
+	entry.hiddenTets = hidden;
+	// Nodes: only those used by a shown element.
+	const nodeGeometry = entry.points.geometry;
+	if (!hidden) {
+		nodeGeometry.setIndex(null);
+	} else {
+		const used = new Uint8Array(entry.nodes.length / 3);
+		for (let t = 0; t < tetraCount; t++) {
+			if (!hidden[t]) for (let k = 0; k < 4; k++) used[entry.tets[t * 4 + k]] = 1;
+		}
+		const index = [];
+		used.forEach((u, i) => u && index.push(i));
+		nodeGeometry.setIndex(index);
+	}
+	entry.sortedFor = null;
+	return true;
 }
 
 // Wireframe overlay: the same geometry drawn as lines, in a darkened model
@@ -526,10 +725,111 @@ function makeCamera() {
 		controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
 		controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
 	}
-	resetView();
+	// Reports the pose to the Camera fields while moving, and remembers it
+	// once the user stops (after the damping has settled).
+	controls.addEventListener("change", showCameraPose);
+	controls.addEventListener("end", () => {
+		clearTimeout(cameraSaveTimer);
+		cameraSaveTimer = setTimeout(() => {
+			cameraSaveTimer = null;
+			displayState.camera = currentCameraPose();
+			saveDisplay();
+		}, 600);
+	});
+	sceneView();
+	applyCameraPose(displayState.camera); // this viewer's (or the default) saved view, if any
 }
 
+// The camera pose, as part of the display settings (displayState.camera):
+// {position, target, zoom}. Absent means the scene's own camera.
+let cameraSaveTimer = null;
+
+function currentCameraPose() {
+	const round = (v) => +v.toPrecision(6);
+	return {
+		position: camera.position.toArray().map(round),
+		target: controls.target.toArray().map(round),
+		zoom: round(camera.zoom),
+	};
+}
+
+function validPose(pose) {
+	const vec = (v) => Array.isArray(v) && v.length === 3 && v.every((c) => Number.isFinite(+c));
+	return pose && vec(pose.position) && vec(pose.target);
+}
+
+function applyCameraPose(pose) {
+	if (!controls || !validPose(pose)) return false;
+	camera.position.set(...pose.position.map(Number));
+	controls.target.set(...pose.target.map(Number));
+	camera.zoom = Number.isFinite(+pose.zoom) && +pose.zoom > 0 ? +pose.zoom : 1;
+	camera.updateProjectionMatrix();
+	controls.update();
+	showCameraPose();
+	return true;
+}
+
+// "Reset view": the scene's default view -- an admin's saved default
+// camera, else the scene's own -- and forget this viewer's own.
 function resetView() {
+	clearTimeout(cameraSaveTimer);
+	cameraSaveTimer = null;
+	const fallback = (sceneInfo.displayDefaults || {}).camera;
+	if (validPose(fallback)) displayState.camera = fallback;
+	else delete displayState.camera;
+	saveDisplay();
+	sceneView();
+	applyCameraPose(displayState.camera);
+}
+
+// Camera fields in the Display panel: "x, y, z" text, applied on Enter /
+// leaving the field.
+const cameraFields = {};
+
+function buildCameraControls() {
+	const box = $("display-camera");
+	box.replaceChildren(heading("Camera"));
+	for (const [key, label] of [["position", "Position"], ["target", "Look at"], ["zoom", "Zoom"]]) {
+		const row = document.createElement("div");
+		row.className = "display-row camera";
+		const labelEl = document.createElement("label");
+		labelEl.textContent = label;
+		const input = document.createElement("input");
+		input.type = "text";
+		input.spellcheck = false;
+		labelEl.htmlFor = input.id = `d-camera-${key}`;
+		input.title = key === "zoom" ? "Zoom factor (orthographic view)" : "x, y, z in scene units";
+		input.addEventListener("change", () => {
+			const pose = currentCameraPose();
+			const numbers = input.value.split(/[\s,;]+/).filter(Boolean).map(Number);
+			if (key === "zoom" ? numbers.length === 1 && numbers[0] > 0 : numbers.length === 3 && numbers.every(Number.isFinite)) {
+				pose[key] = key === "zoom" ? numbers[0] : numbers;
+				applyCameraPose(pose);
+				displayState.camera = currentCameraPose();
+				saveDisplay();
+			}
+			showCameraPose(); // also restores the field after invalid input
+		});
+		row.append(labelEl, input);
+		box.appendChild(row);
+		cameraFields[key] = { row, input };
+	}
+	showCameraPose();
+}
+
+function showCameraPose() {
+	if (!controls || !cameraFields.position) return;
+	const pose = currentCameraPose();
+	const fmt = (v) => (+v.toPrecision(4)).toString();
+	for (const [key, { row, input }] of Object.entries(cameraFields)) {
+		if (key === "zoom") row.classList.toggle("hidden", !camera.isOrthographicCamera);
+		if (document.activeElement === input) continue; // being edited
+		input.value = key === "zoom" ? fmt(pose.zoom) : pose[key].map(fmt).join(", ");
+	}
+}
+
+// The scene's own camera (SOFA's InteractiveCamera).
+function sceneView() {
 	const cam = setup && setup.camera;
 	if (!cam) return;
 	// SOFA's camera orientation is the same convention as three.js': local
@@ -542,6 +842,7 @@ function resetView() {
 	camera.zoom = 1;
 	camera.updateProjectionMatrix();
 	controls.update();
+	showCameraPose();
 }
 
 function onResize() {
@@ -628,6 +929,7 @@ function buildCharts(config) {
 		});
 		charts.push({ def, chart });
 		makeTopRightResizable(panel, panel.querySelector(".resize-handle-tr"));
+		makeCollapsible(panel, `chart:${def.title}`);
 	}
 	if (config.readouts.length) {
 		const panel = document.createElement("div");
@@ -645,7 +947,36 @@ function buildCharts(config) {
 			readoutEls.set(r.key, { el: value, def: r });
 		}
 		container.appendChild(panel);
+		makeCollapsible(panel, "readouts");
 	}
+}
+
+// Clicking a chart's or the readouts' title collapses the panel to just
+// that title; remembered per scene in this browser.
+const panelStoreKey = () => `sofaweb-panels:${sceneInfo.title}`;
+
+function collapsedPanels() {
+	try {
+		return JSON.parse(localStorage.getItem(panelStoreKey()) || "{}");
+	} catch {
+		return {};
+	}
+}
+
+function makeCollapsible(panel, id) {
+	const title = panel.querySelector("h2");
+	title.classList.add("collapsible-title");
+	title.title = "Click to collapse or expand";
+	panel.classList.toggle("collapsed", !!collapsedPanels()[id]);
+	title.addEventListener("click", () => {
+		const collapsed = panel.classList.toggle("collapsed");
+		const state = collapsedPanels();
+		if (collapsed) state[id] = true;
+		else delete state[id];
+		try {
+			localStorage.setItem(panelStoreKey(), JSON.stringify(state));
+		} catch {}
+	});
 }
 
 function clearCharts() {
@@ -750,6 +1081,7 @@ function handleFrame(buffer) {
 		const entry = models.get(id);
 		if (entry) applyPositions(entry, packed);
 	}
+	updateMirrorPlanes();
 	if (header.lights) updateLights(header.lights);
 	$("time").textContent = `t = ${header.t.toFixed(2)} s · step ${header.step ?? "--"}`;
 	const rtfEl = $("rtf");
@@ -960,7 +1292,8 @@ function rgbFromHex(hex) {
 }
 
 function displayDefault(d, value) {
-	if (d.type === "opacity") return Number.isFinite(+value) ? Math.min(1, Math.max(0, +value)) : 1;
+	// A key that isn't in params.json has no value: fully opaque.
+	if (d.type === "opacity") return value !== null && value !== undefined && Number.isFinite(+value) ? Math.min(1, Math.max(0, +value)) : 1;
 	if (d.type === "color") return Array.isArray(value) && value.length >= 3 ? value.slice(0, 3).map(Number) : [1, 1, 1];
 	return value === undefined || value === null ? true : !!value;
 }
@@ -982,8 +1315,7 @@ function setOpacity(material, alpha, is2d) {
 
 function applyDisplay() {
 	if (!setup) return;
-	if (ambientLight) ambientLight.intensity = AMBIENT_INTENSITY * lightScale("ambient");
-	directionalLights.forEach((light, i) => (light.intensity = DIRECTIONAL_INTENSITY * lightScale(i)));
+	applyLights();
 	const is2d = setup.view === "2d";
 	const wireOn = !!displayState["overlay:wireframe"];
 	const wireAlpha = displayNumber("overlay:wireframeAlpha", 1);
@@ -995,7 +1327,9 @@ function applyDisplay() {
 	const femNodesAlpha = displayNumber("overlay:femNodesAlpha", 1);
 	for (const entry of models.values()) {
 		if (entry.info.kind === "tetra") {
-			setOpacity(entry.object.material, femAlpha, is2d);
+			// Both, so the one updateTetraColors switches to is ready.
+			setOpacity(entry.materials.unlit, femAlpha, is2d);
+			setOpacity(entry.materials.lit, femAlpha, is2d);
 			entry.object.visible = femOn && femAlpha > 0.001;
 			setOpacity(entry.edges.material, femWireAlpha, is2d);
 			entry.edges.material.transparent = true; // sorted with the transparent fills
@@ -1003,6 +1337,7 @@ function applyDisplay() {
 			setOpacity(entry.points.material, femNodesAlpha, is2d);
 			entry.points.material.transparent = true;
 			entry.points.visible = femNodesOn && femNodesAlpha > 0.001;
+			updateTetraHidden(entry);
 			if (updateTetraColors(entry)) entry.sortedFor = null;
 			writeTetraFaces(entry); // sorted only while the elements are transparent
 			continue;
@@ -1043,7 +1378,8 @@ function applyDisplay() {
 			entry.wire.visible = showWire && visible;
 		}
 		for (const copy of entry.mirrors || []) {
-			const shown = visible && copy.specs.every((d) => displayState[d.key] && (!d.requires || currentParams[d.requires]));
+			const shown = visible && !copy.planeMissing && (!copy.chain || chainCopyShown(copy.chain)) &&
+				copy.specs.every((d) => displayState[d.key] && (!d.requires || currentParams[d.requires]));
 			copy.mesh.renderOrder = entry.object.renderOrder;
 			copy.mesh.visible = shown && alpha > 0.001;
 			if (copy.wire) copy.wire.visible = showWire && shown;
@@ -1053,36 +1389,189 @@ function applyDisplay() {
 }
 
 // Mirrored copies across symmetry planes, drawn here rather than simulated
-// or copied on the server: the same geometry and material, reflected by a
-// negative scale (plus an offset for a plane that isn't at 0). Every
-// combination of mirror axes gets a copy (X, Y and XY for two axes), shown
-// when all of its axes are switched on and the scene actually uses that
-// symmetry (the `requires` parameter).
+// or copied on the server: the same geometry and material, reflected by the
+// copy's matrix. A plane is either fixed (`axis`, at `plane`, default 0)
+// or follows a visual model of the scene that marks it (`planeModel`, a
+// regex for its SOFA path -- e.g. a moving, tilting far-end plane), read
+// from that model's current vertices every frame. Every combination of
+// mirrors gets a copy (X, Y and XY for two axes), shown when all of its
+// mirrors are switched on and the scene actually uses that symmetry (the
+// `requires` parameter). In a combination the fixed planes reflect first,
+// then the moving ones.
+//
+// A moving mirror with a `chain` repeats, for a finger of many chambers:
+// reflecting alternately across the moving plane (b) and the chamber's own
+// midplane (a: chain.axis at chain.plane) walks along the finger. With the
+// half chamber H the scene simulates (chain.half, e.g. symmetry_x, on),
+// the copies are the half chambers bH, baH, babH, ... -- two per extra
+// chamber; with a whole chamber C, they're bC, babC, ... -- one per
+// chamber. The number of extra chambers is the display setting
+// chain.countKey (1 .. chain.max). Each chain copy also comes in every
+// combination with the other fixed mirrors (e.g. Y).
+const axisIndex = { X: 0, Y: 1, Z: 2 };
+
+function axisReflection(axis, plane = 0) {
+	const i = axisIndex[axis];
+	const scale = new THREE.Vector3(1, 1, 1).setComponent(i, -1);
+	const reflect = new THREE.Matrix4().makeScale(scale.x, scale.y, scale.z);
+	reflect.elements[12 + i] = 2 * plane;
+	return reflect;
+}
+
 function buildMirrorCopies() {
 	const mirrors = displaySpec.filter((d) => d.type === "mirror");
 	if (!mirrors.length) return;
-	const axisIndex = { X: 0, Y: 1, Z: 2 };
 	for (const entry of models.values()) {
 		const specs = mirrors.filter((d) => d.re && d.re.test(entry.info.name));
 		if (!specs.length || entry.info.kind !== "mesh") continue;
 		entry.mirrors = [];
-		for (let mask = 1; mask < 1 << specs.length; mask++) {
-			const subset = specs.filter((_, i) => mask & (1 << i));
+		const addCopy = (props) => {
 			const mesh = new THREE.Mesh(entry.geometry, entry.object.material);
-			mesh.frustumCulled = false;
 			const wire = entry.wire ? new THREE.Mesh(entry.geometry, entry.wire.material) : null;
 			for (const object of wire ? [mesh, wire] : [mesh]) {
 				object.frustumCulled = false;
-				for (const d of subset) {
-					const i = axisIndex[d.axis];
-					object.scale.setComponent(i, -1);
-					object.position.setComponent(i, 2 * (d.plane || 0));
-				}
+				object.matrixAutoUpdate = false;
+				object.matrix.copy(props.fixed);
 				scene.add(object);
 			}
-			entry.mirrors.push({ mesh, wire, specs: subset });
+			entry.mirrors.push({ mesh, wire, moving: [], chain: null, ...props });
+		};
+		const fixedOf = (subset) => {
+			const fixed = new THREE.Matrix4();
+			for (const d of subset.filter((d) => !d.planeModel)) fixed.premultiply(axisReflection(d.axis, d.plane || 0));
+			return fixed;
+		};
+		// Plain combinations (chains have their own copies below).
+		const plain = specs.filter((d) => !d.chain);
+		for (let mask = 1; mask < 1 << plain.length; mask++) {
+			const subset = plain.filter((_, i) => mask & (1 << i));
+			const moving = subset.filter((d) => d.planeModel).map((d) => new RegExp(d.planeModel));
+			addCopy({ specs: subset, fixed: fixedOf(subset), moving, planeMissing: moving.length > 0 });
+		}
+		for (const chainSpec of specs.filter((d) => d.chain && d.planeModel)) {
+			// With every combination of the fixed mirrors other than the
+			// chain's own axis (that one is part of the chain).
+			const others = plain.filter((d) => !d.planeModel && d.axis !== chainSpec.chain.axis);
+			const max = Math.max(1, Math.min(32, chainSpec.chain.max || 10));
+			for (let mask = 0; mask < 1 << others.length; mask++) {
+				const subset = others.filter((_, i) => mask & (1 << i));
+				for (let k = 1; k <= 2 * max; k++) {
+					addCopy({
+						specs: [chainSpec, ...subset],
+						fixed: fixedOf(subset),
+						moving: [new RegExp(chainSpec.planeModel)],
+						chain: { spec: chainSpec, k },
+						planeMissing: true,
+					});
+				}
+			}
 		}
 	}
+	updateMirrorPlanes();
+}
+
+// Whether chain copy k is within the chosen number of extra chambers.
+function chainCopyShown(chain) {
+	const c = chain.spec.chain;
+	const count = Math.max(1, Math.min(c.max || 10, Math.round(+displayState[c.countKey] || 1)));
+	const half = c.half ? !!currentParams[c.half] : true;
+	return half ? chain.k <= 2 * count : chain.k % 2 === 1 && chain.k <= 2 * count - 1;
+}
+
+// The reflection across the plane a (flat) visual model currently lies in:
+// the normal of its largest triangle (the sign doesn't matter for a
+// reflection) through the centroid of its vertices. False until it has
+// positions.
+const _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _pc = new THREE.Vector3();
+const _cross = new THREE.Vector3(), _normal = new THREE.Vector3(), _centroid = new THREE.Vector3();
+
+function reflectionAcross(planeEntry, out) {
+	const pos = planeEntry.geometry.attributes.position;
+	const index = planeEntry.geometry.index;
+	const count = index ? index.count : pos.count;
+	let best = 0;
+	for (let i = 0; i + 2 < count; i += 3) {
+		_pa.fromBufferAttribute(pos, index ? index.getX(i) : i);
+		_pb.fromBufferAttribute(pos, index ? index.getX(i + 1) : i + 1).sub(_pa);
+		_pc.fromBufferAttribute(pos, index ? index.getX(i + 2) : i + 2).sub(_pa);
+		_cross.crossVectors(_pb, _pc);
+		const area = _cross.lengthSq();
+		if (area > best) {
+			best = area;
+			_normal.copy(_cross);
+		}
+	}
+	if (!(best > 1e-30)) return false;
+	_normal.normalize();
+	_centroid.set(0, 0, 0);
+	for (let i = 0; i < pos.count; i++) _centroid.add(_pa.fromBufferAttribute(pos, i));
+	_centroid.divideScalar(pos.count);
+	const { x, y, z } = _normal;
+	const d = 2 * _normal.dot(_centroid);
+	out.set(
+		1 - 2 * x * x, -2 * x * y, -2 * x * z, d * x,
+		-2 * y * x, 1 - 2 * y * y, -2 * y * z, d * y,
+		-2 * z * x, -2 * z * y, 1 - 2 * z * z, d * z,
+		0, 0, 0, 1,
+	);
+	return true;
+}
+
+// Re-aims the copies across moving planes (after every frame).
+const _reflection = new THREE.Matrix4();
+function updateMirrorPlanes() {
+	let visibilityChanged = false;
+	const planes = new Map(); // planeModel regex source -> reflection, or null
+	const planeReflection = (re) => {
+		if (!planes.has(re.source)) {
+			const planeEntry = [...models.values()].find((m) => re.test(m.info.name));
+			const out = new THREE.Matrix4();
+			planes.set(re.source, planeEntry && reflectionAcross(planeEntry, out) ? out : null);
+		}
+		return planes.get(re.source);
+	};
+	const chainWords = new Map(); // chain spec -> [W_1, W_2, ...]
+	const words = (spec, b) => {
+		if (!chainWords.has(spec)) {
+			const a = axisReflection(spec.chain.axis, spec.chain.plane || 0);
+			const list = [b.clone()];
+			const max = Math.max(1, Math.min(32, spec.chain.max || 10));
+			for (let k = 2; k <= 2 * max; k++) list.push(list[k - 2].clone().multiply(k % 2 === 0 ? a : b));
+			chainWords.set(spec, list);
+		}
+		return chainWords.get(spec);
+	};
+	for (const entry of models.values()) {
+		for (const copy of entry.mirrors || []) {
+			if (!copy.moving.length) continue;
+			const matrix = copy.fixed.clone();
+			let missing = false;
+			if (copy.chain) {
+				const b = planeReflection(copy.moving[0]);
+				if (b) matrix.premultiply(words(copy.chain.spec, b)[copy.chain.k - 1]);
+				else missing = true;
+			} else {
+				for (const re of copy.moving) {
+					const reflection = planeReflection(re);
+					if (!reflection) {
+						missing = true;
+						break;
+					}
+					matrix.premultiply(reflection);
+				}
+			}
+			if (missing !== copy.planeMissing) {
+				copy.planeMissing = missing;
+				visibilityChanged = true;
+			}
+			if (missing) continue;
+			for (const object of copy.wire ? [copy.mesh, copy.wire] : [copy.mesh]) {
+				object.matrix.copy(matrix);
+				object.matrixWorldNeedsUpdate = true;
+			}
+		}
+	}
+	if (visibilityChanged) applyDisplay();
 }
 
 function saveDisplay() {
@@ -1091,16 +1580,9 @@ function saveDisplay() {
 	} catch {}
 }
 
-// Per-light intensity, as a factor on the scene's own intensity. The
-// lights themselves (color, direction, a rotating key light) stay the
-// scene's; only their brightness in this browser changes.
 let savedDisplay = {};
-let lightSignature = null;
-
-function lightScale(id) {
-	const value = displayState[`light:${id}`];
-	return Number.isFinite(value) ? value : 1;
-}
+let overlaySignature = null;
+let lightingSignature = null;
 
 function lightLabel(name, index) {
 	if (!name) return `Light ${index + 1}`;
@@ -1111,6 +1593,7 @@ function lightLabel(name, index) {
 function savedOr(key, fallback) {
 	if (!(key in savedDisplay)) return fallback;
 	const value = savedDisplay[key];
+	if (typeof fallback === "string") return typeof value === "string" ? value : fallback;
 	return typeof fallback === "boolean" ? !!value : Number.isFinite(+value) ? +value : fallback;
 }
 
@@ -1178,6 +1661,22 @@ function checkboxRow(key, labelText, valueId = null) {
 	return row;
 }
 
+// A drop-down row: "Label   [option v]", options as [value, text] pairs.
+function selectRow(key, labelText, options) {
+	const row = document.createElement("div");
+	row.className = "display-row select";
+	const label = document.createElement("label");
+	label.htmlFor = `d-${key}`;
+	label.textContent = labelText;
+	const select = document.createElement("select");
+	select.id = `d-${key}`;
+	for (const [value, text] of options) select.add(new Option(text, value));
+	select.value = displayState[key];
+	select.addEventListener("change", () => displayChanged(key, select.value));
+	row.append(label, select);
+	return row;
+}
+
 function heading(text) {
 	const h = document.createElement("h3");
 	h.textContent = text;
@@ -1186,36 +1685,39 @@ function heading(text) {
 
 // Controls every scene gets, built once the setup message says which
 // lights and FEM meshes it has: wireframe / FEM-element overlays (switch +
-// opacity) and an intensity per light source.
+// opacity) in the Display panel, and the Lighting panel.
 function buildLightControls(message) {
+	buildLightingPanel(message);
 	const hasFem = message.models.some((m) => m.kind === "tetra");
-	const lights = [
-		{ id: "ambient", label: "Ambient light" },
-		...message.lights.map((light, i) => ({ id: i, label: lightLabel(light.name, i) })),
-	];
-	const signature = JSON.stringify({ lights, hasFem });
-	if (signature === lightSignature) return; // same as before this rebuild
-	lightSignature = signature;
-	const box = $("display-lights");
+	const hasRest = message.models.some((m) => m.kind === "tetra" && m.rest);
+	const signature = JSON.stringify({ hasFem, hasRest });
+	if (signature === overlaySignature) return; // same as before this rebuild
+	overlaySignature = signature;
+	const box = $("display-overlays");
 	box.replaceChildren();
 	const alpha = (v) => v.toFixed(2);
 
 	box.appendChild(heading("Overlays"));
 	displayState["overlay:wireframe"] = savedOr("overlay:wireframe", false);
 	displayState["overlay:wireframeAlpha"] = savedOr("overlay:wireframeAlpha", 1);
-	box.appendChild(sliderRow("overlay:wireframeAlpha", "Wireframe", 1, 0.01, alpha, "overlay:wireframe"));
+	box.appendChild(sliderRow("overlay:wireframeAlpha", "Surface wireframe", 1, 0.01, alpha, "overlay:wireframe"));
 	if (hasFem) {
 		for (const [key, label] of [["fem", "FEM elements"], ["femWire", "FEM element edges"], ["femNodes", "FEM nodes"]]) {
 			displayState[`overlay:${key}`] = savedOr(`overlay:${key}`, false);
 			displayState[`overlay:${key}Alpha`] = savedOr(`overlay:${key}Alpha`, 1);
 			box.appendChild(sliderRow(`overlay:${key}Alpha`, label, 1, 0.01, alpha, `overlay:${key}`));
-			if (key === "fem" && message.models.some((m) => m.kind === "tetra" && m.rest)) {
-				displayState["overlay:femStrain"] = savedOr("overlay:femStrain", false);
+			if (key === "fem") {
+				const modes = [["sofa", "SOFA style"], ["lit", "Blue, lit"]];
+				if (hasRest) modes.push(["strain", "By strain"], ["strainLit", "By strain, lit"]);
+				const saved = savedOr("overlay:femColor", "strainLit");
+				displayState["overlay:femColor"] = modes.some(([v]) => v === saved) ? saved : "sofa";
+				box.appendChild(selectRow("overlay:femColor", "Element colors", modes));
+				if (!hasRest) continue;
 				strainPeak = savedOr("overlay:femStrainPeak", 0);
 				displayState["overlay:femStrainPeak"] = strainPeak;
-				box.appendChild(checkboxRow("overlay:femStrain", "Color elements by strain"));
-				// Below it, while on: the current maximum, the color scale's
-				// maximum (the largest seen so far) and a button to reset it.
+				// Below it, while coloring by strain: the current maximum, the
+				// color scale's maximum (the largest seen so far) and a button
+				// to reset it.
 				const info = document.createElement("div");
 				info.id = "d-strain-info";
 				info.className = "display-row strain hidden";
@@ -1233,28 +1735,194 @@ function buildLightControls(message) {
 		}
 	}
 
-	box.appendChild(heading("Light intensity"));
-	for (const light of lights) {
-		const key = `light:${light.id}`;
-		displayState[key] = savedOr(key, 1);
-		box.appendChild(sliderRow(key, light.label, 2, 0.05, (v) => `${v.toFixed(2)}×`));
-	}
 	$("display-panel").classList.remove("hidden");
 }
 
+// Lighting panel: absolute brightness per light (the scene's own value until
+// changed) and yaw/pitch per directional light (following the scene's
+// direction, including a light a controller moves, until changed). Stored
+// with the display settings as light:<id>:brightness and light:<i>:dir.
+const lightSliders = [];
+
+function rangeRow(labelText, min, max, step, format, onInput) {
+	const row = document.createElement("div");
+	row.className = "display-row opacity";
+	const label = document.createElement("label");
+	label.textContent = labelText;
+	const input = document.createElement("input");
+	input.type = "range";
+	Object.assign(input, { min, max, step });
+	label.htmlFor = input.id = `l-${Math.random().toString(36).slice(2)}`;
+	const shown = document.createElement("span");
+	shown.className = "display-value";
+	const range = { row, input, shown, format };
+	input.addEventListener("input", () => {
+		shown.textContent = format(+input.value);
+		onInput(+input.value);
+	});
+	row.append(label, input, shown);
+	return range;
+}
+
+function setRange(range, value) {
+	if (document.activeElement === range.input) return; // being dragged
+	range.input.value = value;
+	range.shown.textContent = range.format(+range.input.value);
+}
+
+// Shows the current values: the overrides, or the scene's own (which may
+// be moving).
+function syncLightSliders() {
+	for (const entry of lightSliders) {
+		setRange(entry.brightness, lightBrightness(entry.id));
+		if (entry.yaw) {
+			const [yaw, pitch] = lightAngles(entry.id);
+			setRange(entry.yaw, yaw);
+			setRange(entry.pitch, pitch);
+		}
+	}
+}
+
+function buildLightingPanel(message, force = false) {
+	const lights = [
+		{ id: "ambient", label: "Ambient light" },
+		...message.lights.map((light, i) => ({ id: i, label: lightLabel(light.name, i) })),
+	];
+	const signature = JSON.stringify(lights);
+	if (signature === lightingSignature && !force) return;
+	lightingSignature = signature;
+	for (const [key, value] of Object.entries(savedDisplay)) {
+		if (/^light:.+:(brightness|dir)$/.test(key) && !(key in displayState)) displayState[key] = value;
+	}
+	const box = $("lighting-controls");
+	box.replaceChildren();
+	lightSliders.length = 0;
+	const degrees = (v) => `${Math.round(v)}°`;
+	for (const light of lights) {
+		box.appendChild(heading(light.label));
+		const entry = { id: light.id };
+		entry.brightness = rangeRow("Brightness", 0, 2, 0.01, (v) => v.toFixed(2), (v) => {
+			displayState[`light:${light.id}:brightness`] = v;
+			saveDisplay();
+			applyLights();
+		});
+		box.appendChild(entry.brightness.row);
+		if (light.id !== "ambient") {
+			const setDirection = () => {
+				displayState[`light:${light.id}:dir`] = [+entry.yaw.input.value, +entry.pitch.input.value];
+				saveDisplay();
+				applyLights();
+			};
+			entry.yaw = rangeRow("Yaw", -180, 180, 1, degrees, setDirection);
+			entry.pitch = rangeRow("Pitch", -90, 90, 1, degrees, setDirection);
+			box.append(entry.yaw.row, entry.pitch.row);
+		}
+		lightSliders.push(entry);
+	}
+	syncLightSliders();
+	$("lighting-panel").classList.remove("hidden");
+}
+
+$("lighting-reset-btn").addEventListener("click", () => {
+	// Back to the scene's lights, or its saved lighting defaults.
+	for (const key of Object.keys(displayState)) if (key.startsWith("light:")) delete displayState[key];
+	for (const key of Object.keys(savedDisplay)) if (key.startsWith("light:")) delete savedDisplay[key];
+	for (const [key, value] of Object.entries(sceneInfo.displayDefaults || {})) {
+		if (key.startsWith("light:")) displayState[key] = savedDisplay[key] = value;
+	}
+	saveDisplay();
+	applyLights();
+	syncLightSliders();
+});
+
+// "Set as default" (admins only): stores a panel's current state as the
+// scene's default in the orchestrator, for every viewer without settings of
+// their own and every simulation of this scene started from now on.
+const simIdMatch = location.pathname.match(/^\/sim\/([a-z0-9]+)\//);
+
+async function checkAdmin() {
+	if (!simIdMatch) return; // not behind the orchestrator
+	try {
+		const response = await fetch("/api/admin-session", { cache: "no-store" });
+		if (response.ok && (await response.json()).admin) document.body.classList.add("admin");
+	} catch {}
+}
+
+async function setAsDefault(section, values, button, what) {
+	if (!confirm(`Make ${what} the default for this scene? It applies to everyone, and to every simulation of this scene started from now on.`)) return;
+	const label = button.textContent;
+	button.disabled = true;
+	try {
+		const response = await fetch(`/admin/api/sims/${simIdMatch[1]}/defaults/${section}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ values }),
+		});
+		if (!response.ok) {
+			const body = await response.json().catch(() => ({}));
+			throw new Error(body?.detail?.message || `${response.status} ${response.statusText}`);
+		}
+		if (section !== "params") {
+			// The section is replaced as a whole, so this page's Reset
+			// buttons go back to exactly these right away.
+			const others = Object.entries(sceneInfo.displayDefaults || {}).filter(
+				([key]) => key.startsWith("light:") !== (section === "lighting"),
+			);
+			sceneInfo.displayDefaults = { ...Object.fromEntries(others), ...values };
+		}
+		button.textContent = "Saved ✓";
+		setTimeout(() => (button.textContent = label), 2000);
+	} catch (err) {
+		alert(`Couldn't save the defaults: ${err.message}`);
+	} finally {
+		button.disabled = false;
+	}
+}
+
+$("display-default-btn").addEventListener("click", (event) => {
+	// The view as it is now, if it's been moved from the scene's (the last
+	// move may not be remembered yet).
+	if (displayState.camera || cameraSaveTimer !== null) displayState.camera = currentCameraPose();
+	clearTimeout(cameraSaveTimer);
+	cameraSaveTimer = null;
+	const values = Object.fromEntries(
+		Object.entries(displayState).filter(([key]) => !key.startsWith("light:") && key !== "overlay:femStrainPeak"),
+	);
+	setAsDefault("display", values, event.currentTarget, "these display settings");
+});
+
+$("lighting-default-btn").addEventListener("click", (event) => {
+	// Only what's been changed here: an untouched light keeps following the scene.
+	const values = Object.fromEntries(Object.entries(displayState).filter(([key]) => key.startsWith("light:")));
+	setAsDefault("lighting", values, event.currentTarget, "these lighting settings");
+});
+
+$("params-default-btn").addEventListener("click", (event) => {
+	// The running simulation's parameters (not unapplied edits in the form).
+	const values = Object.fromEntries(Object.entries(currentParams).filter(([key]) => fieldInputs.has(key)));
+	setAsDefault("params", values, event.currentTarget, "the running parameters");
+});
+
+checkAdmin();
+
 function buildDisplayPanel(spec, useSaved = true) {
 	displaySpec = spec.map((d) => ({ ...d, re: d.models ? new RegExp(d.models) : null }));
-	let saved = {};
+	// The scene's defaults (an admin's "Set as default"), under this
+	// browser's own saved settings; Reset goes back to just the defaults.
+	let saved = { ...(sceneInfo.displayDefaults || {}) };
 	if (useSaved) {
 		try {
-			saved = JSON.parse(localStorage.getItem(displayStoreKey()) || "{}");
+			Object.assign(saved, JSON.parse(localStorage.getItem(displayStoreKey()) || "{}"));
 		} catch {}
 	}
 	savedDisplay = saved;
+	if (validPose(saved.camera)) displayState.camera = saved.camera;
+	else delete displayState.camera;
 	const form = $("display-form");
 	form.replaceChildren();
 	for (const d of displaySpec) {
-		displayState[d.key] = displayDefault(d, d.key in saved ? saved[d.key] : d.value);
+		// `default`: for a key that isn't in params.json.
+		displayState[d.key] = displayDefault(d, d.key in saved ? saved[d.key] : d.value ?? d.default);
 		if (d.type === "opacity") {
 			// A show/hide switch in front of the slider, for quick toggling
 			// without losing the opacity.
@@ -1274,6 +1942,26 @@ function buildDisplayPanel(spec, useSaved = true) {
 			input.addEventListener("input", () => displayChanged(d.key, rgbFromHex(input.value)));
 			row.append(label, input);
 			form.appendChild(row);
+		} else if (d.type === "mirror" && d.chain && d.chain.countKey) {
+			// The mirror switch plus how many chambers to add.
+			const row = checkboxRow(d.key, d.label);
+			row.classList.add("count");
+			const key = d.chain.countKey;
+			const max = d.chain.max || 10;
+			const value = Math.round(+(key in saved ? saved[key] : d.chain.default ?? 1));
+			displayState[key] = Number.isFinite(value) ? Math.max(1, Math.min(max, value)) : 1;
+			const input = document.createElement("input");
+			input.type = "number";
+			Object.assign(input, { min: 1, max, step: 1, value: displayState[key] });
+			input.id = `d-${key}`;
+			input.title = "Number of chambers to add";
+			input.addEventListener("change", () => {
+				const n = Math.max(1, Math.min(max, Math.round(+input.value) || 1));
+				input.value = n;
+				displayChanged(key, n);
+			});
+			row.appendChild(input);
+			form.appendChild(row);
 		} else {
 			form.appendChild(checkboxRow(d.key, d.label));
 		}
@@ -1286,8 +1974,12 @@ $("display-reset-btn").addEventListener("click", () => {
 		localStorage.removeItem(displayStoreKey());
 	} catch {}
 	buildDisplayPanel(sceneInfo.display || [], false);
-	lightSignature = null;
+	overlaySignature = null; // the Lighting panel keeps its own settings (its own Reset)
 	if (setup) buildLightControls(setup);
+	if (controls) {
+		sceneView();
+		applyCameraPose(displayState.camera); // the default view
+	}
 	applyDisplay();
 	resetStrainPeak();
 });
@@ -1459,6 +2151,7 @@ async function init() {
 	buildParamsPanel(sceneInfo.spec);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
 	buildDisplayPanel(sceneInfo.display || []);
+	buildCameraControls();
 	if (!displaySpec.length) $("display-panel").classList.add("hidden");
 	buildCharts(sceneInfo);
 	await loadParams();

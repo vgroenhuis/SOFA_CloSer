@@ -82,6 +82,7 @@ CONFIG = SceneConfig(
         {"key": "show_pivot_marker", "label": "Show hinge marker", "type": "visible", "models": r"^/pivotMarker/"},
         {"key": "show_spring_anchor_marker", "label": "Show spring anchor marker", "type": "visible",
          "models": r"^/springAnchorMarker/"},
+        {"key": "floor_alpha", "label": "Floor opacity", "type": "opacity", "models": r"^/floor/visual$"},
     ],
     probes=probes,
     charts=[

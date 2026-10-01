@@ -13,7 +13,9 @@ One FastAPI process that
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import posixpath
 import re
 import time
 from contextlib import asynccontextmanager
@@ -235,7 +237,7 @@ async def create_sim(
         _background.add(task)  # keep a reference until it's done
         task.add_done_callback(_background.discard)
     try:
-        await asyncio.to_thread(S.docker.start, sim_id, sim.container_name, scene)
+        await asyncio.to_thread(S.docker.start, sim_id, sim.container_name, scene, S.store.get_scene_defaults(scene.id))
     except Exception as exc:
         log.exception("Starting %s failed", sim_id)
         await release(sim_id, f"failed to start container: {exc}")
@@ -367,6 +369,13 @@ async def page_view(sim_id: str) -> FileResponse:
 @app.get("/admin", include_in_schema=False)
 async def page_admin() -> FileResponse:
     return FileResponse(config.STATIC_DIR / "admin.html")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon() -> FileResponse:
+    # Browsers ask for this by default (e.g. for a bare API response); the
+    # pages link the same SVG as /assets/favicon.svg.
+    return FileResponse(config.STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
 
 
 @app.get("/healthz", include_in_schema=False)
@@ -602,6 +611,7 @@ async def admin_state() -> dict:
     scenes = catalog.list_scenes()
     image_flags = await asyncio.gather(*(asyncio.to_thread(S.docker.image_exists, s.image) for s in scenes))
     containers = await asyncio.to_thread(S.docker.managed_containers)
+    defaults_set = S.store.scenes_with_defaults()
     return {
         "limits": S.store.get_limits().as_dict(),
         "sims": [
@@ -614,6 +624,7 @@ async def admin_state() -> dict:
                 "imageAvailable": available,
                 "buildable": scene.buildable,
                 "build": S.docker.builds.get(scene.id),
+                "defaultsSetAt": defaults_set.get(scene.id),
             }
             for scene, available in zip(scenes, image_flags)
         ],
@@ -714,6 +725,54 @@ async def admin_logs(sim_id: str) -> Response:
     return Response(text, media_type="text/plain; charset=utf-8")
 
 
+@app.get("/api/admin-session")
+async def admin_session(request: Request) -> dict:
+    """Whether this browser is logged in to the admin page -- scene pages
+    show their "Set as default" buttons only then."""
+    admin = bool(config.ADMIN_PASSWORD) and auth.verify_admin_session(S.secret, request.cookies.get(ADMIN_COOKIE))
+    return {"admin": admin}
+
+
+DEFAULTS_SECTIONS = ("params", "display", "lighting")
+DEFAULTS_MAX_BYTES = 64 * 1024
+
+
+class DefaultsRequest(BaseModel):
+    values: dict
+
+
+async def push_scene_defaults(scene_id: str, defaults: dict) -> None:
+    """Hands new defaults to the scene's running containers too (best
+    effort), so their own Reset / Defaults buttons and page reloads use
+    them; new containers get them at start."""
+    sims = [s for s in S.store.list_sims() if s.scene_id == scene_id and s.status == "running"]
+    await asyncio.gather(*(S.proxy.post_json(upstream_base(s) + "/api/defaults", defaults) for s in sims))
+
+
+@app.put("/admin/api/sims/{sim_id}/defaults/{section}", dependencies=[Depends(require_admin)])
+async def admin_set_defaults(sim_id: str, section: str, body: DefaultsRequest) -> dict:
+    """"Set as default" in a scene's Display / Lighting / Parameters panel:
+    stored per scene (that simulation's scene), and used by every
+    simulation of it started from now on."""
+    sim = get_sim_or_404(sim_id)
+    if section not in DEFAULTS_SECTIONS:
+        raise api_error(404, "Unknown defaults section.")
+    if len(json.dumps(body.values)) > DEFAULTS_MAX_BYTES:
+        raise api_error(413, "Too many values.")
+    defaults = S.store.set_scene_defaults(sim.scene_id, section, body.values)
+    S.store.log("defaults-set", sim.id, f"scene={sim.scene_id} section={section} ({len(body.values)} values)")
+    await push_scene_defaults(sim.scene_id, defaults)
+    return {"ok": True}
+
+
+@app.delete("/admin/api/scenes/{scene_id}/defaults", dependencies=[Depends(require_admin)])
+async def admin_clear_defaults(scene_id: str) -> dict:
+    if S.store.clear_scene_defaults(scene_id):
+        S.store.log("defaults-cleared", detail=f"scene={scene_id}")
+        await push_scene_defaults(scene_id, {})
+    return {"ok": True}
+
+
 @app.post("/admin/api/scenes/{scene_id}/build", dependencies=[Depends(require_admin)])
 async def admin_build_scene(scene_id: str) -> dict:
     scene = catalog.get_scene(scene_id)
@@ -746,6 +805,10 @@ async def sim_http(sim_id: str, path: str, request: Request) -> Response:
     if sim.status != "running":
         return Response("Simulation is starting...", status_code=503, media_type="text/plain")
     if request.method not in READ_ONLY_METHODS:
+        if posixpath.normpath("/" + path).lower() == "/api/defaults":
+            # Only the orchestrator itself hands defaults to a container
+            # (push_scene_defaults), on an admin's behalf.
+            raise api_error(403, "Defaults are set by an admin.")
         require_owner(request, sim)
         S.store.touch(sim.id)
     return await S.proxy.http(request, upstream_base(sim), path)

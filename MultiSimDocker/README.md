@@ -127,6 +127,13 @@ A reaper runs every 3 s. It:
 Every release, with its reason, goes into the event log shown on the admin
 page. A visitor who opens an ended simulation sees why it ended.
 
+While logged in to the admin page, a simulation's Display, Lighting and
+Parameters panels (sofaweb scenes) also show **Set as default**. It saves
+that panel's state as the scene's default for every simulation started
+afterwards, stored in the data volume. The admin page's scene list shows
+which scenes have saved defaults, with a **Clear** button
+([details](scenes/README.md#adding-an-existing-sofa-scene-script-sofaweb)).
+
 ### Limits
 
 Defaults come from `.env` (see [.env.example](.env.example)). They can be

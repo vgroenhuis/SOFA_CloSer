@@ -430,7 +430,7 @@ def launch_params_editor():
         print(f"[params] could not launch params_editor.py: {e}")
 
 
-def _resolve_trunk_axis(divs, trunk_blocks):
+def _resolve_trunk_axis(divs, trunk_blocks, allow_zero=False):
     """Snaps a requested trunk footprint (in blocks, along one axis) to a
     value that's centered and grid-aligned: since the box's own centre
     sits exactly on a grid point when `divs` is even, and exactly midway
@@ -439,7 +439,13 @@ def _resolve_trunk_axis(divs, trunk_blocks):
     as `divs`. Clamped to [1 or 2, divs] (never bigger than the box
     itself), rounding up to the nearest valid value when the request is
     in between.
+
+    `allow_zero`: 0 is kept as 0 (no trunk of its own along this axis) --
+    only valid when something else is attached, see ATTACH_* (the
+    symmetry buffer's floor).
     """
+    if allow_zero and int(round(trunk_blocks)) <= 0:
+        return 0
     trunk = max(1, int(round(trunk_blocks)))
     trunk = min(trunk, divs)
     if trunk % 2 != divs % 2:
@@ -450,7 +456,7 @@ def _resolve_trunk_axis(divs, trunk_blocks):
 def _resolve_geometry(block_size, length_blocks, width_blocks, height_blocks,
                        wall_length_blocks, wall_width_blocks, wall_height_blocks,
                        trunk_length_blocks, trunk_width_blocks,
-                       symmetry_x=False, symmetry_y=False):
+                       symmetry_x=False, symmetry_y=False, symmetry_buffer_blocks=0):
     """Snaps the block counts to an achievable structured-grid geometry
     (each axis needs at least one interior/cavity cell) instead of
     requiring the caller to get it right -- params.json is meant to be
@@ -476,7 +482,10 @@ def _resolve_geometry(block_size, length_blocks, width_blocks, height_blocks,
     divs_x, wall_x = resolve_axis(length_blocks, wall_length_blocks, symmetry_x)
     divs_y, wall_y = resolve_axis(width_blocks, wall_width_blocks, symmetry_y)
     divs_z, wall_z = resolve_axis(height_blocks, wall_height_blocks, False)
-    trunk_divs_x = _resolve_trunk_axis(divs_x, trunk_length_blocks)
+    # A zero trunk length is allowed when X symmetry has a buffer: the
+    # buffer's floor blocks are then all that's attached (see ATTACH_*).
+    trunk_divs_x = _resolve_trunk_axis(divs_x, trunk_length_blocks,
+                                       allow_zero=symmetry_x and int(round(symmetry_buffer_blocks)) > 0)
     trunk_divs_y = _resolve_trunk_axis(divs_y, trunk_width_blocks)
     return cell, divs_x, divs_y, divs_z, wall_x, wall_y, wall_z, trunk_divs_x, trunk_divs_y
 
@@ -497,7 +506,7 @@ CELL, DIVS_X, DIVS_Y, DIVS_Z, WALL_X, WALL_Y, WALL_Z, TRUNK_DIVS_X, TRUNK_DIVS_Y
     PARAMS['block_size'], PARAMS['length_blocks'], PARAMS['width_blocks'], PARAMS['height_blocks'],
     PARAMS['wall_length_blocks'], PARAMS['wall_width_blocks'], PARAMS['wall_height_blocks'],
     PARAMS['trunk_length_blocks'], PARAMS['trunk_width_blocks'],
-    SYMMETRY_X, SYMMETRY_Y)
+    SYMMETRY_X, SYMMETRY_Y, SYMMETRY_BUFFER_BLOCKS)
 
 LENGTH = DIVS_X * CELL  # [m] outer box extent along X
 WIDTH = DIVS_Y * CELL   # [m] outer box extent along Y
@@ -514,15 +523,19 @@ BASE_OFFSET = CELL  # [m] the hollow box is raised this far above the floor
 # bottom face attached to fixed world, visualized by the trunk between the
 # floor and the box -- TRUNK_DIVS_X/TRUNK_DIVS_Y blocks, centered. The
 # BoxROI clamp and the trunk mesh both derive from these same bounds, so
-# they can't drift out of sync. Clipped to X>=0 / Y>=0 when the
-# corresponding symmetry flag is on, matching the box's own build_hollow_
-# cube_mesh clipping below.
+# they can't drift out of sync. With a symmetry flag on, clipped to where
+# the model is built: X>=0 / Y>=0, plus the symmetry buffer's blocks past
+# the cut (see build_hollow_cube_mesh), whose floor is always attached --
+# that material stands in for the trunk-mounted floor on the far side of
+# the cut. With X symmetry and a buffer, the trunk length may even be 0:
+# the buffer's floor is then the whole attachment.
 ATTACH_XMIN, ATTACH_XMAX = -TRUNK_DIVS_X * CELL / 2, TRUNK_DIVS_X * CELL / 2
 ATTACH_YMIN, ATTACH_YMAX = -TRUNK_DIVS_Y * CELL / 2, TRUNK_DIVS_Y * CELL / 2
+_BUFFER = max(0, int(round(SYMMETRY_BUFFER_BLOCKS)))
 if SYMMETRY_X:
-    ATTACH_XMIN = 0.0
+    ATTACH_XMIN = -min(_BUFFER, DIVS_X // 2) * CELL
 if SYMMETRY_Y:
-    ATTACH_YMIN = 0.0
+    ATTACH_YMIN = -min(_BUFFER, DIVS_Y // 2) * CELL
 
 YOUNG_MODULUS = PARAMS['young_modulus']
 POISSON_RATIO = PARAMS['poisson_ratio']
@@ -633,7 +646,19 @@ def _box_surface(xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z,
     return points, tris
 
 
-def _fan_cap_face(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z):
+def _keep_loop_points(loop_ab, divs_a, divs_b, to_world, keep_point):
+    """Drops the loop points `keep_point` rejects, except the 4 corners --
+    see `_capped_box_surface`'s `keep_point`. The loop stays the same
+    rectangle (only collinear edge points go), so the cap's shape and
+    enclosed volume don't change."""
+    if keep_point is None:
+        return loop_ab
+    corners = {(0, 0), (divs_a, 0), (divs_a, divs_b), (0, divs_b)}
+    return [ab for ab in loop_ab if ab in corners or keep_point(to_world(ab))]
+
+
+def _fan_cap_face(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z,
+                  keep_point=None):
     """Closes one `_BOX_FACES` face with a fan triangulation of only its
     own boundary loop (at the face's full a/b resolution, i.e. the same
     resolution `_box_surface` would use there) -- no interior points are
@@ -661,13 +686,16 @@ def _fan_cap_face(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y,
                [(0, b) for b in range(divs_b, 0, -1)])
     if flip:
         loop_ab.reverse()  # match _box_surface's own winding for this face
+    loop_ab = _keep_loop_points(loop_ab, divs_a, divs_b,
+                                lambda ab: world(*ijk_of(ab[0], ab[1], divs_x, divs_y, divs_z)), keep_point)
 
     points = [world(*ijk_of(a, b, divs_x, divs_y, divs_z)) for a, b in loop_ab]
     tris = [[0, i, i + 1] for i in range(1, len(points) - 1)]
     return points, tris
 
 
-def _fan_cap_window(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z, window):
+def _fan_cap_window(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z, window,
+                    keep_point=None):
     """Like `_fan_cap_face`, but caps only a rectangular sub-window
     `(a_lo, a_hi, b_lo, b_hi)` of one face (the same window passed to
     `_box_surface`'s `face_windows` to punch a hole there) instead of
@@ -693,6 +721,10 @@ def _fan_cap_window(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_
                [(a_lo, b) for b in range(b_hi, b_lo, -1)])
     if flip:
         loop_ab.reverse()
+    if keep_point is not None:
+        corners = {(a_lo, b_lo), (a_hi, b_lo), (a_hi, b_hi), (a_lo, b_hi)}
+        loop_ab = [ab for ab in loop_ab
+                   if ab in corners or keep_point(world(*ijk_of(ab[0], ab[1], divs_x, divs_y, divs_z)))]
 
     points = [world(*ijk_of(a, b, divs_x, divs_y, divs_z)) for a, b in loop_ab]
     tris = [[0, i, i + 1] for i in range(1, len(points) - 1)]
@@ -700,7 +732,8 @@ def _fan_cap_window(face_name, xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_
 
 
 def _capped_box_surface(xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs_z,
-                         coarse_faces=(), skip_faces=(), face_windows=None, cap_windows=True):
+                         coarse_faces=(), skip_faces=(), face_windows=None, cap_windows=True,
+                         keep_point=None):
     """Like `_box_surface`, but any face named in `coarse_faces` is
     closed with `_fan_cap_face` (using only its own boundary-loop
     points) instead of being subdivided into a full interior grid.
@@ -731,6 +764,17 @@ def _capped_box_surface(xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs
     when the caller is appending its own surface piece to continue the
     boundary seamlessly through that hole instead (e.g. the PneuNet
     channel duct's own bore surface), rather than sealing it here.
+
+    `keep_point(p)`: whether a cap's boundary-loop point `p` lies on real
+    shell material. Points it rejects are dropped from the cap outlines
+    (a face's corners always stay). That matters where two caps meet
+    along an edge with no material at all: with both X and Y symmetry,
+    the -X and -Y cut faces share the line x=y=0, which runs straight
+    through the hollow cavity. Every intermediate loop point on that
+    line has the same unmappable-point problem as a cap's interior.
+    BarycentricMapping extrapolates them from the nearest elements and
+    applies their share of the pressure load there, which showed up as a
+    strong, unphysical bulge of the end wall next to the cut.
     """
     fine_skip = set(coarse_faces) | set(skip_faces)
     points, tris = _box_surface(xmin, ymin, zmin, xmax, ymax, zmax,
@@ -738,7 +782,7 @@ def _capped_box_surface(xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs
                                  face_windows=face_windows)
     for face_name in coarse_faces:
         cap_points, cap_tris = _fan_cap_face(face_name, xmin, ymin, zmin, xmax, ymax, zmax,
-                                              divs_x, divs_y, divs_z)
+                                              divs_x, divs_y, divs_z, keep_point=keep_point)
         offset = len(points)
         points = points + cap_points
         tris = tris + [[i + offset for i in t] for t in cap_tris]
@@ -746,7 +790,7 @@ def _capped_box_surface(xmin, ymin, zmin, xmax, ymax, zmax, divs_x, divs_y, divs
         if face_name in fine_skip:
             continue  # already whole-face capped/omitted above
         cap_points, cap_tris = _fan_cap_window(face_name, xmin, ymin, zmin, xmax, ymax, zmax,
-                                                divs_x, divs_y, divs_z, window)
+                                                divs_x, divs_y, divs_z, window, keep_point=keep_point)
         offset = len(points)
         points = points + cap_points
         tris = tris + [[i + offset for i in t] for t in cap_tris]
@@ -1261,6 +1305,16 @@ def build_hollow_cube_mesh(divs_x=DIVS_X, divs_y=DIVS_Y, divs_z=DIVS_Z,
     positions = [raw_positions[old] for old in used]
     tetrahedra = [[remap[idx] for idx in tet] for tet in raw_tetrahedra]
 
+    # Whether a cavity-cap outline point sits on a real shell node (see
+    # _capped_box_surface's `keep_point`): every node left is a corner of
+    # some element.
+    def node_key(p):
+        return tuple(round(c / cell * 1e6) for c in p)
+    node_keys = {node_key(p) for p in positions}
+
+    def on_material(p):
+        return node_key(p) in node_keys
+
     # Inner cavity surface: `wall_x`/`wall_y`/`wall_z` cells in from the
     # shell on each pair of faces, subdivided at the shell's own cell
     # resolution (cavity_divs_* quads per face) so its vertices coincide
@@ -1319,7 +1373,8 @@ def build_hollow_cube_mesh(divs_x=DIVS_X, divs_y=DIVS_Y, divs_z=DIVS_Z,
                                                    cavity_divs_x, cavity_divs_y, cavity_divs_z,
                                                    coarse_faces=symmetry_cut_faces,
                                                    face_windows=inner_channel_windows,
-                                                   cap_windows=not has_duct)
+                                                   cap_windows=not has_duct,
+                                                   keep_point=on_material)
 
     # Interior-volume visual surface: same box as the cavity above (for
     # the physics), but a separate mesh so it can have a cutaway window
@@ -1425,7 +1480,8 @@ def build_hollow_cube_mesh(divs_x=DIVS_X, divs_y=DIVS_Y, divs_z=DIVS_Z,
             bore_cav_pts, bore_cav_tris = _capped_box_surface(
                 bore_xmin, ymin, zfloor_bore, bore_xmax, ymax, ztop_bore,
                 duct_divs_x, cavity_divs_y, channel_h,
-                coarse_faces={outer_face} | y_cut_faces, skip_faces={inner_face})
+                coarse_faces={outer_face} | y_cut_faces, skip_faces={inner_face},
+                keep_point=on_material)
             offset = len(cavity_pts)
             cavity_pts = cavity_pts + bore_cav_pts
             cavity_tris = cavity_tris + [[i + offset for i in t] for t in bore_cav_tris]

@@ -4,6 +4,7 @@
 	<meta charset="utf-8" />
 	<title>SOFA Simulation</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="icon" href="favicon.svg" type="image/svg+xml" />
 	<link rel="stylesheet" href="viewer.css" />
 </head>
 <body>
@@ -30,18 +31,30 @@
 			<details id="display-panel" class="panel side-panel" open>
 				<summary>Display</summary>
 				<form id="display-form" autocomplete="off"></form>
-				<div id="display-lights"></div>
+				<div id="display-overlays"></div>
+				<div id="display-camera"></div>
 				<div class="param-buttons">
-					<button id="display-reset-btn" class="secondary" type="button" title="Back to the scene's own display settings">Reset</button>
+					<button id="display-reset-btn" class="secondary" type="button" title="Back to the scene's default display settings">Reset</button>
+					<button id="display-default-btn" class="secondary admin-only" type="button" title="Admin: make these display settings the default for everyone viewing this scene">Set as default</button>
 				</div>
 				<p class="display-note">Changes only what you see, immediately; the simulation isn't affected.</p>
+			</details>
+			<details id="lighting-panel" class="panel side-panel hidden">
+				<summary>Lighting</summary>
+				<div id="lighting-controls"></div>
+				<div class="param-buttons">
+					<button id="lighting-reset-btn" class="secondary" type="button" title="Back to the scene's default lights">Reset</button>
+					<button id="lighting-default-btn" class="secondary admin-only" type="button" title="Admin: make these lighting settings the default for everyone viewing this scene">Set as default</button>
+				</div>
+				<p class="display-note">Yaw and pitch are around the scene's up axis. A light follows the scene (including a moving light) until you change it here.</p>
 			</details>
 			<details id="params-panel" class="panel side-panel" open>
 				<summary>Parameters</summary>
 				<form id="params-form" autocomplete="off" novalidate></form>
-				<div class="param-buttons owner-only">
-					<button id="apply-params-btn" type="submit" form="params-form" disabled>Apply &amp; restart</button>
-					<button id="default-params-btn" class="secondary" type="button" title="Back to the values from the original params.json">Defaults</button>
+				<div class="param-buttons">
+					<button id="apply-params-btn" class="owner-only" type="submit" form="params-form" disabled>Apply &amp; restart</button>
+					<button id="default-params-btn" class="secondary owner-only" type="button" title="Back to the scene's default values">Defaults</button>
+					<button id="params-default-btn" class="secondary admin-only" type="button" title="Admin: make the running parameters the default for new simulations of this scene">Set as default</button>
 				</div>
 				<p class="param-note"><span class="live-badge">live</span> fields take effect immediately; the others rebuild the scene, like the SOFA GUI's Reload.</p>
 			</details>

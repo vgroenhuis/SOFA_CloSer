@@ -199,6 +199,25 @@ $("reset-limits-btn").addEventListener("click", async () => {
 
 // -- scenes ----------------------------------------------------------------
 
+// Defaults saved with "Set as default" in a scene's own panels.
+function defaultsInfo(scene) {
+	if (!scene.defaultsSetAt) return null;
+	const clear = el(
+		"button",
+		{
+			class: "secondary small",
+			title: "Back to the scene's own defaults for new simulations and viewers",
+			onclick: async () => {
+				if (!confirm(`Clear the saved defaults of '${scene.title}'?`)) return;
+				await guarded(() => api(`/admin/api/scenes/${scene.id}/defaults`, { method: "DELETE" }));
+				refresh();
+			},
+		},
+		"Clear"
+	);
+	return el("div", { class: "muted small" }, `custom defaults since ${fmtTime(scene.defaultsSetAt)} `, clear);
+}
+
 function renderScenes() {
 	const select = $("create-scene");
 	const selected = select.value;
@@ -218,7 +237,7 @@ function renderScenes() {
 				{},
 				el("td", {}, el("strong", {}, scene.title), el("div", { class: "muted small mono" }, scene.id)),
 				el("td", { class: "mono small" }, scene.image),
-				el("td", {}, status, detail),
+				el("td", {}, status, detail, defaultsInfo(scene)),
 				el(
 					"td",
 					{},

@@ -80,7 +80,9 @@ CONFIG = SceneConfig(
         "wall_length_blocks": (1, 6),
         "wall_width_blocks": (1, 6),
         "wall_height_blocks": (1, 6),
-        "trunk_length_blocks": (1, 24),
+        # 0 is only kept with X symmetry and a symmetry buffer (the buffer's
+        # floor is then the attachment); otherwise the script makes it 1+.
+        "trunk_length_blocks": (0, 24),
         "trunk_width_blocks": (1, 40),
         "floor_size_blocks": (5, 200),
         "channel_height_blocks": (1, 10),
@@ -113,10 +115,24 @@ CONFIG = SceneConfig(
          "models": r"(^|/)cube/interior_visu/visual$"},
         {"key": "channel_end_alpha", "label": "Channel end-plane opacity", "type": "opacity",
          "models": r"^/channelEndPlane"},
+        {"key": "floor_alpha", "label": "Floor opacity", "type": "opacity", "models": r"^/floor/visual$"},
+        {"key": "axes_alpha", "label": "Coordinate axes (X, Y) opacity", "type": "opacity",
+         "models": r"^/(arrow|label)_[xyz]/visual$"},
         {"key": "mirror_visual_x", "label": "Mirror across X symmetry plane", "type": "mirror", "axis": "X",
          "models": r"(^|/)cube/(interior_)?visu/visual$", "requires": "symmetry_x"},
         {"key": "mirror_visual_y", "label": "Mirror across Y symmetry plane", "type": "mirror", "axis": "Y",
          "models": r"(^|/)cube/(interior_)?visu/visual$", "requires": "symmetry_y"},
+        # Follows the far-end plane (it shifts and tilts) via its indicator
+        # model, which exists whenever the channel duct is built.
+        {"key": "mirror_far_end", "label": "Mirror across far-end symmetry plane", "type": "mirror",
+         "planeModel": r"^/channelEndPlanePos/visual$", "default": False,
+         # Repeats along the finger: up to 12 more chambers (see the viewer).
+         "chain": {"countKey": "mirror_far_end_count", "max": 12, "axis": "X", "plane": 0.0, "half": "symmetry_x"},
+         "models": r"(^|/)cube/(interior_)?visu/visual$", "requires": "channel_separation_blocks"},
+        {"key": "show_symmetry_buffer", "label": "Show symmetry buffer elements (FEM)", "type": "femRegion",
+         "requires": "symmetry_buffer_blocks",
+         "regions": [{"axis": "X", "below": 0.0, "requires": "symmetry_x"},
+                     {"axis": "Y", "below": 0.0, "requires": "symmetry_y"}]},
     ],
     live_params=LIVE,
     probes=probes,

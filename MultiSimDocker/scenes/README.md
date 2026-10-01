@@ -80,6 +80,8 @@ app must:
 7. **Not depend on persistent state.** A container is removed when its
    simulation is released and started fresh for the next claim. The
    `MSD_SIM_ID` environment variable holds the simulation's id if useful.
+   Defaults an admin saved for the scene arrive as JSON in
+   `MSD_SCENE_DEFAULTS` (optional to support; see below).
 
 The proxy strips the orchestrator's cookies before forwarding, so the
 scene never sees claim keys.
@@ -146,7 +148,23 @@ In `sofaweb_scene.py`, at minimum set `title` and `script`. Useful extras
 | `probes`, `charts`, `readouts` | `fn(root, module) -> {name: value}` sampled every frame, plotted and shown |
 | `stop_at`, `extend_by`, `end_condition`, `auto_restart` | when a run ends and what happens then |
 | `view` | `"3d"` (orbit) or `"2d"` (pan/zoom, drawn in creation order for flat scenes) |
-| `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes, each tied to a params.json key and a pattern for the visual models' SOFA paths. Every scene also gets, automatically: a wireframe overlay and (when the scene has a tetrahedral FEM mesh, which is found and streamed for this) SOFA-style FEM elements, element edges and nodes, each with a switch and opacity slider, an option to color the elements by strain (Green-Lagrange, relative to the mesh's rest shape, scaled to the current maximum), and an intensity slider per light source. Opacity rows get a show/hide switch in front. |
+| `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes (fixed, or following a moving plane such as the fingers' far-end plane via the visual model that marks it; a moving one can repeat as a chain, e.g. a finger of N chambers), each tied to a params.json key and a pattern for the visual models' SOFA paths, plus `femRegion` switches that hide FEM elements in a region (used for the symmetry buffer blocks); a control with `requires` is grayed out while that parameter is off. Every scene also gets, automatically: a surface wireframe overlay and (when the scene has a tetrahedral FEM mesh, which is found and streamed for this) FEM elements, element edges and nodes, each with a switch and opacity slider; the elements are colored SOFA style, in one lit blue, or by strain, unlit or lit (the default; Green-Lagrange, relative to the mesh's rest shape, on a scale up to the largest strain seen); and a Lighting panel with each light's brightness and each directional light's yaw and pitch (around the scene's up axis), following the scene's own lights until changed. The Display panel also holds the camera pose (position, look-at point, zoom), editable and remembered per viewer. Chart and readout panels collapse to their title on a click. Opacity rows get a show/hide switch in front. |
+
+**Saved defaults.** In a browser that's logged in to the admin page, the
+Display, Lighting and Parameters panels get a **Set as default** button. It
+stores that panel's current state (for Parameters: the running simulation's
+values) as the scene's default in the orchestrator's database, so it
+survives restarts. Every simulation of the scene started afterwards gets
+these defaults:
+- the parameters are its starting values and what **Defaults** returns to;
+- display and lighting are where a viewer starts, unless they have
+  settings of their own saved in their browser, and where **Reset** returns to.
+
+The orchestrator hands them to a container as `MSD_SCENE_DEFAULTS` (JSON
+`{"params", "display", "lighting"}`) and pushes changes to the scene's
+running containers via `POST /api/defaults` (a path its proxy refuses to
+browsers). The admin page shows which scenes have saved defaults, with a
+**Clear** button to go back to the scene's own defaults.
 
 The Dockerfile's `python3 -m sofaweb check sofaweb_scene.py` step builds
 the scene and steps it for 0.2 s during `docker build`, printing the

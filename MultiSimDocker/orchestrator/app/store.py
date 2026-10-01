@@ -1,4 +1,5 @@
-"""SQLite persistence: active simulations, runtime limits, and an event log.
+"""SQLite persistence: active simulations, runtime limits, per-scene
+defaults, and an event log.
 
 A single connection guarded by a lock is plenty here -- every query is tiny
 and the orchestrator is a single process.
@@ -6,6 +7,7 @@ and the orchestrator is a single process.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 import time
@@ -42,6 +44,13 @@ CREATE TABLE IF NOT EXISTS events (
     detail TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS events_sim ON events(sim_id, id);
+-- Per-scene defaults set by an admin ("Set as default" in a scene's
+-- panels): JSON {"params": {...}, "display": {...}, "lighting": {...}}.
+CREATE TABLE IF NOT EXISTS scene_defaults (
+    scene_id   TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at REAL NOT NULL
+);
 """
 
 
@@ -150,6 +159,36 @@ class Store:
     def reset_limits(self) -> Limits:
         self._execute("DELETE FROM settings")
         return self.get_limits()
+
+    # -- scene defaults -------------------------------------------------
+
+    def get_scene_defaults(self, scene_id: str) -> dict:
+        rows = self._query("SELECT value FROM scene_defaults WHERE scene_id = ?", (scene_id,))
+        if not rows:
+            return {}
+        try:
+            value = json.loads(rows[0]["value"])
+        except ValueError:
+            return {}
+        return value if isinstance(value, dict) else {}
+
+    def set_scene_defaults(self, scene_id: str, section: str, values: dict) -> dict:
+        """Replaces one section (params / display / lighting), keeping the others."""
+        defaults = self.get_scene_defaults(scene_id)
+        defaults[section] = values
+        self._execute(
+            "INSERT INTO scene_defaults (scene_id, value, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(scene_id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+            (scene_id, json.dumps(defaults), time.time()),
+        )
+        return defaults
+
+    def clear_scene_defaults(self, scene_id: str) -> bool:
+        return self._execute("DELETE FROM scene_defaults WHERE scene_id = ?", (scene_id,)) > 0
+
+    def scenes_with_defaults(self) -> dict[str, float]:
+        """scene id -> when its defaults were last set."""
+        return {row["scene_id"]: row["updated_at"] for row in self._query("SELECT scene_id, updated_at FROM scene_defaults")}
 
     # -- event log ------------------------------------------------------
 

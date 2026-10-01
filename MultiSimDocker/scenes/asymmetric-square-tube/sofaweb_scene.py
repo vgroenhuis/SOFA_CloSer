@@ -97,6 +97,7 @@ CONFIG = SceneConfig(
         {"key": "block_show_edges", "label": "Show block edges", "type": "visible", "models": r"(^|/)cube/visuEdges/visual$"},
         {"key": "block_edge_color", "label": "Edge color", "type": "color", "models": r"(^|/)cube/visuEdges/visual$"},
         {"key": "show_platen", "label": "Show platen", "type": "visible", "models": r"^/platen/"},
+        {"key": "floor_alpha", "label": "Floor opacity", "type": "opacity", "models": r"^/floor/visual$"},
     ],
     probes=probes,
     charts=[

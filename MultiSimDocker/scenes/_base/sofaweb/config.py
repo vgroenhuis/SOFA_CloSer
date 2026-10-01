@@ -71,7 +71,20 @@ class SceneConfig:
     #       -- the browser draws reflected copies of the matching models
     #          across that axis's plane (free for the server: shared
     #          geometry, negative scale), shown only while `requires` (e.g.
-    #          symmetry_x) is on; combinations of axes (XY) are included.
+    #          symmetry_x) is on; combinations of axes (XY) are included;
+    #       "planeModel": regex instead of "axis": the plane follows the
+    #          visual model that marks it (e.g. a moving far-end plane);
+    #       "default": the initial value when the key isn't in params.json;
+    #   {"key", "label", "type": "femRegion", "regions": [{"axis": "X" | "Y" | "Z",
+    #    "below" | "above": float, "requires": param key (optional)}, ...],
+    #    "requires": param key (optional)}
+    #       -- a switch for the FEM element overlays: while off, elements
+    #          whose rest centre lies in any of the regions (each only
+    #          while its own `requires` is on) are hidden, e.g. the
+    #          symmetry buffer blocks past a cut plane. Its key needn't be
+    #          in params.json (shown by default).
+    # Any control with a `requires` is grayed out while that parameter is
+    # off (falsy) in the running scene.
     # A "visible" control only has something to show if the model is
     # built, so force its params.json flag on in forced_params (and force a
     # scene's own server-side mirroring off when using "mirror").

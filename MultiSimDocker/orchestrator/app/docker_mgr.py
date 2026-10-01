@@ -5,10 +5,12 @@ All methods are blocking; the async callers run them via asyncio.to_thread.
 
 from __future__ import annotations
 
+import json
 import logging
 import threading
 import time
 from pathlib import Path
+from typing import Optional
 
 import docker
 from docker.errors import APIError, ImageNotFound, NotFound
@@ -40,7 +42,12 @@ class DockerManager:
         except ImageNotFound:
             return False
 
-    def start(self, sim_id: str, container_name: str, scene: Scene) -> None:
+    def start(self, sim_id: str, container_name: str, scene: Scene, defaults: Optional[dict] = None) -> None:
+        environment = {"MSD_SIM_ID": sim_id}
+        if defaults:
+            # The scene's admin-set defaults (see Store.scene_defaults); a
+            # scene that doesn't know this variable just ignores it.
+            environment["MSD_SCENE_DEFAULTS"] = json.dumps(defaults)
         self._client.containers.run(
             scene.image,
             name=container_name,
@@ -51,7 +58,7 @@ class DockerManager:
                 "msd.sim_id": sim_id,
                 "msd.scene_id": scene.id,
             },
-            environment={"MSD_SIM_ID": sim_id},
+            environment=environment,
             nano_cpus=int(scene.cpus * 1e9),
             mem_limit=scene.memory,
             pids_limit=1024,
