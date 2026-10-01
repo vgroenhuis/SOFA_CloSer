@@ -87,7 +87,7 @@ class Model:
     id: int
     obj: Any
     name: str
-    kind: str  # "mesh" | "lines"
+    kind: str  # "mesh" | "lines" | "tetra" (an FEM mesh: index is 4 node indices per element)
     color: list[float]
     line_width: float
     index: np.ndarray  # triangle (n*3) or edge (n*2) indices into the full vertex array
@@ -98,9 +98,12 @@ class Model:
     scale: float
     bound: float  # |coordinate| beyond which the simulation is considered to have blown up
     last_sent: Optional[np.ndarray] = None  # last full position array sent
+    # FEM meshes only: rest positions, so the viewer can colour elements by
+    # strain even when it connects mid-run.
+    rest: Optional[np.ndarray] = None
 
     def setup(self) -> dict:
-        return {
+        info = {
             "id": self.id,
             "name": self.name,
             "kind": self.kind,
@@ -111,6 +114,9 @@ class Model:
             "flat": self.flat,
             "inverse": self.inverse.astype(int).tolist() if self.inverse is not None else None,
         }
+        if self.rest is not None:
+            info["rest"] = [round(float(v), 9) for v in self.rest.reshape(-1)]
+        return info
 
     def packed(self, positions: np.ndarray) -> np.ndarray:
         return positions[self.rep] if self.rep is not None else positions
@@ -159,6 +165,51 @@ def _build_model(model_id: int, record) -> Optional[Model]:
         scale=float(max(extent.max(), 1e-9)),
         bound=1000.0 * float(np.abs(positions).max() + max(extent.max(), 1e-9)),
     )
+
+
+def _fem_models(root, first_id: int) -> list[Model]:
+    """The scene's tetrahedral FEM meshes, for the viewer's "FEM elements"
+    display (SOFA's showForceFields look): every node whose topology has
+    tetrahedra, with that node's mechanical state as positions."""
+    found: list[Model] = []
+    seen: set[str] = set()
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        path = node.getPathName()
+        if path in seen:  # a node with two parents (e.g. Better finger's cube)
+            continue
+        seen.add(path)
+        stack.extend(node.children)
+        mstate = node.getMechanicalState()
+        if mstate is None:
+            continue
+        for obj in node.objects:
+            if not hasattr(obj, "tetrahedra"):
+                continue
+            tets = np.asarray(obj.tetrahedra.value, dtype=np.int64).reshape(-1, 4)
+            positions = np.asarray(mstate.position.value, dtype=np.float64).reshape(-1, 3)
+            if not len(tets) or len(positions) <= tets.max():
+                continue
+            extent = positions.max(axis=0) - positions.min(axis=0)
+            found.append(Model(
+                id=first_id + len(found),
+                obj=mstate,
+                name=f"FEM:{obj.getPathName()}",
+                kind="tetra",
+                color=[0.0, 0.0, 1.0, 1.0],
+                line_width=1.0,
+                index=tets.reshape(-1),
+                vertex_count=len(positions),
+                flat=False,
+                rep=None,
+                inverse=None,
+                scale=float(max(extent.max(), 1e-9)),
+                bound=1000.0 * float(np.abs(positions).max() + max(extent.max(), 1e-9)),
+                rest=np.asarray(mstate.rest_position.value, dtype=np.float64).reshape(-1, 3),
+            ))
+            break  # one tetrahedral topology per node
+    return found
 
 
 def pack_frame(header: dict, arrays: list[np.ndarray]) -> bytes:
@@ -439,6 +490,7 @@ class Runner:
 
         self._root, self._module, self._capture = root, module, capture
         self._models = [m for m in (_build_model(i, r) for i, r in enumerate(capture.visuals)) if m is not None]
+        self._models += _fem_models(root, len(capture.visuals))
         self._sim_time = 0.0
         self._steps = 0
         self._diverged = False

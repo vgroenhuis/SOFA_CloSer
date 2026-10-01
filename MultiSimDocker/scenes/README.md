@@ -146,7 +146,7 @@ In `sofaweb_scene.py`, at minimum set `title` and `script`. Useful extras
 | `probes`, `charts`, `readouts` | `fn(root, module) -> {name: value}` sampled every frame, plotted and shown |
 | `stop_at`, `extend_by`, `end_condition`, `auto_restart` | when a run ends and what happens then |
 | `view` | `"3d"` (orbit) or `"2d"` (pan/zoom, drawn in creation order for flat scenes) |
-| `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes, each tied to a params.json key and a pattern for the visual models' SOFA paths. Every scene also gets an intensity slider per light source there automatically. |
+| `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes, each tied to a params.json key and a pattern for the visual models' SOFA paths. Every scene also gets, automatically: a wireframe overlay and (when the scene has a tetrahedral FEM mesh, which is found and streamed for this) SOFA-style FEM elements, element edges and nodes, each with a switch and opacity slider, an option to color the elements by strain (Green-Lagrange, relative to the mesh's rest shape, scaled to the current maximum), and an intensity slider per light source. Opacity rows get a show/hide switch in front. |
 
 The Dockerfile's `python3 -m sofaweb check sofaweb_scene.py` step builds
 the scene and steps it for 0.2 s during `docker build`, printing the

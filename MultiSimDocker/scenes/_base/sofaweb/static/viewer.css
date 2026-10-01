@@ -116,6 +116,13 @@ body.viewer .owner-only { display: none !important; }
 .display-value { font-size: 11px; color: #8f97a3; font-variant-numeric: tabular-nums; text-align: right; }
 .display-note { font-size: 11px; color: #8f97a3; margin: 8px 0 0; line-height: 1.35; }
 #display-lights h3 { font-size: 11px; font-weight: 600; color: #8f97a3; margin: 8px 0 4px; }
+.display-row .toggle-label { display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
+.display-row .toggle-label input { margin: 0; }
+.display-row.strain { grid-template-columns: 1fr auto; padding-left: 20px; }
+.display-row.strain .display-value { text-align: left; }
+.mini-btn { padding: 0 8px; font-size: 11px; line-height: 18px; }
+.display-row.disabled { opacity: 0.4; }
+.display-row.disabled .toggle-label { cursor: default; }
 .param-section { margin-bottom: 6px; }
 .param-section h3 { font-size: 11px; font-weight: 600; color: #8f97a3; margin: 8px 0 4px; }
 .param-row { display: grid; grid-template-columns: 1fr 104px; gap: 8px; align-items: center; margin-bottom: 4px; }
