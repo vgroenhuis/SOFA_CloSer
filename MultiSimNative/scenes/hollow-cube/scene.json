@@ -1,0 +1,8 @@
+{
+	"title": "Hollow cube inflation",
+	"description": "A hollow silicone box inflated from inside (SoftRobots surface pressure on an FEM shell). Change the pressure live and watch the walls bulge; the volume growth is plotted as it goes.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g"
+}

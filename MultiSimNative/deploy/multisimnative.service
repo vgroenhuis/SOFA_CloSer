@@ -1,0 +1,21 @@
+# System service running the orchestrator as an unprivileged user. It needs
+# that user's systemd manager (for per-simulation CPU/memory scopes), which is
+# why `loginctl enable-linger <user>` is part of setup.
+# Replace __USER__ and __DIR__ (deploy/setup.sh does this).
+[Unit]
+Description=MultiSimNative SOFA simulation platform
+After=network.target user@__UID__.service
+Wants=user@__UID__.service
+
+[Service]
+User=__USER__
+WorkingDirectory=__DIR__
+Environment=XDG_RUNTIME_DIR=/run/user/__UID__
+ExecStart=__DIR__/run.sh
+Restart=on-failure
+RestartSec=3
+# Simulations live in their own user-manager scopes, so restarting the
+# orchestrator never kills them (it re-adopts them on startup).
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+	"title": "PneuNet finger",
+	"description": "One chamber of a PneuNet soft pneumatic finger, inflated with SoftRobots surface pressure on an FEM mesh. Adjust the pressure live and explore the chamber and channel geometry.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g"
+}
