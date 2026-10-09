@@ -1,8 +1,0 @@
-{
-	"title": "Better finger",
-	"description": "The PneuNet chamber with its channel end planes held by a hard constraint: they stay exactly rigid, moving only along X and rotating about Y. Adjust the pressure live and watch the end plane rotate.",
-	"thumbnail": "docs/thumbnail.jpg",
-	"port": 8000,
-	"cpus": 1.0,
-	"memory": "1g"
-}

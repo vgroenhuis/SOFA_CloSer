@@ -16,20 +16,25 @@ run_docker.bat
 
 See [TestSimInDocker/README.md](TestSimInDocker/README.md) for details.
 
-## [MultiSimDocker](MultiSimDocker/)
+## [MultiSim](MultiSim/)
 
 A multi-user web platform on top of such scenes: visitors claim a simulation
-from a limited pool of Docker containers (with a key to reclaim it), watch
-anyone else's running simulation read-only, and can hold one for a later
-demo; idle simulations return to the pool automatically. Includes a
-password-protected admin page.
+from a limited pool (with a key to reclaim it), watch anyone else's running
+simulation read-only, and can hold one for a later demo; idle simulations
+return to the pool automatically. Includes a password-protected admin page.
+Live at <https://closer.ram.eemcs.utwente.nl/sofa/>.
+
+Simulations run as plain processes (Linux, LXC containers) or as Docker
+containers, and each scene's original SOFA script still runs in the SOFA
+desktop app:
 
 ```bash
-cd MultiSimDocker
-run.bat
+cd MultiSim
+./run.sh            # Linux, native processes
+run-docker.bat      # Docker (or ./run-docker.sh)
 ```
 
-See [MultiSimDocker/README.md](MultiSimDocker/README.md) for details.
+See [MultiSim/README.md](MultiSim/README.md) for details.
 
 ## AI disclaimer
 

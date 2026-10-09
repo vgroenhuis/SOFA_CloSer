@@ -1,6 +1,0 @@
-__pycache__/
-*.pyc
-docs/
-scene.json
-original/*.bat
-original/.params_editor.pid
