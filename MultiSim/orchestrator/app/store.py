@@ -51,6 +51,13 @@ CREATE TABLE IF NOT EXISTS scene_defaults (
     value      TEXT NOT NULL,
     updated_at REAL NOT NULL
 );
+-- Public / private per scene, as set on the admin page; overrides the
+-- scene.json default ("private": true). See main.scene_is_private.
+CREATE TABLE IF NOT EXISTS scene_visibility (
+    scene_id   TEXT PRIMARY KEY,
+    private    INTEGER NOT NULL,
+    updated_at REAL NOT NULL
+);
 """
 
 
@@ -189,6 +196,19 @@ class Store:
     def scenes_with_defaults(self) -> dict[str, float]:
         """scene id -> when its defaults were last set."""
         return {row["scene_id"]: row["updated_at"] for row in self._query("SELECT scene_id, updated_at FROM scene_defaults")}
+
+    # -- scene visibility -----------------------------------------------
+
+    def scene_visibility(self) -> dict[str, bool]:
+        """scene id -> private, for the scenes an admin has set."""
+        return {row["scene_id"]: bool(row["private"]) for row in self._query("SELECT scene_id, private FROM scene_visibility")}
+
+    def set_scene_private(self, scene_id: str, private: bool) -> None:
+        self._execute(
+            "INSERT INTO scene_visibility (scene_id, private, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(scene_id) DO UPDATE SET private = excluded.private, updated_at = excluded.updated_at",
+            (scene_id, int(private), time.time()),
+        )
 
     # -- event log ------------------------------------------------------
 

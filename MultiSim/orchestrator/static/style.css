@@ -120,6 +120,8 @@ section { margin-bottom: 32px; }
 .badge.starting { background: rgba(232, 179, 60, 0.15); color: var(--warn); }
 .badge.held { background: rgba(126, 166, 255, 0.15); color: #9dbbff; }
 .badge.mine { background: rgba(58, 91, 217, 0.3); color: #c8d4ff; }
+.badge.private { background: rgba(232, 120, 60, 0.18); color: #f0a57a; }
+h3 .badge { margin-left: 8px; vertical-align: middle; }
 
 /* capacity meter */
 .capacity { display: flex; align-items: center; gap: 10px; }

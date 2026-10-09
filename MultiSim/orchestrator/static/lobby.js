@@ -28,9 +28,14 @@ function showNotice(content) {
 	startNotice.classList.toggle("hidden", !content);
 }
 
+function isPrivate(sceneId) {
+	return scenes.some((s) => s.id === sceneId && s.private);
+}
+
 function simBadges(sim) {
 	return [
 		el("span", { class: `badge ${sim.status}` }, sim.status),
+		isPrivate(sim.sceneId) ? el("span", { class: "badge private" }, "private") : null,
 		sim.held ? el("span", { class: "badge held" }, `held until ${fmtTime(sim.holdUntil)}`) : null,
 		sim.mine ? el("span", { class: "badge mine" }, "yours") : null,
 	];
@@ -94,7 +99,8 @@ function confirmRelease(sim) {
 
 function renderStatus() {
 	if (!status) return;
-	const used = status.sims.length;
+	// Private simulations this browser can't see still take slots.
+	const used = status.used ?? status.sims.length;
 	const full = used >= status.capacity;
 	capacitySlots.replaceChildren(
 		...Array.from({ length: Math.max(status.capacity, used) }, (_, i) => el("div", { class: `capacity-slot${i < used ? " used" : ""}` }))
@@ -119,11 +125,15 @@ function renderStatus() {
 		const nextFree = Math.min(...status.sims.map((s) => s.expiresAt));
 		showNotice([
 			el("strong", {}, "All slots are in use. "),
-			`The earliest a slot can free up is around ${fmtTime(nextFree)} (sooner if someone releases theirs). You can watch any running simulation below in the meantime.`,
+			Number.isFinite(nextFree)
+				? `The earliest a slot can free up is around ${fmtTime(nextFree)} (sooner if someone releases theirs). You can watch any running simulation below in the meantime.`
+				: "Please try again later.",
 		]);
 	} else if (!starting && startNotice.dataset.kind !== "error") {
 		showNotice(null);
 	}
+
+	renderAccess();
 
 	footer.textContent =
 		`Simulations return to the pool after ${status.idleTimeoutMinutes} minutes without activity. ` +
@@ -144,7 +154,7 @@ function renderScenes() {
 				el(
 					"div",
 					{ class: "scene-body" },
-					el("h3", {}, scene.title),
+					el("h3", {}, scene.title, scene.private ? el("span", { class: "badge private" }, "private") : null),
 					el("p", {}, scene.description),
 					el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
 				)
@@ -201,6 +211,45 @@ if (fragment.get("reclaim")) {
 	document.getElementById("reclaim-key").value = key;
 	reclaim(key);
 }
+
+// -- private scenes: unlocked per browser with the access password --------
+
+const accessSection = document.getElementById("access-section");
+
+function renderAccess() {
+	accessSection.classList.toggle("hidden", !status.accessLogin);
+	document.getElementById("access-form").classList.toggle("hidden", status.access);
+	document.getElementById("access-unlocked").classList.toggle("hidden", !status.access);
+}
+
+async function reloadAll() {
+	try {
+		scenes = await api("api/scenes");
+	} catch {
+		scenes = [];
+	}
+	await refresh();
+	renderScenes();
+}
+
+document.getElementById("access-form").addEventListener("submit", async (event) => {
+	event.preventDefault();
+	const input = document.getElementById("access-password");
+	const statusEl = document.getElementById("access-status");
+	statusEl.textContent = "";
+	try {
+		await api("api/access", { method: "POST", body: { password: input.value } });
+		input.value = "";
+		await reloadAll();
+	} catch (err) {
+		statusEl.textContent = err.message;
+	}
+});
+
+document.getElementById("access-lock").addEventListener("click", async () => {
+	await api("api/access", { method: "DELETE" }).catch(() => {});
+	await reloadAll();
+});
 
 async function refresh() {
 	try {

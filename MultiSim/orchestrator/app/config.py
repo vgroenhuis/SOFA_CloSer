@@ -95,6 +95,10 @@ IMAGE_PREFIX = os.environ.get("MSD_IMAGE_PREFIX", "msd-scene-")
 
 ADMIN_PASSWORD = os.environ.get("MSD_ADMIN_PASSWORD", "")
 ADMIN_SESSION_HOURS = _env_float("MSD_ADMIN_SESSION_HOURS", 12.0)
+# Password that unlocks private scenes (not the admin page). Empty: only an
+# admin can see and use private scenes.
+ACCESS_PASSWORD = os.environ.get("MSD_ACCESS_PASSWORD", "")
+ACCESS_SESSION_HOURS = _env_float("MSD_ACCESS_SESSION_HOURS", 24.0 * 7)
 
 # Per-simulation resource caps (a scene's scene.json may override these).
 SIM_CPUS = _env_float("MSD_SIM_CPUS", 1.0)

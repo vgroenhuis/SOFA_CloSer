@@ -218,6 +218,27 @@ function defaultsInfo(scene) {
 	return el("div", { class: "muted small" }, `custom defaults since ${fmtTime(scene.defaultsSetAt)} `, clear);
 }
 
+// Public: in everyone's lobby. Private: only with the access password (or as
+// admin); a running simulation's owner keeps seeing their own.
+function visibilityToggle(scene) {
+	return el(
+		"div",
+		{ class: "inline-form" },
+		el("span", { class: `badge ${scene.private ? "private" : "running"}` }, scene.private ? "private" : "public"),
+		el(
+			"button",
+			{
+				class: "secondary small",
+				onclick: async () => {
+					await guarded(() => api(`admin/api/scenes/${scene.id}/visibility`, { method: "PUT", body: { private: !scene.private } }));
+					refresh();
+				},
+			},
+			scene.private ? "Make public" : "Make private"
+		)
+	);
+}
+
 function renderScenes() {
 	const select = $("create-scene");
 	const selected = select.value;
@@ -236,6 +257,7 @@ function renderScenes() {
 				"tr",
 				{},
 				el("td", {}, el("strong", {}, scene.title), el("div", { class: "muted small mono" }, scene.id)),
+				el("td", {}, visibilityToggle(scene)),
 				el("td", { class: "mono small" }, scene.image),
 				el("td", {}, status, detail, defaultsInfo(scene)),
 				el(

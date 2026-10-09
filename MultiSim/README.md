@@ -17,6 +17,10 @@ simulations for many visitors at once, from a pool of limited size:
   live demo later in the day, by giving a duration or end time plus a reason
   (up to 12 h by default; only 1 simulation can be on hold at a time).
   A held simulation also survives its owner starting another one.
+- **Private scenes**: the admin can make any scene private. Private scenes
+  and their running simulations are hidden from the public lobby; a
+  separate **access password** (e.g. for team members) unlocks them in a
+  browser, without giving access to the admin page.
 - **Admin**: a password-protected page to see everything, release or
   restart simulations, set or clear holds, issue a new key, read simulation
   logs, change limits at runtime, start simulations, and build or check
@@ -202,6 +206,25 @@ Docker, `docker compose` restarts the orchestrator itself
 - If a key is lost, the admin can issue a new one. The old key stops
   working immediately.
 
+### Public and private scenes
+
+Every scene is public unless the admin page's scene list sets it to
+**private** (or its `scene.json` has `"private": true`; the admin page's
+choice wins). A private scene, its thumbnail and its running simulations
+only show up in the lobby, and can only be started, viewed and streamed, in
+a browser that is:
+
+- unlocked with the access password (`MSD_ACCESS_PASSWORD`; the lobby's
+  **Private simulations** form, valid for `MSD_ACCESS_SESSION_HOURS`,
+  default a week, until **Lock**), or
+- logged in to the admin page, or
+- the simulation's owner (holding its key), for that simulation only.
+
+Without `MSD_ACCESS_PASSWORD`, only the admin can use private scenes. Every
+simulation still takes a slot from the shared pool, so the lobby's slot
+count includes ones a visitor can't see. Making a running scene private
+doesn't disconnect people already watching; their next reload is refused.
+
 ### Watchers vs. owner
 
 The proxy enforces this for every scene: `GET`/`HEAD` and server→browser
@@ -260,7 +283,8 @@ directory and override `.env` until you click **Reset to server defaults**.
 Admins aren't bound by the hold limits. They can also start a simulation
 beyond `MAX_SIMS`.
 
-Other settings: `MSD_BACKEND`, `MSD_BASE_PATH`, `MSD_PORT`,
+Other settings: `MSD_ACCESS_PASSWORD`, `MSD_ACCESS_SESSION_HOURS`,
+`MSD_BACKEND`, `MSD_BASE_PATH`, `MSD_PORT`,
 `MSD_TRUST_PROXY_HEADERS`; for native, `MSD_RUNTIME_DIR`, `MSD_SOFA_ROOT`,
 `MSD_PYTHON`, `MSD_USE_CGROUPS` (`auto` or `off`).
 

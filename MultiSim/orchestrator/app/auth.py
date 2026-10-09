@@ -1,4 +1,5 @@
-"""Claim keys (for visitors) and signed session cookies (for the admin)."""
+"""Claim keys (for visitors) and signed session cookies (admin, and access to
+private scenes)."""
 
 from __future__ import annotations
 
@@ -51,23 +52,32 @@ def token_cookie_name(sim_id: str) -> str:
 # -- admin sessions ------------------------------------------------------
 
 
-def sign_admin_session(secret: bytes, hours: float) -> str:
+def sign_session(secret: bytes, role: str, hours: float) -> str:
     expiry = str(int(time.time() + hours * 3600))
-    signature = hmac.new(secret, f"admin:{expiry}".encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(secret, f"{role}:{expiry}".encode(), hashlib.sha256).hexdigest()
     return f"{expiry}.{signature}"
 
 
-def verify_admin_session(secret: bytes, value: str | None) -> bool:
+def verify_session(secret: bytes, role: str, value: str | None) -> bool:
     if not value or "." not in value:
         return False
     expiry, signature = value.split(".", 1)
-    expected = hmac.new(secret, f"admin:{expiry}".encode(), hashlib.sha256).hexdigest()
+    expected = hmac.new(secret, f"{role}:{expiry}".encode(), hashlib.sha256).hexdigest()
     if not hmac.compare_digest(signature, expected):
         return False
     return expiry.isdigit() and int(expiry) > time.time()
 
 
-def check_admin_password(configured: str, supplied: str) -> bool:
+def sign_admin_session(secret: bytes, hours: float) -> str:
+    return sign_session(secret, "admin", hours)
+
+
+def verify_admin_session(secret: bytes, value: str | None) -> bool:
+    return verify_session(secret, "admin", value)
+
+
+def check_password(configured: str, supplied: str) -> bool:
+    """Constant-time compare; an unset (empty) password never matches."""
     if not configured:
         return False
     return hmac.compare_digest(configured.encode(), supplied.encode())

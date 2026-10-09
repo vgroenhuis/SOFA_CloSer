@@ -41,6 +41,7 @@ log = logging.getLogger("msd")
 
 _SIM_ID = re.compile(r"^[a-z0-9]{6}$")
 ADMIN_COOKIE = "msd_admin"
+ACCESS_COOKIE = "msd_access"
 
 
 class State:
@@ -116,6 +117,38 @@ def get_sim_or_404(sim_id: str) -> Sim:
         released = S.store.last_release(sim_id) if _SIM_ID.match(sim_id) else None
         if released:
             raise api_error(410, "This simulation has ended.", reason=released["detail"], endedAt=released["ts"])
+        raise api_error(404, "No such simulation.")
+    return sim
+
+
+def is_admin(conn: HTTPConnection) -> bool:
+    return bool(config.ADMIN_PASSWORD) and auth.verify_admin_session(S.secret, conn.cookies.get(ADMIN_COOKIE))
+
+
+def has_access(conn: HTTPConnection) -> bool:
+    """May see and use private scenes: logged in with the access password, or admin."""
+    return is_admin(conn) or (
+        bool(config.ACCESS_PASSWORD) and auth.verify_session(S.secret, "access", conn.cookies.get(ACCESS_COOKIE))
+    )
+
+
+def private_scene_ids() -> set[str]:
+    """Scenes only visible with access: the admin page's choice, else scene.json's."""
+    chosen = S.store.scene_visibility()
+    return {s.id for s in catalog.list_scenes() if chosen.get(s.id, s.private_default)}
+
+
+def can_see(conn: HTTPConnection, sim: Sim, private: Optional[set[str]] = None) -> bool:
+    """Everyone sees simulations of public scenes; a private scene's only with
+    access, or by its owner (who proved it with the key)."""
+    if sim.scene_id not in (private if private is not None else private_scene_ids()):
+        return True
+    return has_access(conn) or owns(conn, sim)
+
+
+def get_visible_sim_or_404(conn: HTTPConnection, sim_id: str) -> Sim:
+    sim = get_sim_or_404(sim_id)
+    if not can_see(conn, sim):
         raise api_error(404, "No such simulation.")
     return sim
 
@@ -415,9 +448,9 @@ async def api_site(request: Request) -> dict:
 
 
 @app.get("/scenes/{scene_id}/thumbnail", include_in_schema=False)
-async def scene_thumbnail(scene_id: str) -> FileResponse:
+async def scene_thumbnail(scene_id: str, request: Request) -> FileResponse:
     scene = catalog.get_scene(scene_id)
-    if scene is None or scene.thumbnail is None:
+    if scene is None or scene.thumbnail is None or (scene.id in private_scene_ids() and not has_access(request)):
         raise HTTPException(404)
     return FileResponse(scene.thumbnail, headers={"Cache-Control": "max-age=300"})
 
@@ -444,28 +477,72 @@ class ReclaimRequest(BaseModel):
 
 
 @app.get("/api/scenes")
-async def api_scenes() -> list[dict]:
-    return [s.public() for s in catalog.list_scenes()]
+async def api_scenes(request: Request) -> list[dict]:
+    private = private_scene_ids()
+    access = has_access(request)
+    return [{**s.public(), "private": s.id in private} for s in catalog.list_scenes() if access or s.id not in private]
 
 
 @app.get("/api/status")
 async def api_status(request: Request) -> dict:
     limits = S.store.get_limits()
+    private = private_scene_ids()
+    # Capacity counts every simulation; the list only shows the ones this
+    # browser may see.
     sims = S.store.list_sims()
     return {
         "capacity": limits.max_sims,
+        "used": len(sims),
         "idleTimeoutMinutes": limits.idle_timeout_minutes,
         "maxHoldHours": limits.max_hold_hours,
         "maxHeldSims": limits.max_held_sims,
-        "sims": [sim_info(s, request) for s in sims],
+        "sims": [sim_info(s, request) for s in sims if can_see(request, s, private)],
+        "access": has_access(request),
+        "accessLogin": bool(config.ACCESS_PASSWORD),
         "serverTime": time.time(),
     }
+
+
+class AccessRequest(BaseModel):
+    password: str = Field(max_length=200)
+
+
+@app.post("/api/access")
+async def api_access_login(body: AccessRequest, request: Request) -> JSONResponse:
+    """Unlock private scenes in this browser with the access password."""
+    if not config.ACCESS_PASSWORD:
+        raise api_error(503, "Private simulations aren't enabled here.")
+    addr = client_addr(request)
+    if not S.login_limiter.allow(addr):
+        raise api_error(429, "Too many attempts. Wait a few minutes.")
+    if not auth.check_password(config.ACCESS_PASSWORD, body.password):
+        S.store.log("access-login-failed", detail=f"from={addr}")
+        raise api_error(401, "Wrong password.")
+    S.store.log("access-login", detail=f"from={addr}")
+    response = JSONResponse({"ok": True})
+    response.set_cookie(
+        ACCESS_COOKIE,
+        auth.sign_session(S.secret, "access", config.ACCESS_SESSION_HOURS),
+        max_age=int(config.ACCESS_SESSION_HOURS * 3600),
+        httponly=True,
+        samesite="lax",
+        secure=is_secure(request),
+        path=config.BASE_PATH,
+    )
+    return response
+
+
+@app.delete("/api/access")
+async def api_access_logout() -> JSONResponse:
+    response = JSONResponse({"ok": True})
+    delete_cookie(response, ACCESS_COOKIE)
+    return response
 
 
 @app.post("/api/sims")
 async def api_create_sim(body: CreateSimRequest, request: Request) -> JSONResponse:
     scene = catalog.get_scene(body.sceneId)
-    if scene is None:
+    if scene is None or (scene.id in private_scene_ids() and not has_access(request)):
         raise api_error(404, "Unknown scene.")
     sim, token = await create_sim(scene, body.ownerName.strip(), client_addr(request), replace_for=request)
     response = JSONResponse({"sim": sim_info(sim), "key": token})
@@ -475,7 +552,7 @@ async def api_create_sim(body: CreateSimRequest, request: Request) -> JSONRespon
 
 @app.get("/api/sims/{sim_id}")
 async def api_get_sim(sim_id: str, request: Request) -> dict:
-    return sim_info(get_sim_or_404(sim_id), request)
+    return sim_info(get_visible_sim_or_404(request, sim_id), request)
 
 
 @app.post("/api/sims/{sim_id}/heartbeat")
@@ -576,7 +653,7 @@ async def api_reclaim(body: ReclaimRequest, request: Request) -> JSONResponse:
 def require_admin(request: Request) -> None:
     if not config.ADMIN_PASSWORD:
         raise api_error(503, "The admin page is disabled: set MSD_ADMIN_PASSWORD.")
-    if not auth.verify_admin_session(S.secret, request.cookies.get(ADMIN_COOKIE)):
+    if not is_admin(request):
         raise api_error(401, "Not logged in.")
 
 
@@ -612,7 +689,7 @@ async def admin_login(body: LoginRequest, request: Request) -> JSONResponse:
     addr = client_addr(request)
     if not S.login_limiter.allow(addr):
         raise api_error(429, "Too many login attempts. Wait a few minutes.")
-    if not auth.check_admin_password(config.ADMIN_PASSWORD, body.password):
+    if not auth.check_password(config.ADMIN_PASSWORD, body.password):
         S.store.log("admin-login-failed", detail=f"from={addr}")
         raise api_error(401, "Wrong password.")
     S.store.log("admin-login", detail=f"from={addr}")
@@ -643,6 +720,7 @@ async def admin_state() -> dict:
     image_flags = await asyncio.gather(*(asyncio.to_thread(S.backend.image_exists, s) for s in scenes))
     containers = await asyncio.to_thread(S.backend.managed_containers)
     defaults_set = S.store.scenes_with_defaults()
+    private = private_scene_ids()
     return {
         "limits": S.store.get_limits().as_dict(),
         "sims": [
@@ -656,6 +734,7 @@ async def admin_state() -> dict:
                 "buildable": scene.buildable,
                 "build": S.backend.builds.get(scene.id),
                 "defaultsSetAt": defaults_set.get(scene.id),
+                "private": scene.id in private,
             }
             for scene, available in zip(scenes, image_flags)
         ],
@@ -760,8 +839,7 @@ async def admin_logs(sim_id: str) -> Response:
 async def admin_session(request: Request) -> dict:
     """Whether this browser is logged in to the admin page -- scene pages
     show their "Set as default" buttons only then."""
-    admin = bool(config.ADMIN_PASSWORD) and auth.verify_admin_session(S.secret, request.cookies.get(ADMIN_COOKIE))
-    return {"admin": admin}
+    return {"admin": is_admin(request)}
 
 
 DEFAULTS_SECTIONS = ("params", "display", "lighting")
@@ -804,6 +882,21 @@ async def admin_clear_defaults(scene_id: str) -> dict:
     return {"ok": True}
 
 
+class VisibilityRequest(BaseModel):
+    private: bool
+
+
+@app.put("/admin/api/scenes/{scene_id}/visibility", dependencies=[Depends(require_admin)])
+async def admin_set_visibility(scene_id: str, body: VisibilityRequest) -> dict:
+    """Public: everyone sees the scene and watches its simulations. Private:
+    only with the access password (or as admin); owners keep their own."""
+    if catalog.get_scene(scene_id) is None:
+        raise api_error(404, "Unknown scene.")
+    S.store.set_scene_private(scene_id, body.private)
+    S.store.log("visibility", detail=f"scene={scene_id} {'private' if body.private else 'public'}")
+    return {"ok": True, "private": body.private}
+
+
 @app.post("/admin/api/scenes/{scene_id}/build", dependencies=[Depends(require_admin)])
 async def admin_build_scene(scene_id: str) -> dict:
     scene = catalog.get_scene(scene_id)
@@ -832,7 +925,7 @@ async def sim_root_redirect(sim_id: str, request: Request) -> RedirectResponse:
     include_in_schema=False,
 )
 async def sim_http(sim_id: str, path: str, request: Request) -> Response:
-    sim = get_sim_or_404(sim_id)
+    sim = get_visible_sim_or_404(request, sim_id)
     if sim.status != "running":
         return Response("Simulation is starting...", status_code=503, media_type="text/plain")
     if path.startswith("ws/"):
@@ -857,6 +950,9 @@ async def sim_http(sim_id: str, path: str, request: Request) -> Response:
 @app.websocket("/sim/{sim_id}/{path:path}")
 async def sim_ws(websocket: WebSocket, sim_id: str, path: str) -> None:
     sim = S.store.get_sim(sim_id) if _SIM_ID.match(sim_id) else None
+    if sim is not None and not can_see(websocket, sim):
+        await websocket.close(code=1008)  # policy violation: private scene
+        return
     if sim is None or sim.status != "running":
         await websocket.close(code=1013)
         return

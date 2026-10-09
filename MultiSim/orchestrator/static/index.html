@@ -51,6 +51,19 @@
 			</form>
 		</section>
 
+		<section id="access-section" class="hidden">
+			<h2>Private simulations</h2>
+			<form class="inline-form" id="access-form">
+				<input id="access-password" type="password" placeholder="Access password" autocomplete="current-password" />
+				<button type="submit">Unlock</button>
+				<span id="access-status" class="small error"></span>
+			</form>
+			<div class="inline-form hidden" id="access-unlocked">
+				<span class="muted">Private simulations are unlocked in this browser.</span>
+				<button type="button" class="secondary" id="access-lock">Lock</button>
+			</div>
+		</section>
+
 		<footer class="muted small" id="footer"></footer>
 	</div>
 	<script type="module" src="assets/lobby.js"></script>
