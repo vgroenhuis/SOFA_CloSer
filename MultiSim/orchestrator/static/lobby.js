@@ -229,6 +229,9 @@ function renderAccess() {
 	accessSection.classList.toggle("hidden", !status.accessLogin);
 	document.getElementById("access-form").classList.toggle("hidden", status.access);
 	document.getElementById("access-unlocked").classList.toggle("hidden", !status.access);
+	const hint = document.getElementById("access-hint");
+	hint.textContent = status.accessHint || "";
+	hint.classList.toggle("hidden", status.access || !status.accessHint);
 }
 
 async function reloadAll() {

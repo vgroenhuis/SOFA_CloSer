@@ -226,6 +226,8 @@ A simulation's owner (holding its key) always keeps their own simulation.
 The access password (`MSD_ACCESS_PASSWORD`) is entered in the lobby's
 **Private simulations** form and stays valid for
 `MSD_ACCESS_SESSION_HOURS` (default a week), until **Lock**.
+`MSD_ACCESS_HINT` adds a note under that form, e.g. where to find the
+password.
 
 Without `MSD_ACCESS_PASSWORD`, only the admin can use private scenes. Every
 simulation still takes a slot from the shared pool, so the lobby's slot
@@ -291,7 +293,7 @@ directory and override `.env` until you click **Reset to server defaults**.
 Admins aren't bound by the hold limits. They can also start a simulation
 beyond `MAX_SIMS`.
 
-Other settings: `MSD_ACCESS_PASSWORD`, `MSD_ACCESS_SESSION_HOURS`,
+Other settings: `MSD_ACCESS_PASSWORD`, `MSD_ACCESS_SESSION_HOURS`, `MSD_ACCESS_HINT`,
 `MSD_BACKEND`, `MSD_BASE_PATH`, `MSD_PORT`,
 `MSD_TRUST_PROXY_HEADERS`; for native, `MSD_RUNTIME_DIR`, `MSD_SOFA_ROOT`,
 `MSD_PYTHON`, `MSD_USE_CGROUPS` (`auto` or `off`).

@@ -99,6 +99,8 @@ ADMIN_SESSION_HOURS = _env_float("MSD_ADMIN_SESSION_HOURS", 12.0)
 # admin can see and use private scenes.
 ACCESS_PASSWORD = os.environ.get("MSD_ACCESS_PASSWORD", "")
 ACCESS_SESSION_HOURS = _env_float("MSD_ACCESS_SESSION_HOURS", 24.0 * 7)
+# Shown under the lobby's access password field, e.g. where to find the password.
+ACCESS_HINT = os.environ.get("MSD_ACCESS_HINT", "")
 
 # Per-simulation resource caps (a scene's scene.json may override these).
 SIM_CPUS = _env_float("MSD_SIM_CPUS", 1.0)

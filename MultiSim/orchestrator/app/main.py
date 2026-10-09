@@ -513,6 +513,7 @@ async def api_status(request: Request) -> dict:
         "sims": [sim_info(s, request) for s in sims if can_see(request, s, levels)],
         "access": has_access(request),
         "accessLogin": bool(config.ACCESS_PASSWORD),
+        "accessHint": config.ACCESS_HINT,
         "serverTime": time.time(),
     }
 
