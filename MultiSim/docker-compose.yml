@@ -38,3 +38,7 @@ networks:
 
 volumes:
   msd-data:
+    # A fixed name, so the data (secret key, admin limits, saved scene
+    # defaults) doesn't depend on the folder Compose runs from. This is the
+    # volume the stack used while it lived in MultiSimDocker/.
+    name: multisimdocker_msd-data
