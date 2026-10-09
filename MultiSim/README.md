@@ -113,7 +113,9 @@ Behind a reverse proxy the platform can live below the site root, e.g. at
 
 The pages use relative URLs and get a `<base href>` from `MSD_BASE_PATH`,
 and cookies are scoped to it, so other sites on the same host never see
-them.
+them. To have the lobby link back to the site's home page, set
+`MSD_HOME_URL` (and `MSD_HOME_TITLE`), or let the proxy send
+`X-Site-Home-Url` / `X-Site-Home-Title` headers.
 
 ## Running as a service
 
