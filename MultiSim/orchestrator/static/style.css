@@ -82,6 +82,7 @@ label { color: var(--text-2); font-size: 13px; }
 	margin-bottom: 28px;
 }
 .page-header p { margin: 4px 0 0; color: var(--muted); }
+.home-link { display: inline-block; margin-bottom: 4px; text-decoration: none; }
 
 section { margin-bottom: 32px; }
 

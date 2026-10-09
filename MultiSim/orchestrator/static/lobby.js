@@ -233,4 +233,20 @@ async function init() {
 	renderScenes();
 	setInterval(refresh, 5000);
 }
+
+// A link back to the site's home page, when MultiSim is part of a bigger site.
+async function showHomeLink() {
+	try {
+		const { home } = await api("api/site");
+		if (!home) return;
+		const link = document.getElementById("home-link");
+		link.href = home.url;
+		link.textContent = `\u2190 ${home.title}`;
+		link.classList.remove("hidden");
+	} catch {
+		// no link
+	}
+}
+
 init();
+showHomeLink();

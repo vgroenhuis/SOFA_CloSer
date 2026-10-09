@@ -49,6 +49,12 @@ def _base_path(value: str) -> str:
 # pages' <base href>, cookie paths and redirects.
 BASE_PATH = _base_path(os.environ.get("MSD_BASE_PATH", "/"))
 
+# The site's own home page, when MultiSim is one part of a bigger site: the
+# lobby then links back to it. A reverse proxy can set this per request instead
+# (X-Site-Home-Url / X-Site-Home-Title headers). Neither set: no link.
+HOME_URL = os.environ.get("MSD_HOME_URL", "")
+HOME_TITLE = os.environ.get("MSD_HOME_TITLE", "")
+
 SCENES_DIR = Path(os.environ.get("MSD_SCENES_DIR", Path(__file__).resolve().parents[2] / "scenes"))
 DATA_DIR = Path(os.environ.get("MSD_DATA_DIR", Path(__file__).resolve().parents[2] / "data"))
 STATIC_DIR = Path(__file__).parent.parent / "static"

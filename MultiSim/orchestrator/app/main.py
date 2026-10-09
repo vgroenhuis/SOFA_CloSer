@@ -401,6 +401,19 @@ async def healthz() -> dict:
     return {"ok": True}
 
 
+_SAFE_URL = re.compile(r"(/|https?://)[^\s\"'<>]*")
+
+
+@app.get("/api/site")
+async def api_site(request: Request) -> dict:
+    """The site's home page, if MultiSim is part of a bigger site (see config.HOME_URL)."""
+    url = request.headers.get("x-site-home-url") or config.HOME_URL
+    title = request.headers.get("x-site-home-title") or config.HOME_TITLE or "Home"
+    if not _SAFE_URL.fullmatch(url):
+        return {"home": None}
+    return {"home": {"url": url, "title": title[:80]}}
+
+
 @app.get("/scenes/{scene_id}/thumbnail", include_in_schema=False)
 async def scene_thumbnail(scene_id: str) -> FileResponse:
     scene = catalog.get_scene(scene_id)
