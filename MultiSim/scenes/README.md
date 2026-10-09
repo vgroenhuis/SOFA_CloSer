@@ -49,9 +49,9 @@ scenes/
 Everything except `title` is optional. `image` defaults to
 `msd-scene-<id>`, which is what `build_scenes.bat` / `build_scenes.sh` and
 the admin page's **Build image** button produce. `cpus` / `memory` default
-to `MSD_SIM_CPUS` / `MSD_SIM_MEMORY`. `"private": true` makes the scene
-private until the admin page says otherwise (see
-[Public and private scenes](../README.md#public-and-private-scenes)).
+to `MSD_SIM_CPUS` / `MSD_SIM_MEMORY`. `"visibility"` (`public`, `private` or
+`admin`) is the scene's visibility until the admin page says otherwise (see
+[Public, private and admin-only scenes](../README.md#public-private-and-admin-only-scenes)).
 
 The catalog is re-read on every request: add a folder, build its image, and
 it shows up in the lobby without restarting anything.

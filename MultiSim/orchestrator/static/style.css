@@ -121,6 +121,9 @@ section { margin-bottom: 32px; }
 .badge.held { background: rgba(126, 166, 255, 0.15); color: #9dbbff; }
 .badge.mine { background: rgba(58, 91, 217, 0.3); color: #c8d4ff; }
 .badge.private { background: rgba(232, 120, 60, 0.18); color: #f0a57a; }
+.badge.admin-only { background: rgba(214, 80, 80, 0.2); color: #f08c8c; }
+select.visibility.private { color: #f0a57a; }
+select.visibility.admin { color: #f08c8c; }
 h3 .badge { margin-left: 8px; vertical-align: middle; }
 
 /* capacity meter */

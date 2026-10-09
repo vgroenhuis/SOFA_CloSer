@@ -19,7 +19,7 @@ import posixpath
 import re
 import time
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -132,18 +132,29 @@ def has_access(conn: HTTPConnection) -> bool:
     )
 
 
-def private_scene_ids() -> set[str]:
-    """Scenes only visible with access: the admin page's choice, else scene.json's."""
+def scene_levels() -> dict[str, str]:
+    """scene id -> public | private | admin: the admin page's choice, else scene.json's."""
     chosen = S.store.scene_visibility()
-    return {s.id for s in catalog.list_scenes() if chosen.get(s.id, s.private_default)}
+    return {s.id: chosen.get(s.id, s.visibility_default) for s in catalog.list_scenes()}
 
 
-def can_see(conn: HTTPConnection, sim: Sim, private: Optional[set[str]] = None) -> bool:
-    """Everyone sees simulations of public scenes; a private scene's only with
-    access, or by its owner (who proved it with the key)."""
-    if sim.scene_id not in (private if private is not None else private_scene_ids()):
+def may_see_level(conn: HTTPConnection, level: str) -> bool:
+    """public: everyone; private: with the access password (or admin); admin: admin only."""
+    if level == "public":
         return True
-    return has_access(conn) or owns(conn, sim)
+    if level == "private":
+        return has_access(conn)
+    return is_admin(conn)
+
+
+def may_see_scene(conn: HTTPConnection, scene_id: str, levels: Optional[dict[str, str]] = None) -> bool:
+    return may_see_level(conn, (levels if levels is not None else scene_levels()).get(scene_id, "public"))
+
+
+def can_see(conn: HTTPConnection, sim: Sim, levels: Optional[dict[str, str]] = None) -> bool:
+    """Whoever may see the scene sees its simulations; a simulation's owner
+    (who proved it with the key) always sees their own."""
+    return may_see_scene(conn, sim.scene_id, levels) or owns(conn, sim)
 
 
 def get_visible_sim_or_404(conn: HTTPConnection, sim_id: str) -> Sim:
@@ -450,7 +461,7 @@ async def api_site(request: Request) -> dict:
 @app.get("/scenes/{scene_id}/thumbnail", include_in_schema=False)
 async def scene_thumbnail(scene_id: str, request: Request) -> FileResponse:
     scene = catalog.get_scene(scene_id)
-    if scene is None or scene.thumbnail is None or (scene.id in private_scene_ids() and not has_access(request)):
+    if scene is None or scene.thumbnail is None or not may_see_scene(request, scene.id):
         raise HTTPException(404)
     return FileResponse(scene.thumbnail, headers={"Cache-Control": "max-age=300"})
 
@@ -478,15 +489,18 @@ class ReclaimRequest(BaseModel):
 
 @app.get("/api/scenes")
 async def api_scenes(request: Request) -> list[dict]:
-    private = private_scene_ids()
-    access = has_access(request)
-    return [{**s.public(), "private": s.id in private} for s in catalog.list_scenes() if access or s.id not in private]
+    levels = scene_levels()
+    return [
+        {**s.public(), "visibility": levels[s.id]}
+        for s in catalog.list_scenes()
+        if may_see_level(request, levels[s.id])
+    ]
 
 
 @app.get("/api/status")
 async def api_status(request: Request) -> dict:
     limits = S.store.get_limits()
-    private = private_scene_ids()
+    levels = scene_levels()
     # Capacity counts every simulation; the list only shows the ones this
     # browser may see.
     sims = S.store.list_sims()
@@ -496,7 +510,7 @@ async def api_status(request: Request) -> dict:
         "idleTimeoutMinutes": limits.idle_timeout_minutes,
         "maxHoldHours": limits.max_hold_hours,
         "maxHeldSims": limits.max_held_sims,
-        "sims": [sim_info(s, request) for s in sims if can_see(request, s, private)],
+        "sims": [sim_info(s, request) for s in sims if can_see(request, s, levels)],
         "access": has_access(request),
         "accessLogin": bool(config.ACCESS_PASSWORD),
         "serverTime": time.time(),
@@ -542,7 +556,7 @@ async def api_access_logout() -> JSONResponse:
 @app.post("/api/sims")
 async def api_create_sim(body: CreateSimRequest, request: Request) -> JSONResponse:
     scene = catalog.get_scene(body.sceneId)
-    if scene is None or (scene.id in private_scene_ids() and not has_access(request)):
+    if scene is None or not may_see_scene(request, scene.id):
         raise api_error(404, "Unknown scene.")
     sim, token = await create_sim(scene, body.ownerName.strip(), client_addr(request), replace_for=request)
     response = JSONResponse({"sim": sim_info(sim), "key": token})
@@ -720,7 +734,7 @@ async def admin_state() -> dict:
     image_flags = await asyncio.gather(*(asyncio.to_thread(S.backend.image_exists, s) for s in scenes))
     containers = await asyncio.to_thread(S.backend.managed_containers)
     defaults_set = S.store.scenes_with_defaults()
-    private = private_scene_ids()
+    levels = scene_levels()
     return {
         "limits": S.store.get_limits().as_dict(),
         "sims": [
@@ -734,7 +748,7 @@ async def admin_state() -> dict:
                 "buildable": scene.buildable,
                 "build": S.backend.builds.get(scene.id),
                 "defaultsSetAt": defaults_set.get(scene.id),
-                "private": scene.id in private,
+                "visibility": levels[scene.id],
             }
             for scene, available in zip(scenes, image_flags)
         ],
@@ -883,18 +897,19 @@ async def admin_clear_defaults(scene_id: str) -> dict:
 
 
 class VisibilityRequest(BaseModel):
-    private: bool
+    visibility: Literal["public", "private", "admin"]
 
 
 @app.put("/admin/api/scenes/{scene_id}/visibility", dependencies=[Depends(require_admin)])
 async def admin_set_visibility(scene_id: str, body: VisibilityRequest) -> dict:
-    """Public: everyone sees the scene and watches its simulations. Private:
-    only with the access password (or as admin); owners keep their own."""
+    """public: everyone sees the scene and watches its simulations; private:
+    only with the access password (or as admin); admin: only the admin.
+    A simulation's owner always keeps seeing their own."""
     if catalog.get_scene(scene_id) is None:
         raise api_error(404, "Unknown scene.")
-    S.store.set_scene_private(scene_id, body.private)
-    S.store.log("visibility", detail=f"scene={scene_id} {'private' if body.private else 'public'}")
-    return {"ok": True, "private": body.private}
+    S.store.set_scene_visibility(scene_id, body.visibility)
+    S.store.log("visibility", detail=f"scene={scene_id} {body.visibility}")
+    return {"ok": True, "visibility": body.visibility}
 
 
 @app.post("/admin/api/scenes/{scene_id}/build", dependencies=[Depends(require_admin)])
@@ -951,7 +966,7 @@ async def sim_http(sim_id: str, path: str, request: Request) -> Response:
 async def sim_ws(websocket: WebSocket, sim_id: str, path: str) -> None:
     sim = S.store.get_sim(sim_id) if _SIM_ID.match(sim_id) else None
     if sim is not None and not can_see(websocket, sim):
-        await websocket.close(code=1008)  # policy violation: private scene
+        await websocket.close(code=1008)  # policy violation: private / admin-only scene
         return
     if sim is None or sim.status != "running":
         await websocket.close(code=1013)

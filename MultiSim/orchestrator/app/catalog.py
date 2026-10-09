@@ -31,7 +31,9 @@ class Scene:
     memory: str
     thumbnail: Optional[Path]
     buildable: bool  # has a Dockerfile (docker) or self-check (native) the admin page can run
-    private_default: bool = False  # scene.json "private": true; the admin page can override it
+    # scene.json "visibility": public | private | admin ("private": true still
+    # means private); the admin page can override it.
+    visibility_default: str = "public"
 
     def public(self) -> dict:
         return {
@@ -65,8 +67,15 @@ def _load_scene(scene_dir: Path) -> Optional[Scene]:
         thumbnail=thumbnail if thumbnail is not None and thumbnail.is_file() else None,
         buildable=(scene_dir / "Dockerfile").is_file() if config.BACKEND == "docker"
         else (scene_dir / "sofaweb_scene.py").is_file() or (scene_dir / "check.py").is_file(),
-        private_default=bool(meta.get("private", False)),
+        visibility_default=_visibility(meta),
     )
+
+
+def _visibility(meta: dict) -> str:
+    level = str(meta.get("visibility", "")).lower()
+    if level in ("public", "private", "admin"):
+        return level
+    return "private" if meta.get("private") else "public"
 
 
 def list_scenes() -> list[Scene]:

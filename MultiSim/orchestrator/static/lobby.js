@@ -28,14 +28,23 @@ function showNotice(content) {
 	startNotice.classList.toggle("hidden", !content);
 }
 
-function isPrivate(sceneId) {
-	return scenes.some((s) => s.id === sceneId && s.private);
+// Only private / admin-only scenes get a badge; visitors never see those
+// unless they're allowed to.
+const VISIBILITY_BADGES = { private: ["private", "private"], admin: ["admin-only", "admin only"] };
+
+function visibilityBadge(level) {
+	const badge = VISIBILITY_BADGES[level];
+	return badge ? el("span", { class: `badge ${badge[0]}` }, badge[1]) : null;
+}
+
+function sceneLevel(sceneId) {
+	return scenes.find((s) => s.id === sceneId)?.visibility;
 }
 
 function simBadges(sim) {
 	return [
 		el("span", { class: `badge ${sim.status}` }, sim.status),
-		isPrivate(sim.sceneId) ? el("span", { class: "badge private" }, "private") : null,
+		visibilityBadge(sceneLevel(sim.sceneId)),
 		sim.held ? el("span", { class: "badge held" }, `held until ${fmtTime(sim.holdUntil)}`) : null,
 		sim.mine ? el("span", { class: "badge mine" }, "yours") : null,
 	];
@@ -154,7 +163,7 @@ function renderScenes() {
 				el(
 					"div",
 					{ class: "scene-body" },
-					el("h3", {}, scene.title, scene.private ? el("span", { class: "badge private" }, "private") : null),
+					el("h3", {}, scene.title, visibilityBadge(scene.visibility)),
 					el("p", {}, scene.description),
 					el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
 				)

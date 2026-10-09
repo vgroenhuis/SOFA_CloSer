@@ -218,25 +218,31 @@ function defaultsInfo(scene) {
 	return el("div", { class: "muted small" }, `custom defaults since ${fmtTime(scene.defaultsSetAt)} `, clear);
 }
 
-// Public: in everyone's lobby. Private: only with the access password (or as
-// admin); a running simulation's owner keeps seeing their own.
-function visibilityToggle(scene) {
-	return el(
-		"div",
-		{ class: "inline-form" },
-		el("span", { class: `badge ${scene.private ? "private" : "running"}` }, scene.private ? "private" : "public"),
-		el(
-			"button",
-			{
-				class: "secondary small",
-				onclick: async () => {
-					await guarded(() => api(`admin/api/scenes/${scene.id}/visibility`, { method: "PUT", body: { private: !scene.private } }));
-					refresh();
-				},
+// public: in everyone's lobby. private: only with the access password (or as
+// admin). admin: only for the admin. A simulation's owner keeps seeing their own.
+const VISIBILITY_OPTIONS = [
+	["public", "Public"],
+	["private", "Private (access password)"],
+	["admin", "Admin only"],
+];
+
+function visibilitySelect(scene) {
+	const select = el(
+		"select",
+		{
+			class: `visibility ${scene.visibility}`,
+			title: "Who can see and start this scene",
+			onchange: async () => {
+				select.blur(); // let the refresh below redraw the table
+				select.disabled = true;
+				await guarded(() => api(`admin/api/scenes/${scene.id}/visibility`, { method: "PUT", body: { visibility: select.value } }));
+				refresh();
 			},
-			scene.private ? "Make public" : "Make private"
-		)
+		},
+		...VISIBILITY_OPTIONS.map(([value, label]) => el("option", { value }, label))
 	);
+	select.value = scene.visibility;
+	return select;
 }
 
 function renderScenes() {
@@ -245,7 +251,10 @@ function renderScenes() {
 	select.replaceChildren(...state.scenes.map((s) => el("option", { value: s.id }, s.title)));
 	if (selected) select.value = selected;
 
-	$("scenes-body").replaceChildren(
+	// Redrawing every 5 s would close a visibility dropdown while it's in use.
+	const body = $("scenes-body");
+	if (body.contains(document.activeElement) && document.activeElement.tagName === "SELECT") return;
+	body.replaceChildren(
 		...state.scenes.map((scene) => {
 			const build = scene.build;
 			let status = scene.imageAvailable ? el("span", { class: "badge running" }, "image ready") : el("span", { class: "badge starting" }, "image missing");
@@ -257,7 +266,7 @@ function renderScenes() {
 				"tr",
 				{},
 				el("td", {}, el("strong", {}, scene.title), el("div", { class: "muted small mono" }, scene.id)),
-				el("td", {}, visibilityToggle(scene)),
+				el("td", {}, visibilitySelect(scene)),
 				el("td", { class: "mono small" }, scene.image),
 				el("td", {}, status, detail, defaultsInfo(scene)),
 				el(

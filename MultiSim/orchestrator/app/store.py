@@ -51,14 +51,17 @@ CREATE TABLE IF NOT EXISTS scene_defaults (
     value      TEXT NOT NULL,
     updated_at REAL NOT NULL
 );
--- Public / private per scene, as set on the admin page; overrides the
--- scene.json default ("private": true). See main.scene_is_private.
+-- Visibility per scene as set on the admin page (overrides scene.json):
+-- level is public | private | admin. `private` is from before levels
+-- existed (1 = private) and only read when level is NULL.
 CREATE TABLE IF NOT EXISTS scene_visibility (
     scene_id   TEXT PRIMARY KEY,
     private    INTEGER NOT NULL,
     updated_at REAL NOT NULL
 );
 """
+
+VISIBILITY_LEVELS = ("public", "private", "admin")
 
 
 @dataclass
@@ -93,6 +96,9 @@ class Store:
         self._lock = threading.Lock()
         with self._lock:
             self._conn.executescript(_SCHEMA)
+            columns = {row[1] for row in self._conn.execute("PRAGMA table_info(scene_visibility)")}
+            if "level" not in columns:
+                self._conn.execute("ALTER TABLE scene_visibility ADD COLUMN level TEXT")
 
     def _query(self, sql: str, params: tuple = ()) -> list[sqlite3.Row]:
         with self._lock:
@@ -199,15 +205,22 @@ class Store:
 
     # -- scene visibility -----------------------------------------------
 
-    def scene_visibility(self) -> dict[str, bool]:
-        """scene id -> private, for the scenes an admin has set."""
-        return {row["scene_id"]: bool(row["private"]) for row in self._query("SELECT scene_id, private FROM scene_visibility")}
+    def scene_visibility(self) -> dict[str, str]:
+        """scene id -> public | private | admin, for the scenes an admin has set."""
+        rows = self._query("SELECT scene_id, private, level FROM scene_visibility")
+        return {
+            row["scene_id"]: row["level"] if row["level"] in VISIBILITY_LEVELS else ("private" if row["private"] else "public")
+            for row in rows
+        }
 
-    def set_scene_private(self, scene_id: str, private: bool) -> None:
+    def set_scene_visibility(self, scene_id: str, level: str) -> None:
+        if level not in VISIBILITY_LEVELS:
+            raise ValueError(level)
         self._execute(
-            "INSERT INTO scene_visibility (scene_id, private, updated_at) VALUES (?, ?, ?) "
-            "ON CONFLICT(scene_id) DO UPDATE SET private = excluded.private, updated_at = excluded.updated_at",
-            (scene_id, int(private), time.time()),
+            "INSERT INTO scene_visibility (scene_id, private, level, updated_at) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(scene_id) DO UPDATE SET private = excluded.private, level = excluded.level, "
+            "updated_at = excluded.updated_at",
+            (scene_id, int(level != "public"), level, time.time()),
         )
 
     # -- event log ------------------------------------------------------
