@@ -226,7 +226,7 @@ _DEFAULT_PARAMS = {
     'young_modulus': 1.0e6,      # [Pa]  ~soft silicone rubber (Shore ~30-40A)
     'poisson_ratio': 0.45,       # near-incompressible rubber
     'density': 1100.0,           # [kg/m^3] silicone rubber
-    'target_pressure': 1000.0,   # [Pa] gauge pressure the cavity ramps/jumps to
+    'target_pressure': 100000.0, # [Pa] gauge pressure the cavity ramps/jumps to
     'ramp_time': 2.0,            # [s] time to reach target_pressure if not instant
     'instant': False,            # apply target_pressure immediately instead
                                   # of ramping towards it
@@ -1031,6 +1031,13 @@ class MirrorController(Sofa.Core.Controller):
 # Graph / properties panel (select the "PressureRamp" node).
 # ----------------------------------------------------------------------
 class PressureRamp(Sofa.Core.Controller):
+    """SurfacePressureConstraint is solved as a Lagrangian constraint by the
+    FreeMotionAnimationLoop, and what it imposes is an impulse per time
+    step, not a force: a value v acts as a pressure v / dt (checked against
+    SurfacePressureForceField: value 300 at dt = 0.01 s deforms the cavity
+    exactly like a true 30 kPa). So the pressure in Pa is multiplied by dt
+    when it is imposed, and `applied_pressure` divides it back out.
+    """
     def __init__(self, root, pressure_constraint, target_pressure, ramp_time, instant=False, **kwargs):
         Sofa.Core.Controller.__init__(self, **kwargs)
         self.root = root
@@ -1055,7 +1062,7 @@ class PressureRamp(Sofa.Core.Controller):
             self.current_pressure = target
         else:
             ramp_time = max(self.rampTime.value, 1e-6)
-            max_step = (abs(target) if target != 0 else self.pressure.pressure.value) / ramp_time * dt
+            max_step = (abs(target) if target != 0 else abs(self.current_pressure)) / ramp_time * dt
             max_step = max(max_step, 1e-9)
             diff = target - self.current_pressure
             if abs(diff) <= max_step:
@@ -1063,7 +1070,11 @@ class PressureRamp(Sofa.Core.Controller):
             else:
                 self.current_pressure += max_step if diff > 0 else -max_step
 
-        self.pressure.value.value = [self.current_pressure]
+        self.pressure.value.value = [self.current_pressure * dt]  # an impulse, see the class docstring
+
+    def applied_pressure(self):
+        """The pressure acting on the cavity walls [Pa]."""
+        return float(self.pressure.pressure.value) / self.root.dt.value
 
     def onAnimateEndEvent(self, event):
         if self.time + 1e-9 < self.next_print:
@@ -1071,7 +1082,7 @@ class PressureRamp(Sofa.Core.Controller):
         self.next_print += 0.2
         vol = self.pressure.cavityVolume.value
         vol0 = self.pressure.initialCavityVolume.value
-        applied = self.pressure.pressure.value
+        applied = self.applied_pressure()
         growth = (vol / vol0 - 1.0) * 100.0
         mode = 'instant' if self.instant.value else 'ramp'
         print(f"t={self.time:5.2f}s  [{mode}] target={self.targetPressure.value/1000.0:6.2f} kPa  "

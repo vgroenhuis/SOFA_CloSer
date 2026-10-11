@@ -177,7 +177,7 @@ def _fem_models(root, first_id: int) -> list[Model]:
     while stack:
         node = stack.pop()
         path = node.getPathName()
-        if path in seen:  # a node with two parents (e.g. Better finger's cube)
+        if path in seen:  # a node with two parents (e.g. Finger 2 with channel's cube)
             continue
         seen.add(path)
         stack.extend(node.children)

@@ -35,7 +35,7 @@ _DEFAULTS = {
     'wall_bottom': 8.0,          # bottom layer
     'wall_top': 8.0,             # roof
     'channel_height': 8.0,       # connecting channel, from the cavity floor up; 0 = closed
-    'channel_width': 0.0,        # 0 = the full cavity width (as in Better finger)
+    'channel_width': 0.0,        # 0 = the full cavity width (as in Finger 2 with channel)
     'channel_wall': 8.0,         # duct roof (and, for a narrower channel, its sides)
     'channel_separation': 8.0,   # gap between this chamber and the next, i.e. the
                                  # duct length between them; the model ends halfway
@@ -44,13 +44,13 @@ _DEFAULTS = {
     'floor_size': 400.0,         # green floor, purely visual
     'symmetry_buffer': 0.0,      # extra FEM material past an exploited midplane (unloaded:
                                  # its cavity walls get no pressure, its far edge is free;
-                                 # kept for comparison with Better finger, 0 is exact)
+                                 # kept for comparison with Finger 2 with channel, 0 is exact)
     # -- boundary conditions --
     'symmetry_x': True,
     'symmetry_y': True,
     'prevent_symmetry_crossing': True,
     'channel_end_constraint': True,   # far-end plane: may only shift along X and tilt about Y
-    'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Better finger)
+    'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Finger 2 with channel)
     'prevent_channel_end_crossing': True,  # end wall can't pass the far-end plane (contact)
     'clamp_to_trunk': True,           # bottom clamped to a rigid trunk over its footprint
     'strain_limiting_layer': False,   # paper membrane on the bottom face
@@ -157,7 +157,7 @@ _BOOL_FIELDS = [
     ('Mirror visual model across X symmetry plane', 'mirror_visual_x', False),
     ('Mirror visual model across Y symmetry plane', 'mirror_visual_y', False),
     ('Far-end plane: may only shift along X and tilt about Y', 'channel_end_constraint', True),
-    ('Far-end nodes slide in the plane (off: glued to it, as in Better finger)', 'channel_end_sliding', True),
+    ('Far-end nodes slide in the plane (off: glued to it, as in Finger 2 with channel)', 'channel_end_sliding', True),
     ('End wall touches the far-end plane (contact with the mirrored neighbour)',
      'prevent_channel_end_crossing', True),
     ('Clamp the bottom to a rigid trunk', 'clamp_to_trunk', True),

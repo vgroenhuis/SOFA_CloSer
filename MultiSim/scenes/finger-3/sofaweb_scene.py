@@ -196,14 +196,14 @@ CONFIG = SceneConfig(
     extend_by=extend_time,
     end_condition=_Settled(),
     about=[
-        "One chamber of a PneuNet soft pneumatic finger, like Better finger, with every dimension given in "
+        "One chamber of a PneuNet soft pneumatic finger, like Finger 2 with channel, with every dimension given in "
         "millimetres plus a standard element size. Each feature is split into the whole number of equal elements "
         "closest to that size (an 18 mm wall with 10 mm elements becomes 2 x 9 mm), and every wall into at least "
         "'minimum wall layers' elements: linear tetrahedra need more than one layer through a wall to bend "
         "realistically. The mesh is mirror-symmetric, so a model cut at a midplane is exactly half the full one.",
         "The far-end plane (the midplane to the neighbouring chamber, halfway along the duct) is a symmetry plane: "
         "its nodes stay on it but slide freely within it, while the plane itself shifts along X and tilts about Y. "
-        "In Better finger those nodes were glued to the plane, which froze the duct's cross-section there. With "
+        "In Finger 2 with channel those nodes were glued to the plane, which froze the duct's cross-section there. With "
         "sliding, the channel can open up under pressure all the way to the midplane -- and with the default "
         "full-width channel the end wall above it acts as a flap. At about 1 kPa that flap has no equilibrium any more "
         "(it keeps opening until the run diverges). A narrower channel (Channel width, e.g. 16 mm with 4 mm duct "

@@ -3,7 +3,7 @@
 Finger 3: one chamber of a single-channel PneuNet soft finger, inflated
 with air. Successor of ../../better-finger/original/BetterFinger.py.
 
-What changed compared to Better finger:
+What changed compared to Finger 2 with channel:
 
 1. Geometry in millimetres. Every feature (box, each wall, channel, duct,
    trunk, symmetry buffer) is given in mm, plus a standard element size.
@@ -35,7 +35,7 @@ What changed compared to Better finger:
    the wall and the plane.
 
 4. Optional, closer to a real PneuNet (both off by default, to keep the
-   comparison with Better finger direct):
+   comparison with Finger 2 with channel direct):
    - a strain-limiting layer (paper, a membrane on the bottom face) instead
      of clamping the bottom to a rigid trunk; the chamber's base is then
      free to bend, held only by its symmetry planes;
@@ -82,7 +82,7 @@ _DEFAULT_PARAMS = {
     'wall_bottom': 8.0,          # bottom layer
     'wall_top': 8.0,             # roof
     'channel_height': 8.0,       # connecting channel, from the cavity floor up; 0 = closed
-    'channel_width': 0.0,        # 0 = the full cavity width (as in Better finger)
+    'channel_width': 0.0,        # 0 = the full cavity width (as in Finger 2 with channel)
     'channel_wall': 8.0,         # duct roof (and, for a narrower channel, its sides)
     'channel_separation': 8.0,   # gap between this chamber and the next, i.e. the
                                  # duct length between them; the model ends halfway
@@ -91,13 +91,13 @@ _DEFAULT_PARAMS = {
     'floor_size': 400.0,         # green floor, purely visual
     'symmetry_buffer': 0.0,      # extra FEM material past an exploited midplane (unloaded:
                                  # its cavity walls get no pressure, its far edge is free;
-                                 # kept for comparison with Better finger, 0 is exact)
+                                 # kept for comparison with Finger 2 with channel, 0 is exact)
     # -- boundary conditions --
     'symmetry_x': True,
     'symmetry_y': True,
     'prevent_symmetry_crossing': True,
     'channel_end_constraint': True,   # far-end plane: may only shift along X and tilt about Y
-    'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Better finger)
+    'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Finger 2 with channel)
     'prevent_channel_end_crossing': True,  # end wall can't pass the far-end plane (contact)
     'clamp_to_trunk': True,           # bottom clamped to a rigid trunk over its footprint
     'strain_limiting_layer': False,   # paper membrane on the bottom face
@@ -594,7 +594,7 @@ def createScene(rootNode):
 
     finger = rootNode.addChild('finger')
     # Light stiffness damping: the quasi-static end state is the same, but
-    # with 0.1 (Better finger's value) a soft mode -- the full-width
+    # with 0.1 (Finger 2 with channel's value) a soft mode -- the full-width
     # channel's end-wall flap -- took ~7 s to creep to it instead of ~1.5 s.
     finger.addObject('EulerImplicitSolver', name='odesolver', rayleighStiffness=0.01, rayleighMass=0.1)
     finger.addObject('SparseLDLSolver', name='linearSolver', template='CompressedRowSparseMatrixd')
@@ -623,7 +623,7 @@ def createScene(rootNode):
 
     # ---- the silicone body ----------------------------------------------
     if use_frames and not sliding:
-        # Better finger's glued far ends: ring nodes rigidly mapped from the
+        # Finger 2 with channel's glued far ends: ring nodes rigidly mapped from the
         # frame; the cube re-assembles all nodes with a SubsetMultiMapping.
         frame_of = {}
         for f, (side, ring, x) in enumerate(far_sets):

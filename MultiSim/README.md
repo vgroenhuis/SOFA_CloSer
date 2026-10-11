@@ -183,7 +183,7 @@ Docker, `docker compose` restarts the orchestrator itself
   - `rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
     `pneunet-finger`: the original scripts from `verilogscripts/SOFA/`,
     run unmodified through sofaweb.
-  - `better-finger`: the PneuNet chamber with its channel far-end planes
+  - `better-finger` ("Finger 2 with channel"): the PneuNet chamber with its channel far-end planes
     held rigid by a hard constraint (a new script, derived from
     PneuNetFinger.py, also runnable in the SOFA desktop GUI).
   - `finger-3`: its successor (admin-only for now): dimensions in mm with

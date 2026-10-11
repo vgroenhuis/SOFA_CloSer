@@ -278,11 +278,11 @@ body.viewer .param-note { display: none; }
 	border-right: 2px solid rgba(255, 255, 255, 0.35);
 }
 .chart-panel h2, #console-panel h2 {
+	/* As written (e.g. "Chamber pressure (kPa)"): no forced capitals, which
+	   would turn units like kPa into KPA. */
 	flex: 0 0 auto;
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	margin: 0 0 4px 2px;
 	color: #8f97a3;
 }
@@ -297,7 +297,7 @@ body.viewer .param-note { display: none; }
 .collapsed .chart-canvas-wrap, .collapsed .resize-handle-tr, .collapsed .readout-grid { display: none; }
 .readout-panel.collapsed h2 { margin-bottom: 0; }
 .chart-panel.collapsed h2 { margin-bottom: 0; }
-.readout-panel h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px; color: #8f97a3; }
+.readout-panel h2 { font-size: 12px; font-weight: 600; margin: 0 0 6px; color: #8f97a3; }
 .readout-grid { display: grid; grid-template-columns: auto auto; gap: 3px 14px; font-size: 12px; }
 .readout-grid .readout-label { color: #8f97a3; }
 .readout-grid .readout-value { color: #e8e8e8; font-variant-numeric: tabular-nums; text-align: right; }

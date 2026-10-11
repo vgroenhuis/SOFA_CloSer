@@ -20,7 +20,7 @@
   "young_modulus": 1000000.0,
   "poisson_ratio": 0.45,
   "density": 1000.0,
-  "target_pressure": 500,
+  "target_pressure": 50000,
   "ramp_time": 5.0,
   "instant": true,
   "gravity_enabled": false,

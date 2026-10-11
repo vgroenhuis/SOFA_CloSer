@@ -15,7 +15,7 @@ def probes(root, module):
     volume0 = float(ramp.pressure.initialCavityVolume.value)
     return {
         "target": float(ramp.targetPressure.value) / 1000.0,
-        "applied": float(ramp.pressure.pressure.value) / 1000.0,
+        "applied": ramp.applied_pressure() / 1000.0,
         "volume": volume * 1e6,
         "growth": (volume / volume0 - 1.0) * 100.0 if volume0 else 0.0,
     }
@@ -70,7 +70,7 @@ CONFIG = SceneConfig(
         "young_modulus": (1e4, 1e9),
         "poisson_ratio": (0.0, 0.49),
         "density": (10.0, 20000.0),
-        "target_pressure": (-5000.0, 20000.0),
+        "target_pressure": (-500000.0, 2000000.0),
         "ramp_time": (0.0, 60.0),
         "wall_alpha": (0.0, 1.0),
         "interior_alpha": (0.0, 1.0),

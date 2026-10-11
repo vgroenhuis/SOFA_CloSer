@@ -1,4 +1,4 @@
-"""Better finger (BetterFinger.py), run through sofaweb (see scenes/_base)."""
+"""Finger 2 with channel (BetterFinger.py), run through sofaweb (see scenes/_base)."""
 
 import math
 
@@ -26,7 +26,7 @@ def probes(root, module):
     volume0 = float(ramp.pressure.initialCavityVolume.value)
     values = {
         "target": float(ramp.targetPressure.value) / 1000.0,
-        "applied": float(ramp.pressure.pressure.value) / 1000.0,
+        "applied": ramp.applied_pressure() / 1000.0,
         "volume": volume * 1e6,
         "growth": (volume / volume0 - 1.0) * 100.0 if volume0 else 0.0,
     }
@@ -61,7 +61,7 @@ def settle_time(p):
 
 
 CONFIG = SceneConfig(
-    title="Better finger",
+    title="Finger 2 with channel",
     script="original/BetterFinger.py",
     params_file="original/params.json",
     editor_file="original/params_editor.py",
@@ -91,7 +91,7 @@ CONFIG = SceneConfig(
         "young_modulus": (1e4, 1e9),
         "poisson_ratio": (0.0, 0.49),
         "density": (10.0, 20000.0),
-        "target_pressure": (-3000.0, 10000.0),
+        "target_pressure": (-300000.0, 1000000.0),
         "ramp_time": (0.0, 60.0),
         "wall_alpha": (0.0, 1.0),
         "interior_alpha": (0.0, 1.0),
