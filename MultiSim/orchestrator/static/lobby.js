@@ -1,6 +1,9 @@
 import { api, el, fmtTime, now, openModal, syncClock } from "./common.js";
 
 const sceneGrid = document.getElementById("scene-grid");
+// Admin-only scenes (listed only for the admin) have a section of their own.
+const adminSceneGrid = document.getElementById("admin-scene-grid");
+const adminScenesSection = document.getElementById("admin-scenes-section");
 const runningList = document.getElementById("running-list");
 const mineSection = document.getElementById("mine-section");
 const mineList = document.getElementById("mine-list");
@@ -127,7 +130,7 @@ function renderStatus() {
 		...(others.length ? others.map(simRow) : [el("p", { class: "muted" }, mine.length ? "Nobody else is running a simulation." : "No simulations are running right now.")])
 	);
 
-	for (const button of sceneGrid.querySelectorAll("button[data-scene]")) {
+	for (const button of document.querySelectorAll("#scene-grid button[data-scene], #admin-scene-grid button[data-scene]")) {
 		button.disabled = full || starting;
 	}
 	if (full && !starting) {
@@ -149,27 +152,32 @@ function renderStatus() {
 		`Owners can reserve theirs for up to ${status.maxHoldHours} hours (e.g. for a demo later today).`;
 }
 
-function renderScenes() {
-	if (!scenes.length) {
-		sceneGrid.replaceChildren(el("p", { class: "muted" }, "No scenes are installed."));
-		return;
-	}
-	sceneGrid.replaceChildren(
-		...scenes.map((scene) =>
-			el(
-				"div",
-				{ class: "card scene-card" },
-				el("div", { class: "scene-thumb", style: scene.thumbnail ? { backgroundImage: `url("${scene.thumbnail}")` } : {} }),
-				el(
-					"div",
-					{ class: "scene-body" },
-					el("h3", {}, scene.title, visibilityBadge(scene.visibility)),
-					el("p", {}, scene.description),
-					el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
-				)
-			)
+function sceneCard(scene, badge) {
+	return el(
+		"div",
+		{ class: "card scene-card" },
+		el("div", { class: "scene-thumb", style: scene.thumbnail ? { backgroundImage: `url("${scene.thumbnail}")` } : {} }),
+		el(
+			"div",
+			{ class: "scene-body" },
+			el("h3", {}, scene.title, badge ? visibilityBadge(scene.visibility) : null),
+			el("p", {}, scene.description),
+			el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
 		)
 	);
+}
+
+function renderScenes() {
+	const adminOnly = scenes.filter((s) => s.visibility === "admin");
+	const others = scenes.filter((s) => s.visibility !== "admin");
+	if (!scenes.length) {
+		sceneGrid.replaceChildren(el("p", { class: "muted" }, "No scenes are installed."));
+	} else {
+		sceneGrid.replaceChildren(...others.map((scene) => sceneCard(scene, true)));
+	}
+	// The section title says it, so these cards need no "admin only" badge.
+	adminSceneGrid.replaceChildren(...adminOnly.map((scene) => sceneCard(scene, false)));
+	adminScenesSection.classList.toggle("hidden", !adminOnly.length);
 	renderStatus();
 }
 
