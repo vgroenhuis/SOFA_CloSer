@@ -593,9 +593,8 @@ def createScene(rootNode):
     sliding = use_frames and P['channel_end_sliding']
 
     finger = rootNode.addChild('finger')
-    # Light stiffness damping: the quasi-static end state is the same, but
-    # with 0.1 (Finger 2 with channel's value) a soft mode -- the full-width
-    # channel's end-wall flap -- took ~7 s to creep to it instead of ~1.5 s.
+    # Light stiffness damping (Finger 2 with channel uses 0.1): the end state
+    # is the same, and the run settles faster.
     finger.addObject('EulerImplicitSolver', name='odesolver', rayleighStiffness=0.01, rayleighMass=0.1)
     finger.addObject('SparseLDLSolver', name='linearSolver', template='CompressedRowSparseMatrixd')
 
@@ -794,7 +793,14 @@ def createScene(rootNode):
             node = couple.addChild(kind)
             node.addObject('MeshTopology', name='topo', tetrahedra=tets)
             node.addObject('MechanicalObject', name='dofs', template='Vec1')
-            node.addObject('VolumeMapping', name='mapping', input='@../dofs', output='@dofs', topology='@topo')
+            # No geometric stiffness: it is the coupling force times the second
+            # derivative of the tetrahedron volume, and with these stiff couplings
+            # it made the implicit solve alternate (the far-end plane turned only
+            # every other step, then caught up in jumps). Without it the run
+            # follows a smooth path to the same equilibrium (checked against a
+            # static Newton solution).
+            node.addObject('VolumeMapping', name='mapping', input='@../dofs', output='@dofs', topology='@topo',
+                           geometricStiffness='None')
             if kind == 'slide':
                 node.addObject('RestShapeSpringsForceField', name='onPlane', stiffness=k_volume)
             else:

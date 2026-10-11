@@ -205,7 +205,7 @@ CONFIG = SceneConfig(
         "its nodes stay on it but slide freely within it, while the plane itself shifts along X and tilts about Y. "
         "In Finger 2 with channel those nodes were glued to the plane, which froze the duct's cross-section there. With "
         "sliding, the channel can open up under pressure all the way to the midplane -- and with the default "
-        "full-width channel the end wall above it acts as a flap. At about 1 kPa that flap has no equilibrium any more "
+        "full-width channel the end wall above it acts as a flap. At about 100 kPa that flap has no equilibrium any more "
         "(it keeps opening until the run diverges). A narrower channel (Channel width, e.g. 16 mm with 4 mm duct "
         "walls) is closer to a real PneuNet and stays stable.",
         "Where the end wall reaches the far-end plane it touches its mirrored neighbour: that contact now pushes "
