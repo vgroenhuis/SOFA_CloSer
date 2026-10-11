@@ -104,8 +104,9 @@ runSofa -l SofaPython3 HollowCubeInflation.py
 ```
 
 Use SOFA v26.06 with the SoftRobots plugin (the binary release includes
-it). `better-finger/original/` also has Windows launchers (`run_sofa.bat`,
-`BetterFinger_run_imgui.bat`; set the SOFA path in `sofa_env.bat`). Each
+it). `better-finger/original/` and `finger-3/original/` also have Windows
+launchers (`run_sofa.bat`, `BetterFinger_run_imgui.bat` / `Finger3_run_imgui.bat`;
+set the SOFA path in `sofa_env.bat`). Each
 script's `params.json` holds its parameters; `params_editor.py` edits them.
 
 ## Serving it under a path
@@ -185,6 +186,10 @@ Docker, `docker compose` restarts the orchestrator itself
   - `better-finger`: the PneuNet chamber with its channel far-end planes
     held rigid by a hard constraint (a new script, derived from
     PneuNetFinger.py, also runnable in the SOFA desktop GUI).
+  - `finger-3`: its successor (admin-only for now): dimensions in mm with
+    an element size, the far-end plane as a true symmetry plane (nodes
+    slide within it), contact with the neighbouring chamber that pushes the
+    plane, and optional strain-limiting layer and hyperelastic material.
 - **scenes/_base/**: **sofaweb**, a runtime that runs an existing SOFA scene
   script headlessly and streams its visual models to a generic three.js
   viewer, with parameter panel, charts, live controls and console; plus the

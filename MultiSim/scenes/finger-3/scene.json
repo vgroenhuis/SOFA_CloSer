@@ -1,0 +1,9 @@
+{
+	"title": "Finger 3",
+	"description": "PneuNet chamber with dimensions in mm and an element size. The far-end plane is a true symmetry plane: its nodes slide within it, and contact with the neighbouring chamber pushes it.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}
