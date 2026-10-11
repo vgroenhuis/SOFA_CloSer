@@ -47,8 +47,13 @@ def axis_grid(breakpoints, element_size, walls=(), min_layers=1):
     for lo, hi in zip(pts, pts[1:]):
         if hi - lo < 1e-9:
             continue
-        in_wall = any(a - 1e-9 <= lo and hi <= b + 1e-9 for a, b in walls)
-        coords += split_segment(lo, hi, element_size, min_layers if in_wall else 1)[1:]
+        # A wall split into pieces (e.g. by the trunk's edge) gets its minimum
+        # number of layers in total, shared out by the pieces' lengths.
+        need = 1
+        for a, b in walls:
+            if a - 1e-9 <= lo and hi <= b + 1e-9:
+                need = max(need, math.ceil(min_layers * (hi - lo) / (b - a) - 1e-9))
+        coords += split_segment(lo, hi, element_size, need)[1:]
     return coords
 
 
@@ -57,6 +62,12 @@ def symmetric_grid(half_breakpoints, element_size, walls=(), min_layers=1):
     the breakpoints (and wall intervals) of the positive half."""
     half = axis_grid([0.0] + [b for b in half_breakpoints if b > 1e-9], element_size, walls, min_layers)
     return [-c for c in reversed(half[1:])] + half
+
+
+def _merge_into(value, others, tolerance):
+    """`value`, or the nearest of `others` if that is within `tolerance`."""
+    close = min(others, key=lambda o: abs(o - value))
+    return close if abs(close - value) <= tolerance else value
 
 
 def nearest(coords, value):
@@ -108,6 +119,19 @@ class Geometry:
         yb = [W / 2 - wy, W / 2]
         if not self.full_width_channel:
             yb += [cw / 2, self.duct_half_w] if self.has_duct else [cw / 2]
+        # The clamped base footprint (trunk) is a grid line too, so the clamp
+        # covers exactly the given trunk length and width.
+        tl = max(0.0, float(p['trunk_length']))
+        tw = max(0.0, float(p['trunk_width']))
+        # An edge closer than a fifth of an element to another feature merges
+        # with it: the mesh can't resolve the difference, and the thin slab of
+        # elements in between would only hurt the solver.
+        if p.get('clamp_to_trunk', True):
+            x_extent = self.far_x if self.has_duct else L / 2
+            if 0 < tl / 2 < x_extent:
+                xb.append(_merge_into(tl / 2, [0.0] + xb, 0.2 * h))
+            if 0 < tw / 2 < W / 2:
+                yb.append(_merge_into(tw / 2, [0.0] + yb, 0.2 * h))
         zb = [0.0, wb, H - wt, H]
         if self.has_channel:
             zb.append(wb + ch)
@@ -138,9 +162,7 @@ class Geometry:
         self.xs = [c for c in self.xs if c >= x_lo - 1e-9]
         self.ys = [c for c in self.ys if c >= y_lo - 1e-9]
 
-        # Trunk (clamped base footprint), centred, snapped to grid lines.
-        tl = max(0.0, float(p['trunk_length']))
-        tw = max(0.0, float(p['trunk_width']))
+        # Trunk (clamped base footprint), centred: on grid lines (see above).
         self.trunk_x = (nearest(self.xs, -tl / 2), nearest(self.xs, tl / 2))
         self.trunk_y = (nearest(self.ys, -tw / 2), nearest(self.ys, tw / 2))
         if self.symmetry_x:
@@ -172,7 +194,8 @@ class Geometry:
             d = sorted(set(round(b - a, 3) for a, b in zip(cs, cs[1:])))
             return ", ".join(f"{v:g}" for v in d)
         return (f"grid {len(self.xs) - 1} x {len(self.ys) - 1} x {len(self.zs) - 1} cells; "
-                f"element edges X: {steps(self.xs)} mm, Y: {steps(self.ys)} mm, Z: {steps(self.zs)} mm")
+                f"element edges X: {steps(self.xs)} mm, Y: {steps(self.ys)} mm, Z: {steps(self.zs)} mm; "
+                f"trunk {2 * self.trunk_x[1]:g} x {2 * self.trunk_y[1]:g} mm")
 
 
 def build(p, z_offset_mm=0.0, outer_skip_normals=(), inner_skip_normals=()):
