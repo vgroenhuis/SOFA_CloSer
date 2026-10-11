@@ -165,14 +165,14 @@ CONFIG = SceneConfig(
     stop_at=settle_time,
     extend_by=settle_time,
     about=[
-        "One chamber of a PneuNet soft pneumatic finger, as in the PneuNet finger scene, with one improvement: "
+        "One chamber of a PneuNet soft pneumatic finger, as in Finger 1, with one improvement: "
         "the far end of each channel duct -- the midpoint to the neighbouring chamber -- is held by a hard "
         "constraint instead of a stiff-spring truss. Its FEM nodes are rigidly mapped from a frame that can only "
         "shift along X and rotate about Y, so that cross-section stays an exact rigid copy of its rest shape "
         "(the spring version deviates by over a millimetre). That is what lets copies of this chamber be placed "
         "side by side to form a whole finger.",
         "The guard that stops the chamber wall from bulging past that far-end plane follows the frame exactly, "
-        "tilt included, so the bellows can expand all the way to the tilted plane (in the PneuNet finger scene it "
+        "tilt included, so the bellows can expand all the way to the tilted plane (in Finger 1 it "
         "only follows the plane's X shift, and stops the wall at a copy of the rest orientation).",
         "The end plane's rotation and X shift are read directly from that frame and charted. Target pressure, "
         "ramp time and 'instant' are live. The run pauses once the pressure has settled (ramp time + 2 s), and "

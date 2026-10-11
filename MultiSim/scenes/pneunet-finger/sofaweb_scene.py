@@ -41,7 +41,7 @@ def settle_time(p):
 
 
 CONFIG = SceneConfig(
-    title="PneuNet finger",
+    title="Finger 1",
     script="original/PneuNetFinger.py",
     params_file="original/params.json",
     editor_file="original/params_editor.py",
