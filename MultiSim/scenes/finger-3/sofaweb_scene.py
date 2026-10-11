@@ -100,7 +100,7 @@ CONFIG = SceneConfig(
                    "mirror_visual_x": False, "mirror_visual_y": False},
     hidden_params={"theme"},
     param_limits={
-        "element_size": (2.0, 50.0),
+        "element_size": (0.5, 50.0),
         "min_wall_layers": (1, 4),
         "length": (5.0, 300.0),
         "width": (5.0, 300.0),

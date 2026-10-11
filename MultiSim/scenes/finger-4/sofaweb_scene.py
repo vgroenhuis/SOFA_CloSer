@@ -88,6 +88,78 @@ def extend_time(p):
     return p["ramp_time"] + 10.0
 
 
+# PneuNet-like proportions (Mosadegh et al. 2014 scale): an 8 mm chamber
+# pitch, 16 x 16 mm cross-section, 1.5 mm walls, a 4 mm base and a 2 x 2 mm
+# connecting channel, on a 1 mm mesh with a free base at 50 kPa.
+_PNEUNET = {
+    "element_size": 1.0, "length": 8.0, "width": 16.0, "height": 16.0,
+    "wall_end": 1.5, "wall_side": 1.5, "wall_bottom": 4.0, "wall_top": 1.5,
+    "channel_height": 2.0, "channel_width": 2.0, "channel_wall": 1.5, "channel_separation": 1.5,
+    "floor_size": 60.0, "clamp_to_trunk": False, "target_pressure": 50000.0,
+}
+
+PRESETS = {
+    "params": [
+        {"name": "No strain-limiting layer (as Finger 3)",
+         "description": "Finger 3's model: the base without paper. Bends 48.0 deg per chamber at 30 kPa, "
+                        "against 48.3 deg with the paper layer (Default).",
+         "values": {"strain_limiting_layer": False}},
+        {"name": "Bonded layer that carries compression",
+         "description": "The layer as a linear membrane that resists compression as well as tension (a stiff "
+                        "sheet fully bonded into the silicone). Bends 40.8 deg per chamber: 15 % less than "
+                        "without a layer.",
+         "values": {"strain_layer_tension_only": False}},
+        {"name": "Thin 2 mm base, free (paper)",
+         "description": "A 2 mm base without the clamped trunk. Paper here increases the bend: 69.5 deg per "
+                        "chamber, against 61.4 deg without the layer, because it stops the thin base widening.",
+         "values": {"wall_bottom": 2.0, "clamp_to_trunk": False}},
+        {"name": "PneuNet proportions, no layer",
+         "description": "A real PneuNet's proportions: 8 mm chamber pitch, 16 x 16 mm section, 1.5 mm walls, "
+                        "4 mm base, 2 x 2 mm channel, 1 mm elements, free base, 50 kPa. No strain-limiting "
+                        "layer: 23.7 deg per chamber.",
+         "values": {**_PNEUNET, "strain_limiting_layer": False}},
+        {"name": "PneuNet proportions, paper layer",
+         "description": "As above with 0.1 mm paper under the base: 23.2 deg per chamber, almost no change.",
+         "values": {**_PNEUNET, "strain_limiting_layer": True, "strain_layer_tension_only": True}},
+        {"name": "PneuNet proportions, bonded layer",
+         "description": "As above with a layer that also carries compression: 17.3 deg per chamber, 27 % "
+                        "less than without a layer -- the largest effect of a strain-limiting layer here.",
+         "values": {**_PNEUNET, "strain_limiting_layer": True, "strain_layer_tension_only": False}},
+    ],
+    "display": [
+        {"name": "Whole finger",
+         "description": "The quarter model mirrored into a finger of several chambers, without the far-end planes.",
+         "values": {"mirror_visual_x": True, "mirror_visual_y": True, "mirror_far_end": True,
+                    "mirror_far_end_count": 2, "channel_end_alpha:on": False, "axes_alpha:on": False}},
+        {"name": "See-through walls",
+         "description": "Translucent outer walls, showing the cavity and the strain-limiting layer.",
+         "values": {"wall_alpha": 0.3, "wall_alpha:on": True, "interior_alpha": 1.0, "interior_alpha:on": True,
+                    "mirror_visual_x": True, "mirror_visual_y": True}},
+        {"name": "Underside (no floor)",
+         "description": "The whole cross-section without the floor, to look at the strain-limiting layer from "
+                        "below (orbit underneath; pair with the lighting preset 'Lit from below').",
+         "values": {"floor_alpha:on": False, "axes_alpha:on": False, "channel_end_alpha:on": False,
+                    "mirror_visual_x": True, "mirror_visual_y": True}},
+        {"name": "FEM strain",
+         "description": "The tetrahedra coloured by strain, with their edges; surfaces hidden.",
+         "values": {"wall_alpha:on": False, "interior_alpha:on": False, "strain_layer_alpha:on": False,
+                    "overlay:fem": True, "overlay:femAlpha": 1.0, "overlay:femColor": "strainLit",
+                    "overlay:femWire": True, "overlay:femWireAlpha": 0.25}},
+    ],
+    "lighting": [
+        {"name": "Lit from below",
+         "description": "Both lights mirrored below the finger, to see the underside and the strain-limiting layer.",
+         "values": {"light:0:dir": [-163, -62], "light:1:dir": [22, -29]}},
+        {"name": "Soft",
+         "description": "More ambient light, softer key light.",
+         "values": {"light:ambient:brightness": 0.6, "light:0:brightness": 0.7, "light:1:brightness": 0.45}},
+        {"name": "High contrast",
+         "description": "Little ambient light and a strong key light, to bring out the shape.",
+         "values": {"light:ambient:brightness": 0.12, "light:0:brightness": 1.4, "light:1:brightness": 0.2}},
+    ],
+}
+
+
 CONFIG = SceneConfig(
     title="Finger 4 with strain-limiting layer",
     script="original/Finger4.py",
@@ -100,7 +172,7 @@ CONFIG = SceneConfig(
                    "mirror_visual_x": False, "mirror_visual_y": False},
     hidden_params={"theme"},
     param_limits={
-        "element_size": (2.0, 50.0),
+        "element_size": (0.5, 50.0),
         "min_wall_layers": (1, 4),
         "length": (5.0, 300.0),
         "width": (5.0, 300.0),
@@ -172,6 +244,7 @@ CONFIG = SceneConfig(
          "regions": [{"axis": "X", "below": 0.0, "requires": "symmetry_x"},
                      {"axis": "Y", "below": 0.0, "requires": "symmetry_y"}]},
     ],
+    presets=PRESETS,
     live_params=LIVE,
     probes=probes,
     charts=[
@@ -231,6 +304,9 @@ CONFIG = SceneConfig(
         "so a value v acts as a pressure v / dt: the other chamber scenes' '300 Pa' at dt = 0.01 s is really 30 kPa "
         "(checked against SurfacePressureForceField). This scene scales its value by dt, so 30 kPa here is 30 kPa, and "
         "the result no longer depends on the time step.",
+        "Presets (top of the Parameters, Display and Lighting panels) load ready-made configurations, e.g. "
+        "real PneuNet proportions with no layer, paper, or a bonded layer that also carries compression -- the "
+        "case where the layer changes the bend most.",
     ],
     origin="Scene script: scenes/finger-4/original/Finger4.py (a copy of scenes/finger-3 with a strain-limiting layer).",
 )

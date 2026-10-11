@@ -889,6 +889,53 @@ async def admin_set_defaults(sim_id: str, section: str, body: DefaultsRequest) -
     return {"ok": True}
 
 
+PRESETS_MAX_BYTES = 1024 * 1024  # all of a scene's defaults and presets together
+
+
+def preset_name(name: str) -> str:
+    name = " ".join(name.split())
+    if not 1 <= len(name) <= 60:
+        raise api_error(400, "A preset name has 1 to 60 characters.")
+    return name
+
+
+@app.put("/admin/api/sims/{sim_id}/presets/{section}/{name}", dependencies=[Depends(require_admin)])
+async def admin_save_preset(sim_id: str, section: str, name: str, body: DefaultsRequest) -> dict:
+    """Saves a panel's current state as a named preset of that simulation's
+    scene (new or overwriting). "Default" is the scene's default, as with
+    "Set as default"."""
+    sim = get_sim_or_404(sim_id)
+    if section not in DEFAULTS_SECTIONS:
+        raise api_error(404, "Unknown preset section.")
+    name = preset_name(name)
+    if len(json.dumps(body.values)) > DEFAULTS_MAX_BYTES:
+        raise api_error(413, "Too many values.")
+    if name.lower() == "default":
+        defaults = S.store.set_scene_defaults(sim.scene_id, section, body.values)
+    else:
+        current = S.store.get_scene_defaults(sim.scene_id)
+        if len(json.dumps(current)) + len(json.dumps(body.values)) > PRESETS_MAX_BYTES:
+            raise api_error(413, "This scene has too many presets; delete some first.")
+        defaults = S.store.set_scene_preset(sim.scene_id, section, name, body.values)
+    S.store.log("preset-saved", sim.id, f"scene={sim.scene_id} section={section} name={name}")
+    await push_scene_defaults(sim.scene_id, defaults)
+    return {"ok": True, "name": name}
+
+
+@app.delete("/admin/api/sims/{sim_id}/presets/{section}/{name}", dependencies=[Depends(require_admin)])
+async def admin_delete_preset(sim_id: str, section: str, name: str) -> dict:
+    sim = get_sim_or_404(sim_id)
+    if section not in DEFAULTS_SECTIONS:
+        raise api_error(404, "Unknown preset section.")
+    name = preset_name(name)
+    if name.lower() == "default":
+        raise api_error(400, "The Default preset can't be deleted.")
+    defaults = S.store.set_scene_preset(sim.scene_id, section, name, None)
+    S.store.log("preset-deleted", sim.id, f"scene={sim.scene_id} section={section} name={name}")
+    await push_scene_defaults(sim.scene_id, defaults)
+    return {"ok": True}
+
+
 @app.delete("/admin/api/scenes/{scene_id}/defaults", dependencies=[Depends(require_admin)])
 async def admin_clear_defaults(scene_id: str) -> dict:
     if S.store.clear_scene_defaults(scene_id):

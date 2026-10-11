@@ -208,14 +208,14 @@ function defaultsInfo(scene) {
 			class: "secondary small",
 			title: "Back to the scene's own defaults for new simulations and viewers",
 			onclick: async () => {
-				if (!confirm(`Clear the saved defaults of '${scene.title}'?`)) return;
+				if (!confirm(`Clear the saved defaults and presets of '${scene.title}'?`)) return;
 				await guarded(() => api(`admin/api/scenes/${scene.id}/defaults`, { method: "DELETE" }));
 				refresh();
 			},
 		},
 		"Clear"
 	);
-	return el("div", { class: "muted small" }, `custom defaults since ${fmtTime(scene.defaultsSetAt)} `, clear);
+	return el("div", { class: "muted small" }, `custom defaults or presets since ${fmtTime(scene.defaultsSetAt)} `, clear);
 }
 
 // public: in everyone's lobby. private: only with the access password (or as

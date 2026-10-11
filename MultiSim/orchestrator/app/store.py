@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_sim ON events(sim_id, id);
 -- Per-scene defaults set by an admin ("Set as default" in a scene's
--- panels): JSON {"params": {...}, "display": {...}, "lighting": {...}}.
+-- panels): JSON {"params": {...}, "display": {...}, "lighting": {...},
+-- "presets": {section: {name: values or null}}}.
 CREATE TABLE IF NOT EXISTS scene_defaults (
     scene_id   TEXT PRIMARY KEY,
     value      TEXT NOT NULL,
@@ -189,6 +190,23 @@ class Store:
         """Replaces one section (params / display / lighting), keeping the others."""
         defaults = self.get_scene_defaults(scene_id)
         defaults[section] = values
+        return self._put_scene_defaults(scene_id, defaults)
+
+    def set_scene_preset(self, scene_id: str, section: str, name: str, values: Optional[dict]) -> dict:
+        """Saves a named preset of one section, kept with the defaults as
+        {"presets": {section: {name: values}}}. values None deletes it (and
+        hides a built-in preset of that name; see sofaweb's Runner.presets)."""
+        defaults = self.get_scene_defaults(scene_id)
+        presets = defaults.get("presets")
+        presets = presets if isinstance(presets, dict) else {}
+        section_presets = presets.get(section)
+        section_presets = section_presets if isinstance(section_presets, dict) else {}
+        section_presets[name] = values
+        presets[section] = section_presets
+        defaults["presets"] = presets
+        return self._put_scene_defaults(scene_id, defaults)
+
+    def _put_scene_defaults(self, scene_id: str, defaults: dict) -> dict:
         self._execute(
             "INSERT INTO scene_defaults (scene_id, value, updated_at) VALUES (?, ?, ?) "
             "ON CONFLICT(scene_id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",

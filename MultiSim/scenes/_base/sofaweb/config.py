@@ -90,6 +90,14 @@ class SceneConfig:
     # scene's own server-side mirroring off when using "mirror").
     display: list[dict] = field(default_factory=list)
 
+    # Built-in named presets, offered next to "Default" in each panel's
+    # preset list: {"params" | "display" | "lighting": [{"name", "values",
+    # "description" (optional)}]}. `values` only needs what differs from
+    # the defaults (loading a preset starts from the defaults). An admin
+    # can overwrite or delete them like their own (stored per scene in the
+    # orchestrator).
+    presets: dict[str, list[dict]] = field(default_factory=dict)
+
     # "3d": orbit/pan/zoom; "2d": pan/zoom only, painter's-order drawing.
     view: str = "3d"
     up: tuple[float, float, float] = (0.0, 0.0, 1.0)

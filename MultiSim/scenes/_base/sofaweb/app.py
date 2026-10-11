@@ -27,6 +27,10 @@ class ParamsBody(BaseModel):
     changes: dict[str, Any]
 
 
+class PresetBody(BaseModel):
+    name: str
+
+
 class Client:
     """One browser connection. Frames are dropped (not queued up) when the
     browser can't keep up; setup/status messages are never dropped."""
@@ -120,6 +124,7 @@ def create_app(config_path: Path) -> FastAPI:
                 **(runner.saved_defaults.get("lighting") or {}),
             },
             "view": config.view,
+            "presets": runner.presets(),
         }
 
     @app.post("/api/defaults")
@@ -148,6 +153,14 @@ def create_app(config_path: Path) -> FastAPI:
     async def default_params() -> dict:
         defaults = {k: v for k, v in runner.defaults.items() if k in runner.visible_keys()}
         params = await command("params", changes=defaults, rebuild=True)
+        return {k: v for k, v in params.items() if k in runner.visible_keys()}
+
+    @app.post("/api/params/preset")
+    async def preset_params(body: PresetBody):
+        params = runner.preset_params(body.name)
+        if params is None:
+            return JSONResponse({"detail": {"message": f"No preset named {body.name!r}."}}, status_code=404)
+        params = await command("params", changes=params, rebuild=True)
         return {k: v for k, v in params.items() if k in runner.visible_keys()}
 
     @app.post("/api/reset")

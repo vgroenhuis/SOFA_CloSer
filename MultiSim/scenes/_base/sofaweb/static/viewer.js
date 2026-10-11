@@ -1223,6 +1223,7 @@ function showParams(params) {
 	}
 	$("apply-params-btn").disabled = true;
 	applyDisplay(); // mirrored copies depend on the symmetry parameters
+	matchParamsPreset();
 }
 
 function readField({ field, input }) {
@@ -1259,6 +1260,7 @@ $("params-form").addEventListener("submit", (event) => {
 });
 
 $("default-params-btn").addEventListener("click", async () => {
+	selectedPreset.params = "Default";
 	try {
 		showParams(await (await fetch("api/params/default", { method: "POST" })).json());
 	} catch (err) {
@@ -1599,6 +1601,7 @@ function savedOr(key, fallback) {
 
 function displayChanged(key, value) {
 	displayState[key] = value;
+	markPresetModified("display");
 	saveDisplay();
 	applyDisplay();
 }
@@ -1803,6 +1806,7 @@ function buildLightingPanel(message, force = false) {
 		const entry = { id: light.id };
 		entry.brightness = rangeRow("Brightness", 0, 2, 0.01, (v) => v.toFixed(2), (v) => {
 			displayState[`light:${light.id}:brightness`] = v;
+			markPresetModified("lighting");
 			saveDisplay();
 			applyLights();
 		});
@@ -1810,6 +1814,7 @@ function buildLightingPanel(message, force = false) {
 		if (light.id !== "ambient") {
 			const setDirection = () => {
 				displayState[`light:${light.id}:dir`] = [+entry.yaw.input.value, +entry.pitch.input.value];
+				markPresetModified("lighting");
 				saveDisplay();
 				applyLights();
 			};
@@ -1823,16 +1828,25 @@ function buildLightingPanel(message, force = false) {
 	$("lighting-panel").classList.remove("hidden");
 }
 
-$("lighting-reset-btn").addEventListener("click", () => {
-	// Back to the scene's lights, or its saved lighting defaults.
+// Back to the scene's lights, or its saved lighting defaults, with a
+// preset's values on top.
+function resetLighting(overrides = {}) {
 	for (const key of Object.keys(displayState)) if (key.startsWith("light:")) delete displayState[key];
 	for (const key of Object.keys(savedDisplay)) if (key.startsWith("light:")) delete savedDisplay[key];
-	for (const [key, value] of Object.entries(sceneInfo.displayDefaults || {})) {
+	for (const [key, value] of Object.entries({ ...(sceneInfo.displayDefaults || {}), ...overrides })) {
 		if (key.startsWith("light:")) displayState[key] = savedDisplay[key] = value;
 	}
 	saveDisplay();
 	applyLights();
 	syncLightSliders();
+}
+
+$("lighting-reset-btn").addEventListener("click", () => {
+	resetLighting();
+	selectedPreset.lighting = "Default";
+	presetModified.lighting = false;
+	storePresetSelection();
+	renderPresets("lighting");
 });
 
 // "Set as default" (admins only): stores a panel's current state as the
@@ -1851,64 +1865,238 @@ async function checkAdmin() {
 	} catch {}
 }
 
-async function setAsDefault(section, values, button, what) {
-	if (!confirm(`Make ${what} the default for this scene? It applies to everyone, and to every simulation of this scene started from now on.`)) return;
-	const label = button.textContent;
-	button.disabled = true;
+// ---------------------------------------------------------------------------
+// Presets: named states of the Display, Lighting and Parameters panels
+// (api/scene's `presets`): "Default" (the scene's defaults), the scene's
+// built-in ones, and an admin's own. Anyone can load a Display or Lighting
+// preset, for themselves; a Parameters preset rebuilds the simulation, so
+// only its owner loads one. Admins save, overwrite and delete presets for
+// everyone (stored per scene in the orchestrator; "Default" can't be
+// deleted).
+// ---------------------------------------------------------------------------
+
+const PRESET_SECTIONS = ["display", "lighting", "params"];
+const PRESET_WHAT = { display: "these display settings", lighting: "these lighting settings", params: "the running parameters" };
+// The preset each panel last loaded or saved (null: none, "custom"), and
+// whether it's been changed since. Display and lighting are remembered
+// per browser; the parameters' preset is found by comparing values.
+const selectedPreset = { display: "Default", lighting: "Default", params: null };
+const presetModified = { display: false, lighting: false, params: false };
+const presetStoreKey = () => `sofaweb-presets:${sceneInfo.title}`;
+const presetList = (section) => (sceneInfo?.presets || {})[section] || [];
+const isAdmin = () => document.body.classList.contains("admin");
+
+function restorePresetSelection() {
 	try {
-		const response = await fetch(`${orchestratorRoot}admin/api/sims/${simIdMatch[2]}/defaults/${section}`, {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ values }),
-		});
-		if (!response.ok) {
-			const body = await response.json().catch(() => ({}));
-			throw new Error(body?.detail?.message || `${response.status} ${response.statusText}`);
+		const saved = JSON.parse(localStorage.getItem(presetStoreKey()) || "{}");
+		for (const section of ["display", "lighting"]) {
+			if (typeof saved[section] === "string" || saved[section] === null) selectedPreset[section] = saved[section];
+			presetModified[section] = !!saved[`${section}:modified`];
 		}
-		if (section !== "params") {
-			// The section is replaced as a whole, so this page's Reset
-			// buttons go back to exactly these right away.
-			const others = Object.entries(sceneInfo.displayDefaults || {}).filter(
-				([key]) => key.startsWith("light:") !== (section === "lighting"),
-			);
-			sceneInfo.displayDefaults = { ...Object.fromEntries(others), ...values };
-		}
-		button.textContent = "Saved ✓";
-		setTimeout(() => (button.textContent = label), 2000);
-	} catch (err) {
-		alert(`Couldn't save the defaults: ${err.message}`);
-	} finally {
-		button.disabled = false;
-	}
+	} catch {}
 }
 
-$("display-default-btn").addEventListener("click", (event) => {
+function storePresetSelection() {
+	try {
+		localStorage.setItem(presetStoreKey(), JSON.stringify({
+			display: selectedPreset.display, lighting: selectedPreset.lighting,
+			"display:modified": presetModified.display, "lighting:modified": presetModified.lighting,
+		}));
+	} catch {}
+}
+
+function renderPresets(section) {
+	const row = document.querySelector(`.preset-row[data-section="${section}"]`);
+	const select = $(`${section}-preset`);
+	const list = presetList(section);
+	let name = selectedPreset[section];
+	if (!list.some((p) => p.name === name)) name = null;
+	select.replaceChildren();
+	if (name === null) select.appendChild(new Option("(custom)", ""));
+	for (const preset of list) {
+		const option = new Option(preset.name + (preset.name === name && presetModified[section] ? " (modified)" : ""), preset.name);
+		if (preset.description) option.title = preset.description;
+		select.appendChild(option);
+	}
+	select.value = name ?? "";
+	const current = list.find((p) => p.name === name);
+	select.title = current?.description || `Load a named preset of ${PRESET_WHAT[section]}`;
+	row.querySelector(".preset-save").disabled = name === null;
+	row.querySelector(".preset-delete").disabled = name === null || name === "Default";
+	// Loading parameters is the owner's; a watching admin picks a preset only to save to it.
+	select.disabled = section === "params" && isViewer && !isAdmin();
+	row.classList.toggle("hidden", list.length <= 1 && !isAdmin());
+}
+
+function renderAllPresets() {
+	for (const section of PRESET_SECTIONS) renderPresets(section);
+}
+
+function markPresetModified(section) {
+	if (presetModified[section] || selectedPreset[section] === null) return;
+	presetModified[section] = true;
+	storePresetSelection();
+	renderPresets(section);
+}
+
+function sameValue(a, b) {
+	if (Array.isArray(a) || Array.isArray(b)) {
+		return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => sameValue(v, b[i]));
+	}
+	if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+	return a === b;
+}
+
+// Which parameters preset the running simulation matches: the one last
+// chosen if it still does, else the first that does; or the last chosen,
+// marked modified; or none.
+function matchParamsPreset() {
+	const list = presetList("params");
+	if (!list.length) return;
+	const defaults = list[0].values;
+	const matches = (preset) => {
+		const values = { ...defaults, ...preset.values };
+		return [...fieldInputs.keys()].every((key) => !(key in values) || !(key in currentParams) || sameValue(values[key], currentParams[key]));
+	};
+	const chosen = list.find((p) => p.name === selectedPreset.params);
+	if (chosen && matches(chosen)) presetModified.params = false;
+	else {
+		const found = list.find(matches);
+		if (found) {
+			selectedPreset.params = found.name;
+			presetModified.params = false;
+		} else presetModified.params = !!chosen;
+	}
+	renderPresets("params");
+}
+
+async function loadPreset(section, name) {
+	const preset = presetList(section).find((p) => p.name === name);
+	if (!preset) return;
+	selectedPreset[section] = name;
+	presetModified[section] = false;
+	if (section === "params") {
+		if (isViewer) return renderPresets(section); // a watching admin: only the target for Save
+		try {
+			const response = await fetch("api/params/preset", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ name }),
+			});
+			if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+			showParams(await response.json());
+		} catch (err) {
+			alert(`Couldn't load the preset: ${err.message}`);
+			matchParamsPreset();
+		}
+		return;
+	}
+	if (section === "display") resetDisplay(preset.values);
+	else resetLighting(preset.values);
+	storePresetSelection();
+	renderPresets(section);
+}
+
+function presetValues(section) {
+	if (section === "params") {
+		// The running simulation's parameters (not unapplied edits in the form).
+		return Object.fromEntries(Object.entries(currentParams).filter(([key]) => fieldInputs.has(key)));
+	}
+	if (section === "lighting") {
+		// Only what's been changed here: an untouched light keeps following the scene.
+		return Object.fromEntries(Object.entries(displayState).filter(([key]) => key.startsWith("light:")));
+	}
 	// The view as it is now, if it's been moved from the scene's (the last
 	// move may not be remembered yet).
 	if (displayState.camera || cameraSaveTimer !== null) displayState.camera = currentCameraPose();
 	clearTimeout(cameraSaveTimer);
 	cameraSaveTimer = null;
-	const values = Object.fromEntries(
+	return Object.fromEntries(
 		Object.entries(displayState).filter(([key]) => !key.startsWith("light:") && key !== "overlay:femStrainPeak"),
 	);
-	setAsDefault("display", values, event.currentTarget, "these display settings");
-});
+}
 
-$("lighting-default-btn").addEventListener("click", (event) => {
-	// Only what's been changed here: an untouched light keeps following the scene.
-	const values = Object.fromEntries(Object.entries(displayState).filter(([key]) => key.startsWith("light:")));
-	setAsDefault("lighting", values, event.currentTarget, "these lighting settings");
-});
+async function refreshPresets() {
+	try {
+		const info = await (await fetch("api/scene", { cache: "no-store" })).json();
+		sceneInfo.presets = info.presets;
+		sceneInfo.displayDefaults = info.displayDefaults;
+	} catch {}
+	renderAllPresets();
+	matchParamsPreset();
+}
 
-$("params-default-btn").addEventListener("click", (event) => {
-	// The running simulation's parameters (not unapplied edits in the form).
-	const values = Object.fromEntries(Object.entries(currentParams).filter(([key]) => fieldInputs.has(key)));
-	setAsDefault("params", values, event.currentTarget, "the running parameters");
-});
+async function presetRequest(section, name, method, values) {
+	const response = await fetch(
+		`${orchestratorRoot}admin/api/sims/${simIdMatch[2]}/presets/${section}/${encodeURIComponent(name)}`,
+		{ method, headers: { "Content-Type": "application/json" }, body: values ? JSON.stringify({ values }) : undefined },
+	);
+	const body = await response.json().catch(() => ({}));
+	if (!response.ok) throw new Error(body?.detail?.message || `${response.status} ${response.statusText}`);
+	return body;
+}
 
-checkAdmin();
+async function savePreset(section, name, button) {
+	const what = PRESET_WHAT[section];
+	const question = name === "Default"
+		? `Make ${what} the default for this scene? It applies to everyone, and to every simulation of this scene started from now on.`
+		: `Save ${what} as the preset "${name}"? It changes it for everyone.`;
+	if (!confirm(question)) return;
+	const label = button.textContent;
+	button.disabled = true;
+	try {
+		const body = await presetRequest(section, name, "PUT", presetValues(section));
+		selectedPreset[section] = body.name || name;
+		presetModified[section] = false;
+		if (section !== "params") storePresetSelection();
+		await refreshPresets();
+		button.textContent = "Saved ✓";
+		setTimeout(() => (button.textContent = label), 2000);
+	} catch (err) {
+		alert(`Couldn't save the preset: ${err.message}`);
+	} finally {
+		button.disabled = false;
+		renderPresets(section);
+	}
+}
 
-function buildDisplayPanel(spec, useSaved = true) {
+for (const section of PRESET_SECTIONS) {
+	const row = document.querySelector(`.preset-row[data-section="${section}"]`);
+	const select = $(`${section}-preset`);
+	select.addEventListener("change", () => {
+		if (select.value) loadPreset(section, select.value);
+	});
+	row.querySelector(".preset-save").addEventListener("click", (event) => {
+		if (selectedPreset[section] !== null) savePreset(section, selectedPreset[section], event.currentTarget);
+	});
+	row.querySelector(".preset-save-as").addEventListener("click", (event) => {
+		const entered = prompt(`Name of the new preset (${PRESET_WHAT[section]}):`, "");
+		const name = (entered || "").trim().replace(/\s+/g, " ");
+		if (!name) return;
+		if (name.length > 60) return alert("A preset name has at most 60 characters.");
+		const existing = presetList(section).find((p) => p.name.toLowerCase() === name.toLowerCase());
+		savePreset(section, existing ? existing.name : name, event.currentTarget);
+	});
+	row.querySelector(".preset-delete").addEventListener("click", async () => {
+		const name = selectedPreset[section];
+		const preset = presetList(section).find((p) => p.name === name);
+		if (!preset || name === "Default") return;
+		const note = preset.builtin ? " It's built into the scene; deleting it hides it." : "";
+		if (!confirm(`Delete the preset "${name}" for everyone?${note}`)) return;
+		try {
+			await presetRequest(section, name, "DELETE");
+			selectedPreset[section] = null;
+			if (section !== "params") storePresetSelection();
+			await refreshPresets();
+		} catch (err) {
+			alert(`Couldn't delete the preset: ${err.message}`);
+		}
+	});
+}
+
+checkAdmin().then(renderAllPresets);
+
+function buildDisplayPanel(spec, useSaved = true, overrides = null) {
 	displaySpec = spec.map((d) => ({ ...d, re: d.models ? new RegExp(d.models) : null }));
 	// The scene's defaults (an admin's "Set as default"), under this
 	// browser's own saved settings; Reset goes back to just the defaults.
@@ -1918,6 +2106,7 @@ function buildDisplayPanel(spec, useSaved = true) {
 			Object.assign(saved, JSON.parse(localStorage.getItem(displayStoreKey()) || "{}"));
 		} catch {}
 	}
+	if (overrides) Object.assign(saved, overrides);
 	savedDisplay = saved;
 	if (validPose(saved.camera)) displayState.camera = saved.camera;
 	else delete displayState.camera;
@@ -1973,10 +2162,19 @@ function buildDisplayPanel(spec, useSaved = true) {
 }
 
 $("display-reset-btn").addEventListener("click", () => {
+	resetDisplay();
+	selectedPreset.display = "Default";
+	presetModified.display = false;
+	storePresetSelection();
+	renderPresets("display");
+});
+
+// Back to the scene's default display settings, with a preset's values on top.
+function resetDisplay(overrides = null) {
 	try {
 		localStorage.removeItem(displayStoreKey());
 	} catch {}
-	buildDisplayPanel(sceneInfo.display || [], false);
+	buildDisplayPanel(sceneInfo.display || [], false, overrides);
 	overlaySignature = null; // the Lighting panel keeps its own settings (its own Reset)
 	if (setup) buildLightControls(setup);
 	if (controls) {
@@ -1985,7 +2183,8 @@ $("display-reset-btn").addEventListener("click", () => {
 	}
 	applyDisplay();
 	resetStrainPeak();
-});
+	if (overrides) saveDisplay();
+}
 
 // ---------------------------------------------------------------------------
 // Buttons, console, info
@@ -2151,6 +2350,8 @@ async function init() {
 		p.textContent = sceneInfo.origin;
 		about.appendChild(p);
 	}
+	restorePresetSelection();
+	renderAllPresets();
 	buildParamsPanel(sceneInfo.spec);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
 	buildDisplayPanel(sceneInfo.display || []);

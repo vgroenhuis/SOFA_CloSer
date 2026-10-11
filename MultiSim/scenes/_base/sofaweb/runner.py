@@ -188,7 +188,11 @@ def _fem_models(root, first_id: int) -> list[Model]:
             if not hasattr(obj, "tetrahedra"):
                 continue
             tets = np.asarray(obj.tetrahedra.value, dtype=np.int64).reshape(-1, 4)
-            positions = np.asarray(mstate.position.value, dtype=np.float64).reshape(-1, 3)
+            positions = np.asarray(mstate.position.value, dtype=np.float64)
+            # Only a Vec3 state holds the mesh's nodes (e.g. not the Vec1
+            # state of a VolumeMapping that reads a tetrahedral topology).
+            if positions.ndim != 2 or positions.shape[1] != 3:
+                continue
             if not len(tets) or len(positions) <= tets.max():
                 continue
             extent = positions.max(axis=0) - positions.min(axis=0)
@@ -300,6 +304,56 @@ class Runner:
         self.saved_defaults = saved if isinstance(saved, dict) else {}
         params = self.saved_defaults.get("params")
         self.defaults = {**self.original_defaults, **self.coerce(params if isinstance(params, dict) else {})}
+
+    PRESET_SECTIONS = ("params", "display", "lighting")
+
+    def presets(self) -> dict[str, list[dict]]:
+        """Each panel's named presets: "Default" first (the saved defaults,
+        or params.json's), then the scene's built-in ones, then an admin's
+        own. Saved presets are {"presets": {section: {name: values}}} in
+        the saved defaults; a saved name replaces a built-in one of the
+        same name, and None deletes it."""
+        saved_all = self.saved_defaults.get("presets")
+        saved_all = saved_all if isinstance(saved_all, dict) else {}
+        visible = self.visible_keys()
+        result: dict[str, list[dict]] = {}
+        for section in self.PRESET_SECTIONS:
+            if section == "params":
+                default_values = {k: v for k, v in self.defaults.items() if k in visible}
+            else:
+                default_values = self.saved_defaults.get(section) or {}
+            entries = [{"name": "Default", "values": default_values, "builtin": True, "description":
+                        "The scene's default settings."}]
+            saved = saved_all.get(section)
+            saved = dict(saved) if isinstance(saved, dict) else {}
+            for preset in self.cfg.presets.get(section, []):
+                name = preset["name"]
+                if name in saved:
+                    values = saved.pop(name)
+                    if not isinstance(values, dict):
+                        continue  # deleted
+                    entries.append({"name": name, "values": values, "builtin": True, "modified": True,
+                                    "description": preset.get("description", "")})
+                else:
+                    entries.append({"name": name, "values": dict(preset.get("values", {})), "builtin": True,
+                                    "description": preset.get("description", "")})
+            for name, values in saved.items():
+                if isinstance(values, dict) and name.lower() != "default":
+                    entries.append({"name": name, "values": values, "builtin": False, "description": ""})
+            if section == "params":
+                for entry in entries:
+                    entry["values"] = self.coerce(entry["values"])
+            result[section] = entries
+        return result
+
+    def preset_params(self, name: str) -> Optional[Params]:
+        """The full parameter set of a params preset: the defaults with the
+        preset's values on top (a preset may list only what differs)."""
+        for entry in self.presets()["params"]:
+            if entry["name"] == name:
+                visible = self.visible_keys()
+                return {**{k: v for k, v in self.defaults.items() if k in visible}, **entry["values"]}
+        return None
 
     def _build_spec(self) -> list[dict]:
         editor = self.base_dir / self.cfg.editor_file if self.cfg.editor_file else None
