@@ -19,7 +19,7 @@ There are two ways to make a scene:
 - **Custom web app** (`cube-drop`, `double-pendulum`): your own backend and
   frontend, following the contract below. Most work, full control.
 - **sofaweb** (`rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
-  `pneunet-finger`, `better-finger`, `finger-3`): drop in an existing SOFA scene script unmodified, plus a
+  `pneunet-finger`, `better-finger`, `finger-3`, `finger-4`): drop in an existing SOFA scene script unmodified, plus a
   short config file. The generic viewer draws its visual models, camera and
   lights; parameters, charts and live controls come from the config.
 

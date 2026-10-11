@@ -1,0 +1,9 @@
+{
+	"title": "Finger 4 with strain-limiting layer",
+	"description": "Finger 3 with a strain-limiting layer (paper, 0.1 mm) under the base, as in real PneuNets: the base can bend but not stretch.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}
