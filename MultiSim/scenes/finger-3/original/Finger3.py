@@ -109,7 +109,7 @@ _DEFAULT_PARAMS = {
     'density': 1000.0,           # [kg/m^3]
     'gravity_enabled': False,
     # -- pressure --
-    'target_pressure': 300.0,    # [Pa]
+    'target_pressure': 30000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
     'ramp_time': 0.2,            # [s]
     'instant': False,
     # -- visuals --
@@ -421,7 +421,15 @@ class NodePlaneController(Sofa.Core.Controller):
 class PressureRamp(Sofa.Core.Controller):
     """Drives the cavity pressure towards a live-editable target, ramped or
     instantly (`targetPressure`, `rampTime`, `instant` are Data fields, so
-    they can be edited in the GUI while running)."""
+    they can be edited in the GUI while running).
+
+    SurfacePressureConstraint is solved as a Lagrangian constraint by the
+    FreeMotionAnimationLoop, and what it imposes is an impulse per time
+    step, not a force: a value v acts as a pressure v / dt. (Checked: value
+    300 at dt = 0.01 s deforms the chamber exactly like a true 30 kPa from
+    SurfacePressureForceField, and halving dt doubled the deformation.) So
+    the pressure in Pa is multiplied by dt here, and `applied_pressure`
+    divides it back out."""
 
     def __init__(self, root, pressure_constraint, target_pressure, ramp_time, instant=False, **kwargs):
         Sofa.Core.Controller.__init__(self, **kwargs)
@@ -449,7 +457,11 @@ class PressureRamp(Sofa.Core.Controller):
             diff = target - self.current_pressure
             self.current_pressure = target if abs(diff) <= max_step else \
                 self.current_pressure + (max_step if diff > 0 else -max_step)
-        self.pressure.value.value = [self.current_pressure]
+        self.pressure.value.value = [self.current_pressure * dt]
+
+    def applied_pressure(self):
+        """The pressure acting on the cavity walls [Pa]."""
+        return float(self.pressure.pressure.value) / self.root.dt.value
 
     def onAnimateEndEvent(self, event):
         if self.time + 1e-9 < self.next_print:
@@ -458,7 +470,7 @@ class PressureRamp(Sofa.Core.Controller):
         vol = self.pressure.cavityVolume.value
         vol0 = self.pressure.initialCavityVolume.value
         print(f"t={self.time:5.2f}s  target={self.targetPressure.value / 1000.0:6.2f} kPa  "
-              f"P_applied={self.pressure.pressure.value / 1000.0:6.2f} kPa  "
+              f"P_applied={self.applied_pressure() / 1000.0:6.2f} kPa  "
               f"cavity volume={vol * 1e6:8.2f} cm^3  (volume {100 * (vol / vol0 - 1):+5.1f}%)")
 
 

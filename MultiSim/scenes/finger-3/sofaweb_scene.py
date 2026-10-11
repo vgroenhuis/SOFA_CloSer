@@ -23,7 +23,7 @@ def probes(root, module):
     volume0 = float(ramp.pressure.initialCavityVolume.value)
     values = {
         "target": float(ramp.targetPressure.value) / 1000.0,
-        "applied": float(ramp.pressure.pressure.value) / 1000.0,
+        "applied": ramp.applied_pressure() / 1000.0,
         "volume": volume * 1e6,
         "growth": (volume / volume0 - 1.0) * 100.0 if volume0 else 0.0,
     }
@@ -57,7 +57,7 @@ class _Settled:
         self.history.append((t, volume))
         self.history = [h for h in self.history if h[0] >= t - 0.3 - 1e-9]
         target = float(ramp.targetPressure.value)
-        applied = float(ramp.pressure.pressure.value)
+        applied = ramp.applied_pressure()
         if abs(applied - target) > 1e-6 * max(1.0, abs(target)) or t - self.history[0][0] < 0.3 - 1e-9:
             return None
         volumes = [v for _, v in self.history]
@@ -121,7 +121,7 @@ CONFIG = SceneConfig(
         "young_modulus": (1e4, 1e9),
         "poisson_ratio": (0.0, 0.49),
         "density": (10.0, 20000.0),
-        "target_pressure": (-3000.0, 100000.0),
+        "target_pressure": (-50000.0, 200000.0),
         "ramp_time": (0.0, 60.0),
         "wall_alpha": (0.0, 1.0),
         "interior_alpha": (0.0, 1.0),
@@ -213,6 +213,10 @@ CONFIG = SceneConfig(
         "Options closer to a real finger: a strain-limiting layer (paper) on the bottom face instead of the clamped "
         "trunk, and neo-Hookean hyperelastic silicone for large strains. Finger bend per chamber = twice the "
         "far-end plane's tilt. The run ends once the volume has settled.",
+        "Pressures are true pressures. SoftRobots' SurfacePressureConstraint imposes an impulse per time step, "
+        "so a value v acts as a pressure v / dt: the other chamber scenes' '300 Pa' at dt = 0.01 s is really 30 kPa "
+        "(checked against SurfacePressureForceField). Finger 3 scales its value by dt, so 30 kPa here is 30 kPa, and "
+        "the result no longer depends on the time step.",
     ],
     origin="Scene script: scenes/finger-3/original/Finger3.py (successor of scenes/better-finger).",
 )

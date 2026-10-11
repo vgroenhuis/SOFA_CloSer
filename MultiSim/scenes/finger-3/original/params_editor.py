@@ -62,7 +62,7 @@ _DEFAULTS = {
     'density': 1000.0,           # [kg/m^3]
     'gravity_enabled': False,
     # -- pressure --
-    'target_pressure': 300.0,    # [Pa]
+    'target_pressure': 30000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
     'ramp_time': 0.2,            # [s]
     'instant': False,
     # -- visuals --
@@ -139,7 +139,7 @@ _FIELDS = [
     ("Young's modulus",  'young_modulus',   1e3,  1, 'kPa'),
     ('Poisson ratio',    'poisson_ratio',   1,    3, ''),
     ('Density',          'density',         1,    1, 'kg/m^3'),
-    ('Target pressure',  'target_pressure', 1,    0, 'Pa'),
+    ('Target pressure',  'target_pressure', 1e3,  2, 'kPa'),
     ('Ramp time',        'ramp_time',       1,    2, 's'),
     ('Wall opacity',     'wall_alpha',      1,    2, '0-1'),
     ('Interior opacity', 'interior_alpha',  1,    2, '0-1'),
