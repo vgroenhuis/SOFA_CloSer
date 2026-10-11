@@ -123,15 +123,16 @@ class Geometry:
         # covers exactly the given trunk length and width.
         tl = max(0.0, float(p['trunk_length']))
         tw = max(0.0, float(p['trunk_width']))
-        # An edge closer than a fifth of an element to another feature merges
-        # with it: the mesh can't resolve the difference, and the thin slab of
-        # elements in between would only hurt the solver.
+        # Exact, even when that leaves a thin layer of elements next to another
+        # feature: rounding the trunk onto a nearby line changed the result
+        # more (e.g. 15 -> 16 mm moved the clamp onto the end wall's root)
+        # than the thin elements did. Only (nearly) coincident lines merge.
         if p.get('clamp_to_trunk', True):
             x_extent = self.far_x if self.has_duct else L / 2
             if 0 < tl / 2 < x_extent:
-                xb.append(_merge_into(tl / 2, [0.0] + xb, 0.2 * h))
+                xb.append(_merge_into(tl / 2, [0.0] + xb, 0.01))
             if 0 < tw / 2 < W / 2:
-                yb.append(_merge_into(tw / 2, [0.0] + yb, 0.2 * h))
+                yb.append(_merge_into(tw / 2, [0.0] + yb, 0.01))
         zb = [0.0, wb, H - wt, H]
         if self.has_channel:
             zb.append(wb + ch)
