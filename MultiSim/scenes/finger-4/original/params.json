@@ -31,6 +31,7 @@
   "gravity_enabled": false,
   "target_pressure": 30000.0,
   "ramp_time": 0.2,
+  "dt": 0.01,
   "instant": false,
   "cutaway": false,
   "interior_cutaway": false,

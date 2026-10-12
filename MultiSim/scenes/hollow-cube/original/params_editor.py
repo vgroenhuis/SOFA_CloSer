@@ -50,6 +50,7 @@ _DEFAULTS = {
     'density': 1100.0,
     'target_pressure': 100000.0,
     'ramp_time': 2.0,
+    'dt': 0.01,
     'instant': False,
     'gravity_enabled': True,
     'cutaway': True,
@@ -119,6 +120,7 @@ _FIELDS = [
     ('Density',          'density',         1,    1, 'kg/m^3'),
     ('Target pressure',  'target_pressure', 1e3,  2, 'kPa'),
     ('Ramp time',        'ramp_time',       1,    2, 's'),
+    ('Time step',        'dt',              1e-3, 2, 'ms'),
     ('Wall opacity',     'wall_alpha',      1,    2, '0-1'),
     ('Interior opacity', 'interior_alpha',  1,    2, '0-1'),
 ]

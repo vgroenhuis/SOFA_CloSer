@@ -25,6 +25,7 @@
   "density": 1000.0,
   "target_pressure": 30000,
   "ramp_time": 0.2,
+  "dt": 0.01,
   "instant": false,
   "gravity_enabled": false,
   "cutaway": false,

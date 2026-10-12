@@ -313,6 +313,7 @@ _DEFAULT_PARAMS = {
     'density': 1100.0,           # [kg/m^3] silicone rubber
     'target_pressure': 100000.0, # [Pa] gauge pressure the cavity ramps/jumps to
     'ramp_time': 2.0,            # [s] time to reach target_pressure if not instant
+    'dt': 0.01,                  # [s] simulation time step
     'instant': False,            # apply target_pressure immediately instead
                                   # of ramping towards it
     'gravity_enabled': True,     # apply the -Z 9.81 m/s^2 gravity below;
@@ -546,7 +547,7 @@ RAMP_TIME = PARAMS['ramp_time']
 INSTANT = PARAMS['instant']
 
 GRAVITY = [0.0, 0.0, -9.81] if PARAMS['gravity_enabled'] else [0.0, 0.0, 0.0]
-DT = 0.01
+DT = PARAMS['dt']
 
 CAMERA_DISTANCE_FACTOR = 2.741  # distance from the box's centre to the camera,
                                  # as a multiple of its largest dimension
@@ -2340,7 +2341,7 @@ def createScene(rootNode):
     # abandoned Rigid3-in-`cube` approach. `rootNode`-level, purely
     # controller-driven, is the same safe pattern mirror_visual_* below
     # already uses.
-    end_eps = 1e-4  # [m] nudge past the real wall rim, avoiding Z-fighting
+    end_eps = 1e-5  # [m] nudge past the real wall rim, avoiding Z-fighting
     for plane in end_planes:
         side = plane['side']
         far_x = plane['pts'][0][0]  # already the true far-end X (see build_hollow_cube_mesh)
@@ -2370,8 +2371,10 @@ def createScene(rootNode):
             local_uv.append((sum(d[k] * u0[k] for k in range(3)),
                               sum(d[k] * v0[k] for k in range(3))))
 
+        # Drawn nudged from the start too, not only once the controller runs.
+        drawn = [[p[k] + normal_offset * n0[k] for k in range(3)] for p in plane['pts']]
         end_plane = rootNode.addChild('channelEndPlane' + side.capitalize())
-        end_plane.addObject('MeshTopology', name='topo', position=plane['pts'], triangles=plane['tris'])
+        end_plane.addObject('MeshTopology', name='topo', position=drawn, triangles=plane['tris'])
         end_plane_mstate = end_plane.addObject('MechanicalObject', name='mstate', src='@topo')
         end_plane.addObject('OglModel', name='visual', src='@topo',
                              color=[0.85, 0.1, 0.85, CHANNEL_END_ALPHA], cullFace=0)

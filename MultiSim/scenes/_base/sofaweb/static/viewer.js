@@ -2245,7 +2245,8 @@ const replay = {
 	cursorT: null,
 	fetching: false,
 	retryAt: 0, // after a failed fetch, not again before this (performance.now())
-	shown: new Map(), // id -> the recorded array on screen
+	shown: new Map(), // id -> the recorded (or blended) array on screen
+	blend: new Map(), // id -> scratch array for positions between two frames
 };
 
 function resetReplay() {
@@ -2254,6 +2255,7 @@ function resetReplay() {
 	replay.playing = false;
 	replay.cursorT = null;
 	replay.shown.clear();
+	replay.blend.clear();
 	updateTransport();
 }
 
@@ -2285,10 +2287,12 @@ async function fetchRecording() {
 		if (!timelineAvailable()) return;
 		// Start where the simulation is: a cached run at its start, a run
 		// that's paused or finished at its end.
-		const last = replay.rec.frames.length - 1;
-		const index = lastStatus.recording.cached ? (replay.active && sameRecording ? replay.index : 0) : wasAtEnd || !replay.active ? last : replay.index;
+		const frames = replay.rec.frames;
+		const t = lastStatus.recording.cached
+			? (replay.active && sameRecording ? replay.clock : frames[0].t)
+			: wasAtEnd || !replay.active ? frames[frames.length - 1].t : replay.clock;
 		replay.active = true;
-		showRecordedFrame(Math.min(index, last));
+		showRecordedTime(t);
 	} catch (err) {
 		console.error("Loading the recording failed", err);
 	} finally {
@@ -2358,26 +2362,57 @@ function chartsFromRecording() {
 	chartsDirty = true;
 }
 
-function showRecordedFrame(index) {
+// The recorded state at simulated time t. Between two stored frames the
+// positions and readouts are interpolated linearly, so playback (also
+// slowed down) and scrubbing move smoothly whatever the frame rate.
+function showRecordedTime(t) {
 	const rec = replay.rec;
 	if (!rec || !rec.frames.length) return;
-	index = Math.max(0, Math.min(rec.frames.length - 1, index));
-	const frame = rec.frames[index];
-	replay.index = index;
-	replay.cursorT = frame.t;
-	for (const [id, positions] of frame.arrays) {
+	const frames = rec.frames;
+	const last = frames.length - 1;
+	t = Math.max(frames[0].t, Math.min(frames[last].t, t));
+	let lo = 0, hi = last; // the last frame at or before t
+	while (lo < hi) {
+		const mid = (lo + hi + 1) >> 1;
+		if (frames[mid].t <= t) lo = mid;
+		else hi = mid - 1;
+	}
+	const frame = frames[lo];
+	const next = lo < last ? frames[lo + 1] : null;
+	const alpha = next && next.t > frame.t ? (t - frame.t) / (next.t - frame.t) : 0;
+	replay.index = lo;
+	replay.clock = t;
+	replay.cursorT = t;
+	for (const [id, a] of frame.arrays) {
 		const entry = models.get(id);
-		if (entry && replay.shown.get(id) !== positions) {
-			applyPositions(entry, positions);
-			replay.shown.set(id, positions);
+		if (!entry) continue;
+		const b = next?.arrays.get(id);
+		if (alpha > 0 && b && b !== a && b.length === a.length) {
+			let out = replay.blend.get(id);
+			if (!out || out.length !== a.length) replay.blend.set(id, (out = new Float32Array(a.length)));
+			for (let i = 0; i < a.length; i++) out[i] = a[i] + (b[i] - a[i]) * alpha;
+			applyPositions(entry, out);
+			replay.shown.set(id, out);
+		} else if (replay.shown.get(id) !== a) {
+			applyPositions(entry, a);
+			replay.shown.set(id, a);
 		}
 	}
 	updateMirrorPlanes();
 	if (frame.lights) updateLights(frame.lights);
-	showReadouts(frame.scalars);
-	$("time").textContent = `t = ${frame.t.toFixed(2)} s · step ${frame.step} · playback`;
-	$("scrub").value = index;
-	$("replay-time").textContent = `${frame.t.toFixed(2)} / ${rec.frames[rec.frames.length - 1].t.toFixed(2)} s`;
+	let scalars = frame.scalars;
+	if (alpha > 0) {
+		scalars = { ...frame.scalars };
+		for (const [key, v] of Object.entries(next.scalars)) {
+			const u = frame.scalars[key];
+			if (Number.isFinite(u) && Number.isFinite(v)) scalars[key] = u + (v - u) * alpha;
+		}
+	}
+	showReadouts(scalars);
+	const step = next ? Math.round(frame.step + (next.step - frame.step) * alpha) : frame.step;
+	$("time").textContent = `t = ${t.toFixed(3)} s · step ${step} · playback`;
+	$("scrub").value = t;
+	$("replay-time").textContent = `${t.toFixed(2)} / ${frames[last].t.toFixed(2)} s`;
 	chartsDirty = true;
 }
 
@@ -2408,10 +2443,10 @@ function toggleReplay() {
 	if (replay.playing) {
 		replay.playing = false;
 	} else {
-		if (!replay.active || replay.index >= rec.frames.length - 1) showRecordedFrame(0); // from the start
+		const end = rec.frames[rec.frames.length - 1].t;
+		if (!replay.active || replay.clock >= end - 1e-9) showRecordedTime(rec.frames[0].t); // from the start
 		replay.active = true;
 		replay.playing = true;
-		replay.clock = rec.frames[replay.index].t;
 		replay.lastTick = null;
 	}
 	updateTransport();
@@ -2425,17 +2460,16 @@ function replayTick() {
 		return updateTransport();
 	}
 	const now = performance.now();
-	if (replay.lastTick !== null) replay.clock += ((now - replay.lastTick) / 1000) * Number($("replay-speed").value);
-	replay.lastTick = now;
 	const frames = rec.frames;
-	let index = replay.index;
-	while (index < frames.length - 1 && frames[index + 1].t <= replay.clock + 1e-9) index++;
-	if (index !== replay.index) showRecordedFrame(index);
-	if (index >= frames.length - 1) {
+	const end = frames[frames.length - 1].t;
+	let clock = replay.clock;
+	if (replay.lastTick !== null) clock += ((now - replay.lastTick) / 1000) * Number($("replay-speed").value);
+	replay.lastTick = now;
+	if (clock !== replay.clock) showRecordedTime(clock);
+	if (clock >= end - 1e-9) {
 		if (lastStatus?.autoRestart) {
 			// Auto restart: the playback loops.
-			showRecordedFrame(0);
-			replay.clock = frames[0].t;
+			showRecordedTime(frames[0].t);
 		} else {
 			replay.playing = false;
 			updateTransport();
@@ -2467,8 +2501,12 @@ function updateTimeline() {
 	if (!rec || rec.generation !== lastStatus.generation || rec.id !== status.id || rec.frames.length < status.frames) {
 		if (lastStatus.generation === generation) fetchRecording();
 	}
-	const frames = rec && rec.generation === generation && rec.id === status.id ? rec.frames.length : 0;
-	$("scrub").max = Math.max(0, frames - 1);
+	const ready = rec && rec.generation === generation && rec.id === status.id;
+	const frames = ready ? rec.frames.length : 0;
+	// The slider is in simulated seconds, so it can stop between frames.
+	$("scrub").min = frames ? rec.frames[0].t : 0;
+	$("scrub").max = frames ? rec.frames[frames - 1].t : 0;
+	if (frames) $("scrub").value = replay.clock;
 	$("scrub").disabled = frames < 2;
 	$("replay-btn").disabled = frames < 2;
 	if (!frames) $("replay-time").textContent = "loading the recording...";
@@ -2487,8 +2525,7 @@ function updateTimeline() {
 $("scrub").addEventListener("input", () => {
 	if (!replay.rec) return;
 	replay.active = true;
-	showRecordedFrame(Number($("scrub").value));
-	replay.clock = replay.rec.frames[replay.index].t;
+	showRecordedTime(Number($("scrub").value));
 	replay.lastTick = null;
 	updateTransport();
 });

@@ -111,6 +111,7 @@ _DEFAULT_PARAMS = {
     # -- pressure --
     'target_pressure': 30000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
     'ramp_time': 0.2,            # [s]
+    'dt': 0.01,                  # [s] simulation time step
     'instant': False,
     # -- visuals --
     'cutaway': False,
@@ -187,13 +188,16 @@ def launch_params_editor():
 
 
 MM = 1e-3
-DT = 0.01
+DT = PARAMS['dt']
 # Far-end plane coupling: stiffness per node normal to the plane [N/m], for
 # both the sliding constraint (bilateral) and the wall contact (one-sided).
 PLANE_STIFFNESS = 1e9
 PLANE_DAMPING = 1e4  # [N s/m] per node, for the one-sided contact (keeps it from chattering)
 # Size of the triangle spanning each end plane (for the signed volumes).
 PLANE_SPAN = 0.02
+# The far-end plane indicator is drawn this far outside the plane, so it
+# doesn't flicker against the model face lying in the same plane.
+PLANE_DRAW_OFFSET = 1e-5
 
 
 # ----------------------------------------------------------------------
@@ -386,13 +390,15 @@ class NodePlaneController(Sofa.Core.Controller):
     """Indicator for a far-end plane that no frame holds (end constraint
     off): fitted through three of its nodes."""
 
-    def __init__(self, dofs, anchors, target, rest_points, **kwargs):
+    def __init__(self, dofs, anchors, target, rest_points, offset, **kwargs):
         Sofa.Core.Controller.__init__(self, **kwargs)
         self.dofs, self.anchors, self.target = dofs, anchors, target
         pos = self.dofs.position.value
         a, b, c = (list(pos[i]) for i in anchors)
         self.basis0 = self._basis(a, b, c)
         o, u, v, n = self.basis0
+        # `offset` is along +X at rest; n's sign follows the anchors' winding.
+        self.offset = offset if n[0] > 0 else -offset
         self.local = [([p[k] - o[k] for k in range(3)]) for p in rest_points]
         self.local = [(sum(d[k] * u[k] for k in range(3)), sum(d[k] * v[k] for k in range(3))) for d in self.local]
 
@@ -415,7 +421,8 @@ class NodePlaneController(Sofa.Core.Controller):
     def onAnimateEndEvent(self, event):
         pos = self.dofs.position.value
         o, u, v, n = self._basis(*(list(pos[i]) for i in self.anchors))
-        self.target.position.value = [[o[k] + a * u[k] + b * v[k] for k in range(3)] for a, b in self.local]
+        self.target.position.value = [[o[k] + a * u[k] + b * v[k] + self.offset * n[k] for k in range(3)]
+                                      for a, b in self.local]
 
 
 class PressureRamp(Sofa.Core.Controller):
@@ -839,21 +846,24 @@ def createScene(rootNode):
     for f, (side, ring, x) in enumerate(far_sets):
         pts, tris = _flat_rect_grid(y_lo, W / 2 + cell, BASE - cell, BASE + H + cell, cell)
         pts = [[x, p[1], p[2]] for p in pts]
+        outward = 1.0 if side == 'pos' else -1.0
+        offset = outward * PLANE_DRAW_OFFSET
+        # Drawn offset from the start too, not only once the controller runs.
+        drawn = [[p[0] + offset, p[1], p[2]] for p in pts]
         node = rootNode.addChild('channelEndPlane' + side.capitalize())
-        node.addObject('MeshTopology', name='topo', position=pts, triangles=tris)
+        node.addObject('MeshTopology', name='topo', position=drawn, triangles=tris)
         mstate = node.addObject('MechanicalObject', name='mstate', src='@topo')
         node.addObject('OglModel', name='visual', src='@topo', color=[0.85, 0.1, 0.85, P['channel_end_alpha']],
                        cullFace=0)
         node.addObject('IdentityMapping', input='@mstate', output='@visual')
-        outward = 1.0 if side == 'pos' else -1.0
         if use_frames:
-            node.addObject(FramePlaneController(rigid_dofs, f, mstate, pts, frames[f][:3], outward * 1e-4,
+            node.addObject(FramePlaneController(rigid_dofs, f, mstate, pts, frames[f][:3], offset,
                                                 name='planeCtrl'))
         else:
             ys = [positions[i][1] + positions[i][2] for i in ring]
             anchors = (ring[ys.index(min(ys))], ring[ys.index(max(ys))],
                        min(ring, key=lambda i: positions[i][1] - positions[i][2]))
-            node.addObject(NodePlaneController(cube_dofs, anchors, mstate, pts, name='planeCtrl'))
+            node.addObject(NodePlaneController(cube_dofs, anchors, mstate, pts, offset, name='planeCtrl'))
 
     # Desktop-GUI mirroring across the exploited midplanes.
     axes = [a for a, on in ((0, sym_x and P['mirror_visual_x']), (1, sym_y and P['mirror_visual_y'])) if on]

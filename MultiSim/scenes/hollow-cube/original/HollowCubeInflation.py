@@ -228,6 +228,7 @@ _DEFAULT_PARAMS = {
     'density': 1100.0,           # [kg/m^3] silicone rubber
     'target_pressure': 100000.0, # [Pa] gauge pressure the cavity ramps/jumps to
     'ramp_time': 2.0,            # [s] time to reach target_pressure if not instant
+    'dt': 0.01,                  # [s] simulation time step
     'instant': False,            # apply target_pressure immediately instead
                                   # of ramping towards it
     'gravity_enabled': True,     # apply the -Z 9.81 m/s^2 gravity below;
@@ -444,7 +445,7 @@ RAMP_TIME = PARAMS['ramp_time']
 INSTANT = PARAMS['instant']
 
 GRAVITY = [0.0, 0.0, -9.81] if PARAMS['gravity_enabled'] else [0.0, 0.0, 0.0]
-DT = 0.01
+DT = PARAMS['dt']
 
 CAMERA_DISTANCE_FACTOR = 2.741  # distance from the box's centre to the camera,
                                  # as a multiple of its largest dimension
