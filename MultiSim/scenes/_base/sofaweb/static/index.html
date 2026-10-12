@@ -65,6 +65,21 @@
 	<div id="building" class="hidden"><div class="spinner"></div><span>Building scene...</span></div>
 
 	<div id="bottom">
+		<div id="timeline" class="panel hidden">
+			<button id="replay-btn" class="icon-btn" type="button" title="Play the recording" aria-label="Play the recording"></button>
+			<input type="range" id="scrub" min="0" max="0" step="1" value="0" title="Drag to go through the recorded run" aria-label="Position in the recorded run" />
+			<span id="replay-time"></span>
+			<select id="replay-speed" title="Playback speed (simulated seconds per second)">
+				<option value="0.1">0.1×</option>
+				<option value="0.25">0.25×</option>
+				<option value="0.5">0.5×</option>
+				<option value="1" selected>1×</option>
+				<option value="2">2×</option>
+				<option value="4">4×</option>
+			</select>
+			<button id="simulate-btn" class="secondary owner-only hidden" type="button" title="Run the simulation itself instead of playing back its recording">Simulate live</button>
+			<span id="timeline-note"></span>
+		</div>
 		<div id="charts"></div>
 		<div id="console-panel" class="panel hidden">
 			<div class="console-head"><h2>Console</h2><button id="console-close" class="close-btn" title="Close">&times;</button></div>
@@ -86,6 +101,7 @@
 				<li>The original SOFA scene script runs unmodified in this container, headless. Its OpenGL visual models are swapped for SOFA's GL-free <code>VisualModelImpl</code> as the scene is built, and their vertex positions are streamed to your browser, which draws them with <a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a> using the scene's own camera, lights and colors.</li>
 				<li>Parameters come from the scene's own <code>params.json</code> (labels from its parameter editor). Changing one rebuilds the scene from scratch, exactly like the SOFA GUI's Reload; fields marked <span class="live-badge">live</span> are applied to the running simulation instead.</li>
 				<li>The simulation never runs faster than real time; the <em>&times; real time</em> figure shows when it can't keep up.</li>
+				<li>Every run is recorded: once it's paused or finished, the timeline below plays it back at real speed (or faster or slower) and lets you scrub through it. A run of a preset's parameters is kept on the server, so the next simulation of that preset plays it back straight away instead of simulating it again (<em>Simulate live</em> runs it anyway). Other runs are only kept until the parameters change or the simulation ends.</li>
 				<li>Drag to rotate (or pan, in 2D scenes), right-drag to pan, scroll to zoom. Your view is your own.</li>
 			</ul>
 		</div>

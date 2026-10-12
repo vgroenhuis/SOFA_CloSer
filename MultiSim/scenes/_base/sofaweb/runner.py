@@ -39,6 +39,7 @@ import Sofa.Simulation
 
 from .capture import Capture, ambient_color, light_list
 from .config import Params, SceneConfig, editor_fields
+from .recording import Recording, RecordingCache, code_hash
 
 log = logging.getLogger(__name__)
 
@@ -284,6 +285,21 @@ class Runner:
         self._last_good_params: Optional[Params] = None
         self._diverged = False
 
+        # Playback: the current run's recording, or a preset's run loaded
+        # from the cache (then nothing is simulated until asked).
+        self._recording: Optional[Recording] = None
+        self._cached: Optional[tuple[dict, bytes]] = None  # (meta, gzip bytes)
+        self._rec_key: Optional[str] = None
+        self._rec_serial = 0  # which recording: a browser refetches when it changes
+        self._undeduped: set[int] = set()
+        recordings_dir = os.environ.get("MSD_RECORDINGS_DIR")
+        code_paths = [self.script_path.parent]
+        if self.script_path.parent != base_dir:
+            code_paths += [p for p in base_dir.glob("*.py") if p.is_file()]
+        self._cache = RecordingCache(Path(recordings_dir) if recordings_dir else None,
+                                     code_hash(code_paths) if recordings_dir else "")
+        self._cache.prune(self._preset_keys())
+
     # -- parameters ---------------------------------------------------------
 
     def _load_defaults(self) -> Params:
@@ -354,6 +370,15 @@ class Runner:
                 visible = self.visible_keys()
                 return {**{k: v for k, v in self.defaults.items() if k in visible}, **entry["values"]}
         return None
+
+    def _preset_keys(self) -> set[str]:
+        """Recording-cache keys of every parameters preset."""
+        if not self._cache.enabled:
+            return set()
+        keys = set()
+        for entry in self.presets()["params"]:
+            keys.add(self._cache.key(self.effective_params({**self.defaults, **entry["values"]})))
+        return keys
 
     def _build_spec(self) -> list[dict]:
         editor = self.base_dir / self.cfg.editor_file if self.cfg.editor_file else None
@@ -512,6 +537,7 @@ class Runner:
             "autoRestart": self.auto_restart,
             "stopAt": self._stop_at,
             "generation": self.generation,
+            "recording": self._recording_status(),
         })
 
     def _emit_status(self) -> None:
@@ -574,6 +600,19 @@ class Runner:
         self._stop_at = self.cfg.stop_at(effective) if self.cfg.stop_at else None
         self._last_lights = None
         self._prev_lights_sent = None
+        self._undeduped = set()
+        self._recording = None
+        self._cached = self._load_cached(effective)
+        if self._cached is not None:
+            self._rec_serial += 1
+            # The recording was made with these models' coincident vertices
+            # sent separately: send them so from the start.
+            for m in self._models:
+                if m.id in self._cached[0].get("undeduped", []):
+                    m.rep = m.inverse = None
+                    self._undeduped.add(m.id)
+        else:
+            self._recording = self._new_recording()
 
         setup = {
             "type": "setup",
@@ -593,12 +632,23 @@ class Runner:
             self._setup_json = json.dumps(setup, separators=(",", ":"))
             self._full_positions = full
             self._csv_rows.clear()
+            if self._cached is not None:
+                self._csv_rows.extend(self._cached[0].get("rows", []))
         self.status = "running"
         self._last_good_params = dict(params)
         self.console.note(
             f"scene ready: {len(self._models)} visual models, "
             f"{sum(m.vertex_count for m in self._models)} vertices, dt={float(root.dt.value):g}s"
         )
+        if self._cached is not None:
+            # A preset's run, recorded before: it plays back in the browser;
+            # simulating it again is the owner's choice (command "simulate").
+            meta = self._cached[0]
+            self.finished = True
+            self.paused = True
+            self.end_reason = meta.get("endReason") or "recorded run"
+            self.console.note(f"playing back the recorded run of these parameters "
+                              f"({meta.get('frames')} frames up to t={meta.get('end', 0):.2f}s)")
         self._emit(self._setup_json)
         self._emit_status()
         self._broadcast_frame(full=True)
@@ -648,6 +698,109 @@ class Runner:
             self.error = f"The scene failed to build: {detail}"
             self._emit_status()
 
+    # -- recording / playback ------------------------------------------------
+
+    def _new_recording(self) -> Recording:
+        self._rec_serial += 1
+        return Recording({m.id: m.scale for m in self._models}, self.cfg.frames_per_second)
+
+    def _model_signature(self) -> list:
+        return [[m.id, m.vertex_count, m.kind] for m in self._models]
+
+    def _load_cached(self, effective: Params) -> Optional[tuple[dict, bytes]]:
+        self._rec_key = self._cache.key(effective) if self._cache.enabled else None
+        if self._rec_key is None:
+            return None
+        found = self._cache.load(self._rec_key)
+        if found is None:
+            return None
+        if found[0].get("models") != self._model_signature():
+            self.console.note("the recorded run of these parameters doesn't fit the scene; simulating")
+            self._cache.discard(self._rec_key)
+            return None
+        return found
+
+    def _start_live(self, paused: bool) -> None:
+        """From a cached run's playback to simulating it (the scene is
+        still at its start)."""
+        self._cached = None
+        self.finished = False
+        self.end_reason = None
+        self.paused = paused
+        self._recording = self._new_recording()
+        with self._lock:
+            self._csv_rows.clear()
+            self._recording.offer(self._sim_time, self._steps, [m.id for m in self._models],
+                                  self._full_positions, self._last_scalars, self._last_lights, force=True)
+        self.console.note("simulating live")
+
+    def _flush_recording(self) -> None:
+        if self._recording is not None:
+            with self._lock:
+                self._recording.flush(self._sim_time, self._steps, self._full_positions, self._last_scalars)
+
+    def _save_recording(self) -> None:
+        """Keeps the run on disk if its parameters are a preset's and it
+        was recorded from start to end with them."""
+        rec = self._recording
+        if (rec is None or rec.saved or not rec.pure or rec.truncated or self._diverged or not self.finished
+                or self._rec_key is None or self._rec_key not in self._preset_keys()):
+            return
+        with self._lock:
+            snapshot = rec.copy()
+            rows = list(self._csv_rows)
+        data = snapshot.encoded()
+        rec.adopt_encoding(snapshot)
+        meta = {
+            "title": self.cfg.title,
+            "key": self._rec_key,
+            "params": self.effective_params(self.params),
+            "created": time.time(),
+            "frames": len(snapshot),
+            "end": snapshot.end_time,
+            "endReason": self.end_reason,
+            "models": self._model_signature(),
+            "undeduped": sorted(self._undeduped),
+            "rows": rows,
+            "bytes": len(data),
+        }
+        if self._cache.save(self._rec_key, meta, data):
+            rec.saved = True
+            self.console.note(f"saved this run for playback ({len(data) / 2**20:.1f} MB): "
+                              "its parameters are a preset's")
+
+    def recording_blob(self, start: int = 0) -> Optional[dict]:
+        """The recording for GET api/recording: gzip bytes of frames from
+        `start` on (a cached run always comes whole)."""
+        with self._lock:
+            generation = self.generation
+            cached = self._cached
+            rec = self._recording
+            snapshot = rec.copy() if rec is not None and cached is None else None
+            serial = self._rec_serial
+        if cached is not None:
+            return {"generation": generation, "serial": serial, "start": 0, "frames": cached[0].get("frames", 0),
+                    "data": cached[1]}
+        if snapshot is None or not len(snapshot):
+            return None
+        start = max(0, min(start, len(snapshot)))
+        data = snapshot.encoded(start)
+        if start == 0:
+            with self._lock:
+                rec.adopt_encoding(snapshot)
+        return {"generation": generation, "serial": serial, "start": start, "frames": len(snapshot), "data": data}
+
+    def _recording_status(self) -> Optional[dict]:
+        if self._cached is not None:
+            meta = self._cached[0]
+            return {"id": self._rec_serial, "frames": meta.get("frames", 0), "end": meta.get("end", 0.0),
+                    "cached": True, "saved": True}
+        rec = self._recording
+        if rec is None:
+            return None
+        return {"id": self._rec_serial, "frames": len(rec), "end": rec.end_time, "cached": False, "saved": rec.saved,
+                "truncated": rec.truncated}
+
     def _probe(self) -> dict[str, float]:
         scalars: dict[str, float] = {}
         if self.cfg.probes is not None and self._root is not None:
@@ -688,6 +841,10 @@ class Runner:
             if m.rep is not None:
                 drift = np.abs(positions - positions[m.rep][m.inverse]).max()
                 if drift > DEDUP_TOLERANCE * m.scale:
+                    if self._recording is not None:
+                        with self._lock:
+                            self._recording.expand(m.id, m.inverse)
+                    self._undeduped.add(m.id)
                     m.rep = m.inverse = None
                     resend_setup = True
             if full or resend_setup or m.last_sent is None or not np.array_equal(positions, m.last_sent):
@@ -717,6 +874,8 @@ class Runner:
             arrays = [self._full_positions[i] for i in changed]
             if not full:
                 self._csv_rows.append({"t": self._sim_time, **scalars})
+            if self._recording is not None:
+                self._recording.offer(self._sim_time, self._steps, changed, self._full_positions, scalars, lights)
         self._emit(pack_frame(header, arrays))
 
     def _end_run(self, reason: str) -> None:
@@ -724,6 +883,8 @@ class Runner:
         self.end_reason = reason
         self.console.note(f"run ended at t={self._sim_time:.3f}s: {reason}")
         self._broadcast_frame()
+        self._flush_recording()
+        self._save_recording()
         if self.auto_restart:
             self._emit_status()
             deadline = time.monotonic() + RESTART_PAUSE_SECONDS
@@ -737,6 +898,8 @@ class Runner:
     def _extend_run(self) -> None:
         """Called on resume-after-finish and on live parameter changes: let
         the (stopped) simulation run on long enough to show the effect."""
+        if self._recording is not None and (self.finished or self._steps > 0):
+            self._recording.pure = False
         if self.finished or self._stop_at is not None:
             extra = self.cfg.extend_by(self.effective_params(self.params)) if self.cfg.extend_by else None
             if extra is not None:
@@ -755,9 +918,15 @@ class Runner:
                 future.set_result(True)
             elif command == "pause":
                 self.paused = True
+                self._flush_recording()
                 self._emit_status()
                 future.set_result(True)
-            elif command == "resume":
+            elif command in ("resume", "simulate"):
+                if self._cached is not None:
+                    self._start_live(paused=False)
+                    self._emit_status()
+                    future.set_result(True)
+                    return
                 if self._diverged:
                     self.console.note("the run diverged; rebuilding instead of resuming")
                     self.paused = False
@@ -767,6 +936,17 @@ class Runner:
                 if self.finished:
                     self._extend_run()
                 self.paused = False
+                self._emit_status()
+                future.set_result(True)
+            elif command == "presets_changed":
+                # An admin saved or deleted a preset: forget recordings of
+                # parameters that no longer are one; keep this run if they now are.
+                keys = self._preset_keys()
+                self._cache.prune(keys)
+                if self._recording is not None:
+                    if self._recording.saved and self._rec_key not in keys:
+                        self._recording.saved = False
+                    self._save_recording()
                 self._emit_status()
                 future.set_result(True)
             elif command == "auto_restart":
@@ -781,6 +961,8 @@ class Runner:
                 if rebuild or kwargs.get("rebuild") or (live and self._diverged):
                     self._safe_build(self.params)
                 elif live and self._root is not None:
+                    if self._cached is not None:
+                        self._start_live(paused=True)
                     for key, value in live.items():
                         self.cfg.live_params[key](self._root, value)
                         self.console.note(f"live change: {key} = {value}")

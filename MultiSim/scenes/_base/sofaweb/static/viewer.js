@@ -865,6 +865,10 @@ function applySetup(message) {
 	const newRun = message.generation !== generation;
 	setup = message;
 	generation = message.generation;
+	// New models (or a model's vertices now sent separately): the recording
+	// and the live positions so far no longer fit them.
+	resetReplay();
+	livePositions.clear();
 	disposeScene();
 	scene.background = sofaColor(message.background);
 	document.body.style.background = `#${scene.background.getHexString()}`;
@@ -888,6 +892,26 @@ const charts = [];
 const readoutEls = new Map();
 const MAX_CHART_POINTS = 4000;
 const chartFont = { size: 10 };
+
+// Where the playback is, as a vertical line on every chart.
+const cursorPlugin = {
+	id: "replayCursor",
+	afterDatasetsDraw(chart) {
+		if (!replay.active || replay.cursorT === null) return;
+		const x = chart.scales.x.getPixelForValue(replay.cursorT);
+		const { top, bottom, left, right } = chart.chartArea;
+		if (x < left || x > right) return;
+		const ctx = chart.ctx;
+		ctx.save();
+		ctx.strokeStyle = "rgba(232, 232, 232, 0.7)";
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(x, top);
+		ctx.lineTo(x, bottom);
+		ctx.stroke();
+		ctx.restore();
+	},
+};
 
 function buildCharts(config) {
 	const container = $("charts");
@@ -926,6 +950,7 @@ function buildCharts(config) {
 					y: { ticks: { color: "#8f97a3", font: chartFont }, grid: { color: "#2f323b" } },
 				},
 			},
+			plugins: [cursorPlugin],
 		});
 		charts.push({ def, chart });
 		makeTopRightResizable(panel, panel.querySelector(".resize-handle-tr"));
@@ -1001,6 +1026,10 @@ function updateTelemetry(t, scalars, full) {
 	}
 	if (t < lastChartT) clearCharts();
 	lastChartT = t;
+	if (!replay.active) showReadouts(scalars);
+}
+
+function showReadouts(scalars) {
 	for (const [key, { el, def }] of readoutEls) {
 		const v = scalars[key];
 		if (v === undefined || !Number.isFinite(v)) continue;
@@ -1039,21 +1068,25 @@ function renderStatus() {
 	let cls = "connected";
 	if (s.status === "building") [text, cls] = ["building...", "building"];
 	else if (s.status === "error") [text, cls] = ["error", "error"];
+	else if (s.recording?.cached) [text, cls] = ["recorded run", "finished"];
 	else if (s.finished) [text, cls] = ["finished", "finished"];
 	else if (s.paused) [text, cls] = ["paused", "paused"];
 	statusEl.textContent = text;
 	statusEl.className = cls;
 	$("building").classList.toggle("hidden", s.status !== "building");
-	showPlayState($("play-btn"), !(s.paused || s.finished), s.finished ? "Continue the finished run" : "Play");
 	$("auto-restart-checkbox").checked = !!s.autoRestart;
+	updateTimeline();
 
 	let message = "";
 	banner.className = "";
 	if (s.error) {
 		message = s.error;
 		banner.className = "error";
+	} else if (s.recording?.cached) {
+		message = "These parameters' run was recorded before (they're a preset's): play it back with ▶ or the timeline."
+			+ (isViewer ? "" : " Simulate live runs the simulation itself.");
 	} else if (s.finished && !s.autoRestart) {
-		message = `Run finished (${s.endReason}).` + (isViewer ? "" : " Press ▶ to continue it, or ■ to go back to the start.");
+		message = `Run finished (${s.endReason}).` + (isViewer ? " Replay it with the timeline." : " Replay it with the timeline, press ▶ to continue it, or ■ to go back to the start.");
 	} else if (s.finished && s.autoRestart) {
 		message = `Run finished (${s.endReason}) -- restarting...`;
 	}
@@ -1078,12 +1111,17 @@ function handleFrame(buffer) {
 	for (const [id, count] of header.models) {
 		const packed = new Float32Array(buffer, offset, count * 3);
 		offset += count * 12;
+		livePositions.set(id, packed); // to come back to after a playback
 		const entry = models.get(id);
-		if (entry) applyPositions(entry, packed);
+		if (entry && !replay.active) applyPositions(entry, packed);
 	}
-	updateMirrorPlanes();
-	if (header.lights) updateLights(header.lights);
-	$("time").textContent = `t = ${header.t.toFixed(2)} s · step ${header.step ?? "--"}`;
+	if (header.lights) liveLights = header.lights;
+	liveHeader = header;
+	if (!replay.active) {
+		updateMirrorPlanes();
+		if (header.lights) updateLights(header.lights);
+		$("time").textContent = `t = ${header.t.toFixed(2)} s · step ${header.step ?? "--"}`;
+	}
 	const rtfEl = $("rtf");
 	if (header.rtf > 0 && !header.paused && !header.finished) {
 		rtfEl.textContent = `${header.rtf.toFixed(2)}× real time`;
@@ -2187,6 +2225,287 @@ function resetDisplay(overrides = null) {
 }
 
 // ---------------------------------------------------------------------------
+// Playback: every run is recorded on the server (api/recording, see
+// recording.py). While the simulation is paused or finished, the timeline
+// plays the recording back here, in this browser only -- watchers too. A
+// preset's run comes from the server's cache: then nothing is simulated
+// unless the owner asks (Simulate live).
+// ---------------------------------------------------------------------------
+
+const livePositions = new Map(); // id -> latest live positions (packed)
+let liveLights = null;
+let liveHeader = null;
+const replay = {
+	rec: null, // { generation, frames: [{ t, step, scalars, lights, arrays: Map id -> Float32Array }], grid }
+	active: false, // showing a recorded frame instead of the live state
+	playing: false,
+	index: 0,
+	clock: 0, // playback position (simulated s)
+	lastTick: null,
+	cursorT: null,
+	fetching: false,
+	retryAt: 0, // after a failed fetch, not again before this (performance.now())
+	shown: new Map(), // id -> the recorded array on screen
+};
+
+function resetReplay() {
+	replay.rec = null;
+	replay.active = false;
+	replay.playing = false;
+	replay.cursorT = null;
+	replay.shown.clear();
+	updateTransport();
+}
+
+const timelineAvailable = () => {
+	const s = lastStatus;
+	return !!(s && connected && s.status === "running" && (s.paused || s.finished) && s.recording && s.recording.frames >= 2);
+};
+
+async function fetchRecording() {
+	if (replay.fetching || performance.now() < replay.retryAt) return;
+	replay.fetching = true;
+	replay.retryAt = performance.now() + 2000; // cleared on success
+	try {
+		const wanted = lastStatus?.recording?.id;
+		const have = replay.rec && replay.rec.generation === generation && replay.rec.id === wanted ? replay.rec.frames.length : 0;
+		const response = await fetch(`api/recording?start=${have}`, { cache: "no-store" });
+		if (response.status !== 200) return;
+		const gen = Number(response.headers.get("X-Recording-Generation"));
+		const start = Number(response.headers.get("X-Recording-Start"));
+		const id = Number(response.headers.get("X-Recording-Id"));
+		const buffer = await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+		if (gen !== generation) return; // rebuilt meanwhile
+		const sameRecording = replay.rec && replay.rec.id === id;
+		const wasAtEnd = !sameRecording || replay.index >= replay.rec.frames.length - 1;
+		decodeRecording(buffer, gen, sameRecording ? start : 0, id);
+		if (!replay.rec || !replay.rec.frames.length) return;
+		replay.retryAt = 0;
+		chartsFromRecording();
+		if (!timelineAvailable()) return;
+		// Start where the simulation is: a cached run at its start, a run
+		// that's paused or finished at its end.
+		const last = replay.rec.frames.length - 1;
+		const index = lastStatus.recording.cached ? (replay.active && sameRecording ? replay.index : 0) : wasAtEnd || !replay.active ? last : replay.index;
+		replay.active = true;
+		showRecordedFrame(Math.min(index, last));
+	} catch (err) {
+		console.error("Loading the recording failed", err);
+	} finally {
+		replay.fetching = false;
+		updateTimeline();
+	}
+}
+
+function decodeRecording(buffer, gen, start, id) {
+	const view = new DataView(buffer);
+	const headerLength = view.getUint32(0, true);
+	const header = JSON.parse(decoder.decode(new Uint8Array(buffer, 4, headerLength)));
+	let offset = 4 + headerLength;
+	offset += (4 - (offset % 4)) % 4;
+	if (start === 0 || !replay.rec || replay.rec.generation !== gen || replay.rec.id !== id) {
+		replay.rec = { generation: gen, id, frames: [], grid: new Map(), lights: null };
+		replay.shown.clear();
+	}
+	const rec = replay.rec;
+	if (start !== rec.frames.length) {
+		replay.rec = null; // out of step: fetch it whole next time
+		return;
+	}
+	for (const f of header.frames) {
+		const previous = rec.frames.length ? rec.frames[rec.frames.length - 1].arrays : null;
+		const arrays = new Map(previous || []);
+		for (const [id, count, enc] of f.m) {
+			const n = count * 3;
+			let grid;
+			if (enc === 0) {
+				grid = new Int32Array(buffer, offset, n);
+				offset += n * 4;
+			} else {
+				const delta = enc === 1 ? new Int16Array(buffer, offset, n) : new Int32Array(buffer, offset, n);
+				offset += n * (enc === 1 ? 2 : 4);
+				const before = rec.grid.get(id);
+				grid = new Int32Array(n);
+				for (let i = 0; i < n; i++) grid[i] = before[i] + delta[i];
+			}
+			offset += (4 - (offset % 4)) % 4;
+			rec.grid.set(id, grid);
+			const q = header.q[id];
+			const positions = new Float32Array(n);
+			for (let i = 0; i < n; i++) positions[i] = grid[i] * q;
+			arrays.set(id, positions);
+		}
+		if ("l" in f) rec.lights = f.l;
+		rec.frames.push({ t: f.t, step: f.k, scalars: f.s || {}, lights: rec.lights, arrays });
+	}
+}
+
+// The charts from the recording: complete, also for a run this browser
+// didn't watch (e.g. a preset's run from the cache).
+function chartsFromRecording() {
+	const frames = replay.rec.frames;
+	for (const { def, chart } of charts) {
+		def.series.forEach((series, i) => {
+			const data = [];
+			for (const f of frames) {
+				const v = f.scalars[series.key];
+				if (v !== undefined && Number.isFinite(v)) data.push({ x: f.t, y: v });
+			}
+			chart.data.datasets[i].data = data.slice(-MAX_CHART_POINTS);
+		});
+	}
+	lastChartT = frames[frames.length - 1].t;
+	chartsDirty = true;
+}
+
+function showRecordedFrame(index) {
+	const rec = replay.rec;
+	if (!rec || !rec.frames.length) return;
+	index = Math.max(0, Math.min(rec.frames.length - 1, index));
+	const frame = rec.frames[index];
+	replay.index = index;
+	replay.cursorT = frame.t;
+	for (const [id, positions] of frame.arrays) {
+		const entry = models.get(id);
+		if (entry && replay.shown.get(id) !== positions) {
+			applyPositions(entry, positions);
+			replay.shown.set(id, positions);
+		}
+	}
+	updateMirrorPlanes();
+	if (frame.lights) updateLights(frame.lights);
+	showReadouts(frame.scalars);
+	$("time").textContent = `t = ${frame.t.toFixed(2)} s · step ${frame.step} · playback`;
+	$("scrub").value = index;
+	$("replay-time").textContent = `${frame.t.toFixed(2)} / ${rec.frames[rec.frames.length - 1].t.toFixed(2)} s`;
+	chartsDirty = true;
+}
+
+// Back to the simulation's own state (it's running again, or rebuilt).
+function goLive() {
+	if (!replay.active) return;
+	replay.active = false;
+	replay.playing = false;
+	replay.cursorT = null;
+	replay.shown.clear();
+	for (const [id, packed] of livePositions) {
+		const entry = models.get(id);
+		if (entry) applyPositions(entry, packed);
+	}
+	updateMirrorPlanes();
+	if (liveLights) updateLights(liveLights);
+	if (liveHeader) {
+		showReadouts(liveHeader.scalars || {});
+		$("time").textContent = `t = ${liveHeader.t.toFixed(2)} s · step ${liveHeader.step ?? "--"}`;
+	}
+	chartsDirty = true;
+	updateTransport();
+}
+
+function toggleReplay() {
+	const rec = replay.rec;
+	if (!rec || rec.frames.length < 2 || !timelineAvailable()) return;
+	if (replay.playing) {
+		replay.playing = false;
+	} else {
+		if (!replay.active || replay.index >= rec.frames.length - 1) showRecordedFrame(0); // from the start
+		replay.active = true;
+		replay.playing = true;
+		replay.clock = rec.frames[replay.index].t;
+		replay.lastTick = null;
+	}
+	updateTransport();
+}
+
+function replayTick() {
+	if (!replay.playing) return;
+	const rec = replay.rec;
+	if (!rec || !replay.active) {
+		replay.playing = false;
+		return updateTransport();
+	}
+	const now = performance.now();
+	if (replay.lastTick !== null) replay.clock += ((now - replay.lastTick) / 1000) * Number($("replay-speed").value);
+	replay.lastTick = now;
+	const frames = rec.frames;
+	let index = replay.index;
+	while (index < frames.length - 1 && frames[index + 1].t <= replay.clock + 1e-9) index++;
+	if (index !== replay.index) showRecordedFrame(index);
+	if (index >= frames.length - 1) {
+		if (lastStatus?.autoRestart) {
+			// Auto restart: the playback loops.
+			showRecordedFrame(0);
+			replay.clock = frames[0].t;
+		} else {
+			replay.playing = false;
+			updateTransport();
+		}
+	}
+}
+
+// The play buttons: the HUD's controls the simulation (or, for a preset's
+// recorded run, the playback); the timeline's always the playback.
+function updateTransport() {
+	const s = lastStatus;
+	const cached = !!s?.recording?.cached;
+	if (cached) showPlayState($("play-btn"), replay.playing, "Play the recorded run");
+	else if (s) showPlayState($("play-btn"), !(s.paused || s.finished), s.finished ? "Continue the finished run" : "Play");
+	showPlayState($("replay-btn"), replay.playing, "Play the recording");
+}
+
+function updateTimeline() {
+	const available = timelineAvailable();
+	const timeline = $("timeline");
+	timeline.classList.toggle("hidden", !available);
+	if (!available) {
+		goLive();
+		updateTransport();
+		return;
+	}
+	const status = lastStatus.recording;
+	const rec = replay.rec;
+	if (!rec || rec.generation !== lastStatus.generation || rec.id !== status.id || rec.frames.length < status.frames) {
+		if (lastStatus.generation === generation) fetchRecording();
+	}
+	const frames = rec && rec.generation === generation && rec.id === status.id ? rec.frames.length : 0;
+	$("scrub").max = Math.max(0, frames - 1);
+	$("scrub").disabled = frames < 2;
+	$("replay-btn").disabled = frames < 2;
+	if (!frames) $("replay-time").textContent = "loading the recording...";
+	$("simulate-btn").classList.toggle("hidden", !status.cached);
+	let note = "this session only";
+	if (status.cached) note = "recorded run of a preset";
+	else if (status.saved) note = "saved for this preset";
+	else if (status.truncated) note = "recording stopped: too long";
+	$("timeline-note").textContent = note;
+	$("timeline-note").title = status.cached || status.saved
+		? "Kept on the server: simulations of these preset parameters play it back instead of simulating"
+		: "Kept until the parameters change or the simulation ends: these parameters aren't a preset's";
+	updateTransport();
+}
+
+$("scrub").addEventListener("input", () => {
+	if (!replay.rec) return;
+	replay.active = true;
+	showRecordedFrame(Number($("scrub").value));
+	replay.clock = replay.rec.frames[replay.index].t;
+	replay.lastTick = null;
+	updateTransport();
+});
+$("replay-btn").addEventListener("click", toggleReplay);
+$("simulate-btn").addEventListener("click", () => {
+	fetch("api/simulate", { method: "POST" }).catch(() => {});
+});
+window.addEventListener("keydown", (event) => {
+	// Space plays / pauses the playback, unless typing in a field.
+	if (event.key !== " " || event.target.closest?.("input, select, textarea, button")) return;
+	if (!$("timeline").classList.contains("hidden")) {
+		event.preventDefault();
+		toggleReplay();
+	}
+});
+
+// ---------------------------------------------------------------------------
 // Buttons, console, info
 // ---------------------------------------------------------------------------
 
@@ -2208,6 +2527,8 @@ function showPlayState(button, running, pausedLabel = "Play") {
 showPlayState($("play-btn"), false);
 $("stop-btn").innerHTML = ICONS.stop;
 $("play-btn").addEventListener("click", () => {
+	// A preset's recorded run: ▶ plays it back (Simulate live runs it).
+	if (lastStatus?.recording?.cached) return toggleReplay();
 	const resume = lastStatus && (lastStatus.paused || lastStatus.finished);
 	fetch(resume ? "api/resume" : "api/pause", { method: "POST" }).catch(() => {});
 });
@@ -2365,7 +2686,7 @@ async function init() {
 init();
 
 // For debugging from the browser console.
-window.sofaweb = { scene, models, renderer, get camera() { return camera; }, get setup() { return setup; } };
+window.sofaweb = { scene, models, renderer, replay, get camera() { return camera; }, get setup() { return setup; } };
 
 // Transparent models must be drawn back to front. three.js sorts by each
 // object's origin, but every SOFA model sits at the world origin (its
@@ -2406,6 +2727,7 @@ function sortTransparent() {
 
 function animate() {
 	requestAnimationFrame(animate);
+	replayTick();
 	if (chartsDirty) {
 		for (const { chart } of charts) chart.update("none");
 		chartsDirty = false;

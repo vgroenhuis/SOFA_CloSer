@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -131,6 +131,7 @@ def create_app(config_path: Path) -> FastAPI:
     async def set_defaults(body: dict[str, Any]) -> dict:
         # From the orchestrator only (its proxy refuses this path to browsers).
         runner.apply_saved_defaults(body)
+        runner.request("presets_changed")  # keeps or forgets recorded preset runs
         return {"ok": True}
 
     @app.get("/api/info")
@@ -162,6 +163,29 @@ def create_app(config_path: Path) -> FastAPI:
             return JSONResponse({"detail": {"message": f"No preset named {body.name!r}."}}, status_code=404)
         params = await command("params", changes=params, rebuild=True)
         return {k: v for k, v in params.items() if k in runner.visible_keys()}
+
+    @app.post("/api/simulate")
+    async def simulate() -> dict:
+        # Simulate a preset's recorded run live instead of playing it back.
+        await command("simulate")
+        return {"status": "ok"}
+
+    @app.get("/api/recording")
+    def recording(start: int = 0) -> Response:
+        blob = runner.recording_blob(start)
+        if blob is None:
+            return Response(status_code=204)
+        return Response(
+            blob["data"],
+            media_type="application/octet-stream",
+            headers={
+                "X-Recording-Generation": str(blob["generation"]),
+                "X-Recording-Id": str(blob["serial"]),
+                "X-Recording-Start": str(blob["start"]),
+                "X-Recording-Frames": str(blob["frames"]),
+                "Cache-Control": "no-store",
+            },
+        )
 
     @app.post("/api/reset")
     async def reset() -> dict:

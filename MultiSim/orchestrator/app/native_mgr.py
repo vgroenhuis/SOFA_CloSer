@@ -150,6 +150,9 @@ class NativeManager:
         port = _free_port()
         env = self._env()
         env["MSD_SIM_ID"] = sim_id
+        # Recorded runs of the scene's presets, played back by later
+        # simulations of the same parameters (see sofaweb/recording.py).
+        env["MSD_RECORDINGS_DIR"] = str(config.DATA_DIR / "recordings" / scene.id)
         if defaults:
             env["MSD_SCENE_DEFAULTS"] = json.dumps(defaults)
         cmd = self._scene_command(scene_dir, port)

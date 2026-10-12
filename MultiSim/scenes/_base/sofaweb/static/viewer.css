@@ -368,3 +368,37 @@ body.viewer .param-note { display: none; }
 }
 .preset-row button { padding: 4px 8px; font-size: 12px; }
 .preset-row.hidden { display: none; }
+
+/* Playback of the recorded run: above the charts, while paused or finished. */
+#timeline {
+	/* Its own row above the charts, clear of the side panels' column. */
+	flex: 0 0 calc(100% - 350px);
+	margin-right: auto;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	font-size: 12px;
+	color: #cfd3da;
+}
+#timeline #scrub { flex: 1 1 auto; min-width: 80px; accent-color: #2e9e4f; margin: 0; }
+#replay-btn { background: #2e9e4f; }
+#replay-btn:hover { background: #37b35b; }
+#replay-btn.running { background: #3a5bd9; }
+#replay-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+#replay-speed {
+	background: #1b1d22;
+	color: #e8e8e8;
+	border: 1px solid #3a3e48;
+	border-radius: 4px;
+	padding: 2px 4px;
+	font: inherit;
+}
+#simulate-btn { padding: 4px 10px; font-size: 12px; }
+#timeline-note { color: #8f97a3; white-space: nowrap; }
+@media (max-width: 700px) {
+	#timeline { flex: 0 0 100%; flex-wrap: wrap; }
+	#timeline #scrub { flex-basis: 100%; order: -1; }
+	#timeline-note { white-space: normal; }
+}
