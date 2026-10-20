@@ -203,6 +203,10 @@ Docker, `docker compose` restarts the orchestrator itself
     (4 by default) around the end-effector; the hinge angles are the degrees of freedom
     (ArticulatedSystemMapping). Contacts are friction constraints (FreeMotionAnimationLoop);
     the end-effector follows the sliders on a stiff wrist spring. Runs in real time.
+  - `gripper-4-mujoco` ("Gripper 4 (MuJoCo)", admin-only for now): the same scene
+    simulated with MuJoCo instead of SOFA (sofaweb's MuJoCo engine): MuJoCo hinge joints,
+    position actuators for the wrist and soft contacts with an elliptic friction cone; the
+    fingers touch each other. Same parameters and controls; about 2 ms per 20 ms frame.
   - `gripper-3` ("Gripper 3", admin-only for now): Gripper 2's gripper with the fingers
     as chains of rigid segments (one per chamber) and compliant hinge joints
     (JointSpringForceField: a pin with a torsional spring, hard stops) instead of FEM; the

@@ -16,8 +16,6 @@ from pathlib import Path
 
 
 def check(config_path: Path, seconds: float) -> int:
-    import Sofa.Simulation
-
     from .app import load_config
     from .runner import Runner
 
@@ -29,12 +27,12 @@ def check(config_path: Path, seconds: float) -> int:
         print("\n".join(line["text"] for line in runner.console.since(0)[-30:]), file=sys.stderr)
         return 1
     root = runner._root
-    dt = float(root.dt.value)
+    dt = runner.engine.dt(root)
     steps = max(1, int(round(seconds / dt)))
     start = time.monotonic()
     with contextlib.redirect_stdout(io.StringIO()):
         for _ in range(steps):
-            Sofa.Simulation.animate(root, dt)
+            runner.engine.step(root, dt)
     elapsed = time.monotonic() - start
     runner._sim_time = steps * dt
     scalars = runner._probe()

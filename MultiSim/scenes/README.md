@@ -166,6 +166,16 @@ In `sofaweb_scene.py`, at minimum set `title` and `script`. Useful extras
 | `view` | `"3d"` (orbit) or `"2d"` (pan/zoom, drawn in creation order for flat scenes) |
 | `display` | controls in the viewer's Display panel, applied in the browser without a rebuild and per viewer: opacity sliders, colors, show/hide, and mirrored copies across symmetry planes (fixed, or following a moving plane such as the fingers' far-end plane via the visual model that marks it; a moving one can repeat as a chain, e.g. a finger of N chambers), each tied to a params.json key and a pattern for the visual models' SOFA paths, plus `femRegion` switches that hide FEM elements in a region (used for the symmetry buffer blocks); a control with `requires` is grayed out while that parameter is off. Every scene also gets, automatically: a surface wireframe overlay and (when the scene has a tetrahedral FEM mesh, which is found and streamed for this) FEM elements, element edges and nodes, each with a switch and opacity slider; the elements are colored SOFA style, in one lit blue, or by strain, unlit or lit (the default; Green-Lagrange, relative to the mesh's rest shape, on a scale up to the largest strain seen); and a Lighting panel with each light's brightness and each directional light's yaw and pitch (around the scene's up axis), following the scene's own lights until changed. The Display panel also holds the camera pose (position, look-at point, zoom), editable and remembered per viewer. Chart and readout panels collapse to their title on a click. Opacity rows get a show/hide switch in front. |
 
+**Other physics engines.** `SceneConfig(engine="mujoco")` runs a MuJoCo
+scene instead (see `_base/sofaweb/engines.py`): its script's `createScene()`
+builds an `mujoco.MjModel` and returns a `sofaweb.mjscene.MjScene` with the
+meshes to draw (attached to bodies), lights, camera and Python controllers
+run before every MuJoCo step; one frame step `dt` is many MuJoCo steps.
+Everything else (parameters, controls, probes, charts, display, gauge,
+recordings) works as for SOFA; the callbacks get the MjScene as `root`. See
+`gripper-4-mujoco`. Another engine is a class with `build`, `step`, `dt`,
+`unload`, `background`, `camera`, `ambient` and `lights` in `engines.py`.
+
 **Saved defaults.** In a browser that's logged in to the admin page, the
 Display, Lighting and Parameters panels get a **Set as default** button. It
 stores that panel's current state (for Parameters: the running simulation's

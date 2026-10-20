@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 4 (MuJoCo)",
+	"group": "closer",
+	"description": "Gripper 4 simulated with MuJoCo instead of SOFA: the same rigid-segment fingers, grocery items and box, the same sliders. Pick items up and put them in the box, and compare how the two engines grasp. Runs several times faster than real time.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

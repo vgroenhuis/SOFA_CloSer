@@ -1,6 +1,7 @@
-"""Runs an original SOFA scene script in a background thread.
+"""Runs an original scene script (SOFA, or another engine: see engines.py) in a
+background thread.
 
-All SOFA calls happen on that one thread; the web app talks to it through a
+All simulation calls happen on that one thread; the web app talks to it through a
 command queue and receives setup messages / frames through callbacks.
 
 Frames are binary WebSocket messages:
@@ -33,12 +34,9 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import numpy as np
-import Sofa
-import Sofa.Core
-import Sofa.Simulation
 
-from .capture import Capture, ambient_color, light_list
 from .config import Params, SceneConfig, editor_fields
+from .engines import make_engine
 from .recording import Recording, RecordingCache, code_hash
 
 log = logging.getLogger(__name__)
@@ -350,6 +348,7 @@ class Runner:
         self.script_path = base_dir / config.script
         self._on_message = on_message  # str (JSON text) or bytes (frame)
         self.console = ConsoleBuffer()
+        self.engine = make_engine(config.engine)
 
         self.original_defaults = self._load_defaults()  # params.json
         self.defaults = dict(self.original_defaults)
@@ -386,7 +385,7 @@ class Runner:
 
         self._root = None
         self._module = None
-        self._capture: Optional[Capture] = None
+        self._capture: Any = None  # what the browser draws (see engines)
         self._models: list[Model] = []
         self._sim_time = 0.0
         self._steps = 0  # animation steps since the scene was (re)built
@@ -663,7 +662,7 @@ class Runner:
         root = self._root
         return {
             "title": self.cfg.title,
-            "dt": float(root.dt.value) if root is not None else None,
+            "dt": self.engine.dt(root) if root is not None else None,
             "simTime": self._sim_time,
             "rtf": self.rtf,
             "fps": self.fps,
@@ -706,7 +705,7 @@ class Runner:
         if self._root is not None:
             with contextlib.redirect_stdout(self.console):
                 try:
-                    Sofa.Simulation.unload(self._root)
+                    self.engine.unload(self._root)
                 except Exception:
                     log.exception("Unloading the previous scene failed")
         self._root = None
@@ -742,10 +741,7 @@ class Runner:
             sys.modules[spec.name] = module
             try:
                 spec.loader.exec_module(module)
-                root = Sofa.Core.Node("root")
-                with Capture() as capture:
-                    module.createScene(root)
-                Sofa.Simulation.init(root)
+                root, capture = self.engine.build(module)
             except BaseException:
                 sys.modules.pop(spec.name, None)
                 raise
@@ -753,7 +749,8 @@ class Runner:
         self._root, self._module, self._capture = root, module, capture
         self._init_controls()
         self._models = [m for m in (_build_model(i, r) for i, r in enumerate(capture.visuals)) if m is not None]
-        self._models += _fem_models(root, len(capture.visuals))
+        if self.engine.name == "sofa":
+            self._models += _fem_models(root, len(capture.visuals))
         self._sim_time = 0.0
         self._steps = 0
         self._diverged = False
@@ -778,10 +775,10 @@ class Runner:
         setup = {
             "type": "setup",
             "generation": self.generation,
-            "background": self._background(root),
-            "camera": self._camera(root),
-            "ambient": ambient_color(capture),
-            "lights": light_list(capture),
+            "background": self.engine.background(root),
+            "camera": self.engine.camera(root),
+            "ambient": self.engine.ambient(capture),
+            "lights": self.engine.lights(capture),
             "view": self.cfg.view,
             "up": list(self.cfg.up),
             "models": [m.setup() for m in self._models],
@@ -803,7 +800,7 @@ class Runner:
         fem_text = "".join(f", FEM {len(m.index) // 4} tetrahedra / {m.vertex_count} nodes" for m in fem)
         self.console.note(
             f"scene ready: {len(visual)} visual models, "
-            f"{sum(m.vertex_count for m in visual)} vertices{fem_text}, dt={float(root.dt.value):g}s"
+            f"{sum(m.vertex_count for m in visual)} vertices{fem_text}, dt={self.engine.dt(root):g}s"
         )
         if self._cached is not None:
             # A preset's run, recorded before: it plays back in the browser;
@@ -826,26 +823,6 @@ class Runner:
         except Exception as exc:  # a gauge that can't be laid out is left out, not a failed build
             self.console.note(f"pressure gauge left out: {exc}")
             return None
-
-    @staticmethod
-    def _background(root) -> list[float]:
-        for obj in root.objects:
-            if obj.getClassName() == "BackgroundSetting":
-                return [float(c) for c in obj.color.value]
-        return [0.0, 0.0, 0.0, 1.0]
-
-    @staticmethod
-    def _camera(root) -> Optional[dict]:
-        for obj in root.objects:
-            if obj.getClassName() in ("InteractiveCamera", "Camera", "RecordedCamera"):
-                return {
-                    "position": [float(v) for v in obj.position.value],
-                    "orientation": [float(v) for v in obj.orientation.value],
-                    "fov": float(obj.fieldOfView.value),
-                    "distance": float(obj.distance.value),
-                    "projection": str(obj.projectionType.value),
-                }
-        return None
 
     def _safe_build(self, params: Params) -> None:
         try:
@@ -1122,7 +1099,7 @@ class Runner:
             changed = [m.id for m in self._models]
             full = True
 
-        lights = light_list(self._capture) if self._capture else []
+        lights = self.engine.lights(self._capture) if self._capture else []
         scalars = self._probe()
         with self._lock:
             self._last_scalars = scalars
@@ -1294,11 +1271,11 @@ class Runner:
             if self._sim_time >= target:
                 time.sleep(min(max(target - self._sim_time + 0.001, 0.001), 0.02))
             else:
-                dt = float(self._root.dt.value)
+                dt = self.engine.dt(self._root)
                 step_start = time.monotonic()
                 with contextlib.redirect_stdout(self.console):
                     try:
-                        Sofa.Simulation.animate(self._root, dt)
+                        self.engine.step(self._root, dt)
                     except Exception as exc:
                         self.console.write(traceback.format_exc())
                         self.status = "error"

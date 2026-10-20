@@ -40,7 +40,7 @@ if [ ! -x "$RT/venv/bin/python" ]; then
 	echo "=== Creating Python 3.12 venv"
 	uv venv --python 3.12 "$RT/venv"
 fi
-uv pip install --python "$RT/venv/bin/python" -r orchestrator/requirements.txt "numpy>=1.24,<2"
+uv pip install --python "$RT/venv/bin/python" -r orchestrator/requirements.txt "numpy>=1.24,<2" "mujoco>=3.3"
 
 echo "=== Checking SOFA imports"
 PYLIB=$("$RT/venv/bin/python" -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")

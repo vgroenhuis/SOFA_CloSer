@@ -18,6 +18,10 @@ class SceneConfig:
     # rewritten and the script re-imported for every (re)build, which is
     # exactly what the SOFA GUI's Reload button does.
     script: str
+    # The physics engine that runs `script` (see engines.py): "sofa"
+    # (createScene(root) on a SOFA root node) or "mujoco" (createScene()
+    # returns a sofaweb.mjscene.MjScene).
+    engine: str = "sofa"
     params_file: Optional[str] = "params.json"
     # The original Tk params_editor.py, read (never imported) for its
     # field labels / units / display scales.
