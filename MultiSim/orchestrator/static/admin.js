@@ -245,6 +245,33 @@ function visibilitySelect(scene) {
 	return select;
 }
 
+// The lobby section the scene is listed in.
+const GROUP_OPTIONS = [
+	["closer", "CloSer project"],
+	["playground", "Playground"],
+	["archive", "Archive"],
+	["other", "Other"],
+];
+
+function groupSelect(scene) {
+	const select = el(
+		"select",
+		{
+			class: `group group-${scene.group}`,
+			title: `The lobby section this scene is listed in (scene.json says ${scene.groupDefault})`,
+			onchange: async () => {
+				select.blur(); // let the refresh below redraw the table
+				select.disabled = true;
+				await guarded(() => api(`admin/api/scenes/${scene.id}/group`, { method: "PUT", body: { group: select.value } }));
+				refresh();
+			},
+		},
+		...GROUP_OPTIONS.map(([value, label]) => el("option", { value }, label))
+	);
+	select.value = scene.group;
+	return select;
+}
+
 function renderScenes() {
 	const select = $("create-scene");
 	const selected = select.value;
@@ -267,6 +294,7 @@ function renderScenes() {
 				{},
 				el("td", {}, el("strong", {}, scene.title), el("div", { class: "muted small mono" }, scene.id)),
 				el("td", {}, visibilitySelect(scene)),
+				el("td", {}, groupSelect(scene)),
 				el("td", { class: "mono small" }, scene.image),
 				el("td", {}, status, detail, defaultsInfo(scene)),
 				el(

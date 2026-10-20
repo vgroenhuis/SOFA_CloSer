@@ -1,0 +1,19 @@
+{
+  "length": 100.0,
+  "width": 20.0,
+  "height": 10.0,
+  "element_size": 5.0,
+  "young_modulus": 1000000.0,
+  "poisson_ratio": 0.45,
+  "density": 1100.0,
+  "rayleigh_stiffness": 0.001,
+  "rayleigh_mass": 0.0,
+  "side_force": 0.3,
+  "flick_force": 0.3,
+  "flick_duration": 0.02,
+  "arrow_scale": 100.0,
+  "dt": 0.01,
+  "beam_alpha": 1.0,
+  "clamp_alpha": 1.0,
+  "arrow_alpha": 1.0
+}

@@ -1,0 +1,10 @@
+{
+	"title": "Soft cantilever beam",
+	"group": "playground",
+	"description": "A silicone beam clamped at one end. Drag the tip-force slider, hold the push button or flick the tip, and watch it bend, swing and settle while the deflection is plotted live.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

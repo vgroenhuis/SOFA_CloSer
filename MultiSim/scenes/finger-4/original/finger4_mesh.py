@@ -104,11 +104,18 @@ class Geometry:
         self.has_channel = ch > 1e-6
         self.has_duct = self.has_channel and sep > 1e-6
         self.half_sep = sep / 2 if self.has_duct else 0.0
+        # The duct joining neighbouring chambers always spans the chambers' full
+        # width (whatever the channel's width); channel_wall is its roof thickness.
         self.duct_roof = min(wb + ch + cwall, H)  # duct solid spans z = 0 .. duct_roof
-        self.duct_half_w = W / 2 if self.full_width_channel else min(W / 2, cw / 2 + cwall)
+        self.duct_half_w = W / 2
         self.far_x = L / 2 + self.half_sep         # far-end symmetry plane (if a duct)
 
-        self.symmetry_x = bool(p['symmetry_x'])
+        # Clamping the proximal end face models the first chamber of a finger:
+        # its -X end wall is closed (no duct, no far-end plane there) and held.
+        # It replaces the X symmetry plane (they exclude each other; if both
+        # are on, the clamp wins).
+        self.proximal_end = bool(p.get('clamp_proximal_end', False))
+        self.symmetry_x = bool(p['symmetry_x']) and not self.proximal_end
         self.symmetry_y = bool(p['symmetry_y'])
 
         # Grids. X and Y are always mirror-symmetric about 0 (the chamber is),
@@ -118,7 +125,7 @@ class Geometry:
             xb.append(self.far_x)
         yb = [W / 2 - wy, W / 2]
         if not self.full_width_channel:
-            yb += [cw / 2, self.duct_half_w] if self.has_duct else [cw / 2]
+            yb.append(cw / 2)
         # The clamped base footprint (trunk) is a grid line too, so the clamp
         # covers exactly the given trunk length and width.
         tl = max(0.0, float(p['trunk_length']))
@@ -142,8 +149,6 @@ class Geometry:
         self.min_wall_layers = layers
         x_walls = [(L / 2 - wx, L / 2)]
         y_walls = [(W / 2 - wy, W / 2)]
-        if self.has_duct and not self.full_width_channel:
-            y_walls.append((cw / 2, self.duct_half_w))
         z_walls = [(0.0, wb), (H - wt, H)]
         if self.has_duct:
             z_walls.append((wb + ch, self.duct_roof))
@@ -158,7 +163,12 @@ class Geometry:
         neg_y = [c for c in self.ys if c <= 1e-9]
         self.buffer_x = -nearest(neg_x, -min(buf, L / 2)) if self.symmetry_x else None
         self.buffer_y = -nearest(neg_y, -min(buf, W / 2)) if self.symmetry_y else None
-        x_lo = -self.buffer_x if self.symmetry_x else -(self.far_x if self.has_duct else L / 2)
+        if self.symmetry_x:
+            x_lo = -self.buffer_x
+        elif self.proximal_end:
+            x_lo = -L / 2
+        else:
+            x_lo = -(self.far_x if self.has_duct else L / 2)
         y_lo = -self.buffer_y if self.symmetry_y else -W / 2
         self.xs = [c for c in self.xs if c >= x_lo - 1e-9]
         self.ys = [c for c in self.ys if c >= y_lo - 1e-9]
@@ -178,8 +188,10 @@ class Geometry:
                 self.wb < z < self.H - self.wt)
 
     def in_bore(self, x, y, z):
+        reach = self.far_x if self.has_duct else self.L / 2
+        x_min = -(self.L / 2 - self.wx) if self.proximal_end else -reach  # closed proximal end wall
         return (self.has_channel and abs(y) < self.cw / 2 and self.wb < z < self.wb + self.ch and
-                abs(x) < (self.far_x if self.has_duct else self.L / 2))
+                x_min < x < reach)
 
     def is_air(self, x, y, z):
         return self.in_cavity(x, y, z) or self.in_bore(x, y, z)
@@ -187,7 +199,7 @@ class Geometry:
     def is_solid(self, x, y, z):
         in_box = abs(x) < self.L / 2 and abs(y) < self.W / 2 and 0 < z < self.H
         in_duct = (self.has_duct and self.L / 2 <= abs(x) < self.far_x and abs(y) < self.duct_half_w and
-                   0 < z < self.duct_roof)
+                   0 < z < self.duct_roof and (x > 0 or not self.proximal_end))
         return (in_box or in_duct) and not self.is_air(x, y, z)
 
     def summary(self):
@@ -373,7 +385,7 @@ def build(p, z_offset_mm=0.0, outer_skip_normals=(), inner_skip_normals=()):
             cut_faces.setdefault('y0', []).append(face_corners(i, j, k, 1, -1))
         if g.has_duct and i == nx - 1:
             cut_faces.setdefault('far+', []).append(face_corners(i, j, k, 0, 1))
-        if g.has_duct and not g.symmetry_x and i == 0:
+        if g.has_duct and not g.symmetry_x and not g.proximal_end and i == 0:
             cut_faces.setdefault('far-', []).append(face_corners(i, j, k, 0, -1))
 
     for plane, quads in cut_faces.items():
@@ -390,7 +402,8 @@ def build(p, z_offset_mm=0.0, outer_skip_normals=(), inner_skip_normals=()):
             bottom += [[a, b, c], [a, c, d]]
 
     far_pos = [node_index[key] for key in node_index if g.has_duct and key[0] == nx]
-    far_neg = [node_index[key] for key in node_index if g.has_duct and not g.symmetry_x and key[0] == 0]
+    far_neg = [node_index[key] for key in node_index
+               if g.has_duct and not g.symmetry_x and not g.proximal_end and key[0] == 0]
 
     return {
         'geometry': g,

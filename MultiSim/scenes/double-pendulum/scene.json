@@ -1,5 +1,6 @@
 {
 	"title": "Double pendulum",
+	"group": "playground",
 	"description": "Two masses on rigid rods, started from a near-upright position: a textbook chaotic system. Watch the outer mass's unpredictable path while the total energy stays constant, and try your own lengths, masses and start angles.",
 	"thumbnail": "docs/thumbnail.svg",
 	"port": 8000,

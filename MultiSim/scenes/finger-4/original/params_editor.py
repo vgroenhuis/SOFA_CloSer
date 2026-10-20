@@ -24,24 +24,25 @@ PARAMS_FILE = os.path.join(_SCRIPT_DIR, 'params.json')
 
 _DEFAULTS = {
     # -- geometry [mm] --
-    'element_size': 8.0,         # standard element edge; each feature is split into
+    'element_size': 2.0,         # standard element edge; each feature is split into
                                  # the nearest whole number of equal elements
-    'min_wall_layers': 2,        # ... but every wall into at least this many layers
-    'length': 32.0,              # chamber, outer extent along X (the finger's axis)
-    'width': 160.0,              # along Y
-    'height': 96.0,              # along Z (up)
-    'wall_end': 8.0,             # end walls (perpendicular to X), facing the neighbours
-    'wall_side': 8.0,            # side walls (perpendicular to Y)
-    'wall_bottom': 8.0,          # bottom layer
-    'wall_top': 8.0,             # roof
-    'channel_height': 8.0,       # connecting channel, from the cavity floor up; 0 = closed
-    'channel_width': 0.0,        # 0 = the full cavity width (as in Finger 2 with channel)
-    'channel_wall': 8.0,         # duct roof (and, for a narrower channel, its sides)
-    'channel_separation': 8.0,   # gap between this chamber and the next, i.e. the
+    'min_wall_layers': 1,        # ... but every wall into at least this many layers (1: single-wall
+                                 # chambers, fast; 2 bends more realistically but takes 3-4x as long)
+    'length': 8.0,              # chamber, outer extent along X (the finger's axis)
+    'width': 20.0,              # along Y
+    'height': 16.0,              # along Z (up)
+    'wall_end': 1.5,             # end walls (perpendicular to X), facing the neighbours
+    'wall_side': 1.5,            # side walls (perpendicular to Y)
+    'wall_bottom': 3.0,          # bottom layer
+    'wall_top': 1.5,             # roof
+    'channel_height': 2.0,       # connecting channel, from the cavity floor up; 0 = closed
+    'channel_width': 2.0,        # 0 = the full cavity width (as in Finger 2 with channel)
+    'channel_wall': 1.5,         # duct roof thickness (the duct spans the full width)
+    'channel_separation': 2.0,   # gap between this chamber and the next, i.e. the
                                  # duct length between them; the model ends halfway
-    'trunk_length': 16.0,        # clamped footprint of the base (centred)
-    'trunk_width': 160.0,
-    'floor_size': 400.0,         # green floor, purely visual
+    'trunk_length': 8.0,        # clamped footprint of the base (centred)
+    'trunk_width': 20.0,
+    'floor_size': 60.0,         # green floor, purely visual
     'symmetry_buffer': 0.0,      # extra FEM material past an exploited midplane (unloaded:
                                  # its cavity walls get no pressure, its far edge is free;
                                  # kept for comparison with Finger 2 with channel, 0 is exact)
@@ -52,7 +53,10 @@ _DEFAULTS = {
     'channel_end_constraint': True,   # far-end plane: may only shift along X and tilt about Y
     'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Finger 2 with channel)
     'prevent_channel_end_crossing': True,  # end wall can't pass the far-end plane (contact)
-    'clamp_to_trunk': True,           # bottom clamped to a rigid trunk over its footprint
+    'contact_outer_face_only': True,  # ... checked for the end wall's outer face only (faster)
+    'clamp_to_trunk': False,           # bottom clamped to a rigid trunk over its footprint
+    'clamp_proximal_end': False,      # the first chamber of a finger: -X end wall closed and its face
+                                      # held (no X symmetry: the two exclude each other)
     'strain_limiting_layer': True,    # inextensible sheet under the base (see the docstring)
     'strain_layer_thickness': 0.1,    # [mm] paper
     'strain_layer_young_modulus': 6.5e9,   # [Pa] paper
@@ -66,8 +70,9 @@ _DEFAULTS = {
     'density': 1000.0,           # [kg/m^3]
     'gravity_enabled': False,
     # -- pressure --
-    'target_pressure': 30000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
-    'ramp_time': 0.2,            # [s]
+    'target_pressure': 50000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
+    'ramp_start': 0.0,           # [s] when the pressure starts to rise (e.g. after gravity has settled)
+    'ramp_time': 0.5,            # [s]
     'dt': 0.01,
     'instant': False,
     # -- visuals --
@@ -135,7 +140,7 @@ _FIELDS = [
     ('Roof thickness',             'wall_top',         1, 2, 'mm'),
     ('Channel height',             'channel_height',   1, 2, 'mm'),
     ('Channel width (0 = full cavity width)', 'channel_width', 1, 2, 'mm'),
-    ('Channel duct wall thickness', 'channel_wall',    1, 2, 'mm'),
+    ('Channel duct roof thickness', 'channel_wall',    1, 2, 'mm'),
     ('Channel separation (gap to the next chamber)', 'channel_separation', 1, 2, 'mm'),
     ('Trunk length (X)',           'trunk_length',     1, 2, 'mm'),
     ('Trunk width (Y)',            'trunk_width',      1, 2, 'mm'),
@@ -149,6 +154,7 @@ _FIELDS = [
     ('Poisson ratio',    'poisson_ratio',   1,    3, ''),
     ('Density',          'density',         1,    1, 'kg/m^3'),
     ('Target pressure',  'target_pressure', 1e3,  2, 'kPa'),
+    ('Ramp start (pressure starts rising at)', 'ramp_start', 1, 2, 's'),
     ('Ramp time',        'ramp_time',       1,    2, 's'),
     ('Time step',        'dt',              1e-3, 2, 'ms'),
     ('Wall opacity',     'wall_alpha',      1,    2, '0-1'),
@@ -171,7 +177,9 @@ _BOOL_FIELDS = [
     ('Far-end nodes slide in the plane (off: glued to it, as in Finger 2 with channel)', 'channel_end_sliding', True),
     ('End wall touches the far-end plane (contact with the mirrored neighbour)',
      'prevent_channel_end_crossing', True),
+    ('... contact checked for the end wall\'s outer face only (fewer nodes: faster)', 'contact_outer_face_only', True),
     ('Clamp the bottom to a rigid trunk', 'clamp_to_trunk', True),
+    ('Clamp the proximal end face (the first chamber of a finger; no X symmetry)', 'clamp_proximal_end', False),
     ('Strain-limiting layer under the base', 'strain_limiting_layer', True),
     ('Strain-limiting layer carries no compression (wrinkles, like paper)', 'strain_layer_tension_only', True),
     ('Cutaway window in outer wall (see into the cavity)', 'cutaway', False),
@@ -205,6 +213,10 @@ def _mesh_stats(params):
         return f"FEM: {tets:,} tetrahedra, {nodes:,} nodes; {geometry.summary()}"
     except Exception as e:  # keep the editor usable whatever the input
         return f"(mesh not computed: {e})"
+
+
+# Checkboxes that can't both be on: ticking one unticks the other.
+_EXCLUSIVE = {'clamp_proximal_end': 'symmetry_x', 'symmetry_x': 'clamp_proximal_end'}
 
 
 class ParamsEditor(tk.Tk):
@@ -317,7 +329,8 @@ class ParamsEditor(tk.Tk):
             # and several of these labels run to a full sentence or more.
             # Styled by hand in _apply_theme() since it won't pick up the
             # ttk style the way ttk.Checkbutton would.
-            checkbutton = tk.Checkbutton(frame, text=label, variable=var, command=self.save,
+            checkbutton = tk.Checkbutton(frame, text=label, variable=var,
+                                          command=lambda k=key: self._bool_changed(k),
                                           anchor='w', justify='left', highlightthickness=0,
                                           borderwidth=0)
             checkbutton.grid(row=row, column=0, columnspan=2, sticky='we', pady=2)
@@ -433,6 +446,12 @@ class ParamsEditor(tk.Tk):
         self.stats_label.configure(foreground=pal['muted_fg'])
         self.note_label.configure(foreground=pal['muted_fg'])
         _set_titlebar_dark(self, dark)
+
+    def _bool_changed(self, key):
+        other = _EXCLUSIVE.get(key)
+        if other and self.bool_vars[key].get() and other in self.bool_vars:
+            self.bool_vars[other].set(False)
+        self.save()
 
     def save(self):
         params = load_params()

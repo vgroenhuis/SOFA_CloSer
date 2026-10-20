@@ -1,0 +1,11 @@
+{
+	"title": "Finger 6: Finger on a rod",
+	"group": "closer",
+	"description": "Finger 5's human-scale PneuNet finger with a rigid round rod below it, which the finger curls onto, and a simplified, fast contact model for it (each underside node's distance to the rod's centreline).",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "2g",
+	"visibility": "admin",
+	"importPresetsFrom": ["finger-5", "finger-4"]
+}

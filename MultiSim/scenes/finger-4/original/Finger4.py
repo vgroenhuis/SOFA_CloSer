@@ -62,6 +62,14 @@ What changed in Finger 3 compared to Finger 2 with channel:
    - neo-Hookean hyperelastic silicone instead of linear (corotational)
      elasticity, for large strains.
 
+Optional: "Clamp the proximal end face" models the first chamber of a
+finger instead of one of an endless row, as in Finger 5: the -X end wall is
+closed (no duct or far-end plane there) and its outer face is clamped, as
+in a fixture. The X midplane is then no symmetry plane (the chamber may
+lean), so this option and X symmetry exclude each other; with both on, the
+clamp wins. The +X far-end plane still stands for the neighbouring chamber,
+taken as this one's mirror image.
+
 Units: the scene is SI (metres, kg, s, Pa); params.json takes millimetres
 for lengths, as labelled.
 
@@ -91,24 +99,25 @@ PARAMS_FILE = os.path.join(_SCRIPT_DIR, 'params.json')
 
 _DEFAULT_PARAMS = {
     # -- geometry [mm] --
-    'element_size': 8.0,         # standard element edge; each feature is split into
+    'element_size': 2.0,         # standard element edge; each feature is split into
                                  # the nearest whole number of equal elements
-    'min_wall_layers': 2,        # ... but every wall into at least this many layers
-    'length': 32.0,              # chamber, outer extent along X (the finger's axis)
-    'width': 160.0,              # along Y
-    'height': 96.0,              # along Z (up)
-    'wall_end': 8.0,             # end walls (perpendicular to X), facing the neighbours
-    'wall_side': 8.0,            # side walls (perpendicular to Y)
-    'wall_bottom': 8.0,          # bottom layer
-    'wall_top': 8.0,             # roof
-    'channel_height': 8.0,       # connecting channel, from the cavity floor up; 0 = closed
-    'channel_width': 0.0,        # 0 = the full cavity width (as in Finger 2 with channel)
-    'channel_wall': 8.0,         # duct roof (and, for a narrower channel, its sides)
-    'channel_separation': 8.0,   # gap between this chamber and the next, i.e. the
+    'min_wall_layers': 1,        # ... but every wall into at least this many layers (1: single-wall
+                                 # chambers, fast; 2 bends more realistically but takes 3-4x as long)
+    'length': 8.0,              # chamber, outer extent along X (the finger's axis)
+    'width': 20.0,              # along Y
+    'height': 16.0,              # along Z (up)
+    'wall_end': 1.5,             # end walls (perpendicular to X), facing the neighbours
+    'wall_side': 1.5,            # side walls (perpendicular to Y)
+    'wall_bottom': 3.0,          # bottom layer
+    'wall_top': 1.5,             # roof
+    'channel_height': 2.0,       # connecting channel, from the cavity floor up; 0 = closed
+    'channel_width': 2.0,        # 0 = the full cavity width (as in Finger 2 with channel)
+    'channel_wall': 1.5,         # duct roof thickness (the duct spans the full width)
+    'channel_separation': 2.0,   # gap between this chamber and the next, i.e. the
                                  # duct length between them; the model ends halfway
-    'trunk_length': 16.0,        # clamped footprint of the base (centred)
-    'trunk_width': 160.0,
-    'floor_size': 400.0,         # green floor, purely visual
+    'trunk_length': 8.0,        # clamped footprint of the base (centred)
+    'trunk_width': 20.0,
+    'floor_size': 60.0,         # green floor, purely visual
     'symmetry_buffer': 0.0,      # extra FEM material past an exploited midplane (unloaded:
                                  # its cavity walls get no pressure, its far edge is free;
                                  # kept for comparison with Finger 2 with channel, 0 is exact)
@@ -119,7 +128,10 @@ _DEFAULT_PARAMS = {
     'channel_end_constraint': True,   # far-end plane: may only shift along X and tilt about Y
     'channel_end_sliding': True,      # ... and its nodes slide within it (False: glued, as Finger 2 with channel)
     'prevent_channel_end_crossing': True,  # end wall can't pass the far-end plane (contact)
-    'clamp_to_trunk': True,           # bottom clamped to a rigid trunk over its footprint
+    'contact_outer_face_only': True,  # ... checked for the end wall's outer face only (faster)
+    'clamp_to_trunk': False,           # bottom clamped to a rigid trunk over its footprint
+    'clamp_proximal_end': False,      # the first chamber of a finger: -X end wall closed and its face
+                                      # held (no X symmetry: the two exclude each other)
     'strain_limiting_layer': True,    # inextensible sheet under the base (see the docstring)
     'strain_layer_thickness': 0.1,    # [mm] paper
     'strain_layer_young_modulus': 6.5e9,   # [Pa] paper
@@ -133,8 +145,9 @@ _DEFAULT_PARAMS = {
     'density': 1000.0,           # [kg/m^3]
     'gravity_enabled': False,
     # -- pressure --
-    'target_pressure': 30000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
-    'ramp_time': 0.2,            # [s]
+    'target_pressure': 50000.0,  # [Pa] (30 kPa: a typical PneuNet pressure)
+    'ramp_start': 0.0,           # [s] when the pressure starts to rise (e.g. after gravity has settled)
+    'ramp_time': 0.5,            # [s]
     'dt': 0.01,                  # [s] simulation time step
     'instant': False,
     # -- visuals --
@@ -467,12 +480,15 @@ class PressureRamp(Sofa.Core.Controller):
     the pressure in Pa is multiplied by dt here, and `applied_pressure`
     divides it back out."""
 
-    def __init__(self, root, pressure_constraint, target_pressure, ramp_time, instant=False, **kwargs):
+    def __init__(self, root, pressure_constraint, target_pressure, ramp_time, instant=False, ramp_start=0.0, **kwargs):
         Sofa.Core.Controller.__init__(self, **kwargs)
         self.root = root
         self.pressure = pressure_constraint
         self.addData(name='targetPressure', type='float', value=target_pressure,
                      help='Target gauge pressure in the cavity [Pa]. Live-editable.')
+        self.addData(name='rampStart', type='float', value=ramp_start,
+                     help='Time [s] at which the pressure starts to rise (0 before it); lets gravity and other '
+                          'loads settle first. Live-editable.')
         self.addData(name='rampTime', type='float', value=ramp_time,
                      help='Time [s] to go from 0 to targetPressure when not instant.')
         self.addData(name='instant', type='bool', value=instant,
@@ -484,7 +500,9 @@ class PressureRamp(Sofa.Core.Controller):
     def onAnimateBeginEvent(self, event):
         dt = self.root.dt.value
         self.time += dt
-        target = self.targetPressure.value
+        # No pressure before the ramp starts (if it's moved later while running,
+        # the pressure comes back down the same way).
+        target = self.targetPressure.value if self.time >= self.rampStart.value - 1e-9 else 0.0
         if self.instant.value:
             self.current_pressure = target
         else:
@@ -548,6 +566,10 @@ def createScene(rootNode):
     L, W, H = g.L * MM, g.W * MM, g.H * MM
     BASE = base_mm * MM
     sym_x, sym_y = g.symmetry_x, g.symmetry_y
+    clamp_end = g.proximal_end
+    if clamp_end and P['symmetry_x']:
+        print("[mount] the proximal end face is clamped: X symmetry is not used")
+    X0 = -L / 2  # the proximal end face, when clamped
     total_mass = P['density'] * _mesh_volume(positions, tetrahedra)
     layer_on = bool(P['strain_limiting_layer']) and bool(mesh['bottom'])
     layer_t = max(0.0, float(P['strain_layer_thickness'])) * MM
@@ -568,10 +590,10 @@ def createScene(rootNode):
 
     # Camera (Z-up world, so the orientation is set explicitly).
     size = max(L, W, H)
-    cam_lookat = [0.0, 0.0, BASE + H * 0.5]
+    cam_lookat = [0.0, 0.0, BASE + H * 1.3]  # between the chamber and the pressure gauge above it
     cam_dir = (4.5, -4.5, 3.25)
     norm = math.sqrt(sum(c * c for c in cam_dir))
-    cam_distance = 2.741 * size
+    cam_distance = 3.6 * size
     cam_position = [l + cam_distance * c / norm for l, c in zip(cam_lookat, cam_dir)]
     rootNode.addObject('InteractiveCamera', name='camera', position=cam_position, distance=cam_distance,
                        orientation=_look_at_quaternion(cam_position, cam_lookat), activated=True)
@@ -586,11 +608,20 @@ def createScene(rootNode):
                     position=[[-half, -half, -1e-4], [half, -half, -1e-4], [half, half, -1e-4], [-half, half, -1e-4]])
     floor.addObject('OglModel', name='visual', src='@topo', color=[0.08, 0.28, 0.1, 1.0])
 
+    mount_parts = []
     if P['clamp_to_trunk']:
         tx0, tx1 = (c * MM for c in g.trunk_x)
         ty0, ty1 = (c * MM for c in g.trunk_y)
         top = BASE - (sheet_gap if layer_on else 0.0) - 1e-4  # under the sheet, if there is one
-        pts, tris = _flat_shaded(*_box(tx0, ty0, 0.0, tx1, ty1, top))
+        mount_parts.append(_box(tx0, ty0, 0.0, tx1, ty1, top))
+    if clamp_end:
+        # The fixture holding the proximal end face (as in Finger 5).
+        pad = 0.1 * H
+        y_lo = -g.buffer_y * MM if sym_y else -W / 2
+        mount_parts.append(_box(X0 - max(0.25 * H, 4 * MM), y_lo - (0.0 if sym_y else pad), 0.0,
+                                X0 - 1e-4, W / 2 + pad, BASE + H + pad))
+    if mount_parts:
+        pts, tris = _flat_shaded(*_merge(mount_parts))
         trunk = rootNode.addChild('trunk')
         trunk.addObject('MeshTopology', name='topo', position=pts, triangles=tris)
         trunk.addObject('OglModel', name='visual', src='@topo', color=[0.4, 0.26, 0.13, 1.0])
@@ -723,7 +754,11 @@ def createScene(rootNode):
         cube.addObject('BoxROI', name='baseROI', drawBoxes=False, position='@dofs.rest_position',
                        box=[tx0 - sym_eps, ty0 - sym_eps, BASE - sym_eps, tx1 + sym_eps, ty1 + sym_eps, BASE + sym_eps])
         cube.addObject('RestShapeSpringsForceField', points='@baseROI.indices', stiffness=1e12)
-    else:
+    if clamp_end:
+        cube.addObject('BoxROI', name='mountROI', drawBoxes=False, position='@dofs.rest_position',
+                       box=[X0 - sym_eps, -big, -big, X0 + sym_eps, big, big])
+        cube.addObject('RestShapeSpringsForceField', name='mount', points='@mountROI.indices', stiffness=1e12)
+    if not P['clamp_to_trunk'] and not clamp_end:
         # Free base: only rigid-body motion is removed, with conditions that
         # hold anyway by symmetry -- the X and Y midplanes stay put in their
         # normal direction (below), and the bottom edge at x = 0 keeps its
@@ -797,13 +832,15 @@ def createScene(rootNode):
         node.addObject('PlaneForceField', name=name + 'Plane', normal=normal, d=0.0, stiffness=1e9, damping=1e4)
 
     for axis, exploited in ((0, sym_x), (1, sym_y)):
+        if axis == 0 and clamp_end:
+            continue  # the first chamber: its X midplane is no symmetry plane (it may lean)
         lo = [-big] * 3
         hi = [big] * 3
         cut_lo, cut_hi = list(lo), list(hi)
         cut_lo[axis], cut_hi[axis] = -sym_eps, sym_eps
         name = 'symX' if axis == 0 else 'symY'
         fixed = [1 if a == axis else 0 for a in range(3)]
-        if exploited or not P['clamp_to_trunk']:
+        if exploited or not (P['clamp_to_trunk'] or clamp_end):
             projective_node.addObject('BoxROI', name=name + 'ROI', box=cut_lo + cut_hi, drawBoxes=False,
                                       position='@dofs.rest_position')
             projective_node.addObject('PartialFixedProjectiveConstraint', name=name,
@@ -835,11 +872,19 @@ def createScene(rootNode):
                 coupling += [('slide', i, f) for i in ring]
             if P['prevent_channel_end_crossing']:
                 # End-wall nodes that could reach the plane: the end wall's
-                # whole thickness, all of it except the duct itself.
+                # whole thickness, all of it except the duct itself -- or only
+                # its outer face (above the duct, which is solid below it): the
+                # nodes that touch first. Fewer coupled nodes make the solve
+                # cheaper (each one couples to the plane's frame).
                 wall_lo, wall_hi = (g.L / 2 - g.wx) * MM, g.L / 2 * MM
+                outer_only = bool(P['contact_outer_face_only'])
                 for i, p in enumerate(positions):
                     xx = p[0] if side == 'pos' else -p[0]
-                    if wall_lo - eps <= xx <= wall_hi + eps:
+                    if outer_only:
+                        hit = abs(xx - wall_hi) <= eps and p[2] - BASE >= g.duct_roof * MM - eps
+                    else:
+                        hit = wall_lo - eps <= xx <= wall_hi + eps
+                    if hit:
                         coupling.append(('contact', i, f))
     if coupling:
         nodes = sorted({i for _, i, _ in coupling})
@@ -974,7 +1019,7 @@ def createScene(rootNode):
                 node.addObject(MirrorController(ogl, mstate, combo, name='mirrorCtrl'))
 
     rootNode.addObject(PressureRamp(rootNode, pressure, P['target_pressure'], P['ramp_time'],
-                                    instant=P['instant'], name='PressureRamp'))
+                                    instant=P['instant'], ramp_start=P['ramp_start'], name='PressureRamp'))
     return rootNode
 
 
@@ -984,7 +1029,7 @@ def main():
     root = Sofa.Core.Node("root")
     createScene(root)
     Sofa.Simulation.init(root)
-    for _ in range(int((PARAMS['ramp_time'] + 2.0) / DT)):
+    for _ in range(int((PARAMS['ramp_start'] + PARAMS['ramp_time'] + 2.0) / DT)):
         Sofa.Simulation.animate(root, DT)
     Sofa.Simulation.unload(root)
 

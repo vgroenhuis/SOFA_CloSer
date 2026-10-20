@@ -1,9 +1,7 @@
 import { api, el, fmtTime, now, openModal, syncClock } from "./common.js";
 
-const sceneGrid = document.getElementById("scene-grid");
-// Admin-only scenes (listed only for the admin) have a section of their own.
-const adminSceneGrid = document.getElementById("admin-scene-grid");
-const adminScenesSection = document.getElementById("admin-scenes-section");
+// One collapsible group per scene.json "group" (CloSer project, Playground, ...).
+const sceneGroups = document.getElementById("scene-groups");
 const runningList = document.getElementById("running-list");
 const mineSection = document.getElementById("mine-section");
 const mineList = document.getElementById("mine-list");
@@ -44,9 +42,14 @@ function sceneLevel(sceneId) {
 	return scenes.find((s) => s.id === sceneId)?.visibility;
 }
 
+function groupBadge(scene) {
+	return scene ? el("span", { class: `badge group-${scene.group}` }, scene.groupTitle) : null;
+}
+
 function simBadges(sim) {
 	return [
 		el("span", { class: `badge ${sim.status}` }, sim.status),
+		groupBadge(scenes.find((s) => s.id === sim.sceneId)),
 		visibilityBadge(sceneLevel(sim.sceneId)),
 		sim.held ? el("span", { class: "badge held" }, `held until ${fmtTime(sim.holdUntil)}`) : null,
 		sim.mine ? el("span", { class: "badge mine" }, "yours") : null,
@@ -122,8 +125,10 @@ function renderStatus() {
 	const mine = status.sims.filter((s) => s.mine);
 	mineSection.classList.toggle("hidden", mine.length === 0);
 	mineList.replaceChildren(...mine.map(simRow));
-	// Starting a new simulation releases the visitor's un-held ones.
-	document.getElementById("mine-note").classList.toggle("hidden", !mine.some((s) => !s.held));
+	// Starting a new simulation releases the visitor's un-held ones -- only
+	// once half or more of the slots are in use (see main.plenty_of_room).
+	const roomy = used < status.capacity / 2;
+	document.getElementById("mine-note").classList.toggle("hidden", roomy || !mine.some((s) => !s.held));
 
 	const others = status.sims.filter((s) => !s.mine);
 	runningList.replaceChildren(
@@ -152,32 +157,88 @@ function renderStatus() {
 		`Owners can reserve theirs for up to ${status.maxHoldHours} hours (e.g. for a demo later today).`;
 }
 
-function sceneCard(scene, badge) {
+function sceneCard(scene) {
+	// The picture starts the simulation too, like the button (and is as disabled as it).
+	const startFromPicture = () => {
+		const button = document.querySelector(`button[data-scene="${scene.id}"]`);
+		if (button && !button.disabled) startScene(scene);
+	};
+	const thumb = el("div", {
+		class: "scene-thumb",
+		role: "button",
+		tabindex: "0",
+		title: `Start "${scene.title}"`,
+		style: scene.thumbnail ? { backgroundImage: `url("${scene.thumbnail}")` } : {},
+		onclick: startFromPicture,
+	});
+	thumb.addEventListener("keydown", (event) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			startFromPicture();
+		}
+	});
 	return el(
 		"div",
 		{ class: "card scene-card" },
-		el("div", { class: "scene-thumb", style: scene.thumbnail ? { backgroundImage: `url("${scene.thumbnail}")` } : {} }),
+		thumb,
 		el(
 			"div",
 			{ class: "scene-body" },
-			el("h3", {}, scene.title, badge ? visibilityBadge(scene.visibility) : null),
+			el("h3", {}, scene.title, visibilityBadge(scene.visibility)),
 			el("p", {}, scene.description),
 			el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
 		)
 	);
 }
 
-function renderScenes() {
-	const adminOnly = scenes.filter((s) => s.visibility === "admin");
-	const others = scenes.filter((s) => s.visibility !== "admin");
-	if (!scenes.length) {
-		sceneGrid.replaceChildren(el("p", { class: "muted" }, "No scenes are installed."));
-	} else {
-		sceneGrid.replaceChildren(...others.map((scene) => sceneCard(scene, true)));
+// Groups open or closed as this browser last left them; Playground and
+// Archive start closed (not part of the current CloSer work).
+const GROUP_ORDER = ["closer", "playground", "archive", "other"];
+const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
+const GROUPS_KEY = "msd_lobby_groups_open";
+
+function groupOpenState() {
+	try {
+		return JSON.parse(localStorage.getItem(GROUPS_KEY) || "{}");
+	} catch {
+		return {};
 	}
-	// The section title says it, so these cards need no "admin only" badge.
-	adminSceneGrid.replaceChildren(...adminOnly.map((scene) => sceneCard(scene, false)));
-	adminScenesSection.classList.toggle("hidden", !adminOnly.length);
+}
+
+function renderScenes() {
+	if (!scenes.length) {
+		sceneGroups.replaceChildren(el("p", { class: "muted" }, "No scenes are installed."));
+		renderStatus();
+		return;
+	}
+	const open = groupOpenState();
+	const groups = [...new Set(scenes.map((s) => s.group))].sort((a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b));
+	sceneGroups.replaceChildren(
+		...groups.map((group) => {
+			// Public scenes first, then private, then admin-only ones (badged);
+			// by title within each (Finger 1, Finger 2, ..., Finger 10).
+			const rank = { public: 0, private: 1, admin: 2 };
+			const members = scenes
+				.filter((s) => s.group === group)
+				.sort((a, b) => (rank[a.visibility] ?? 0) - (rank[b.visibility] ?? 0) || a.title.localeCompare(b.title, undefined, { numeric: true }));
+			const details = el(
+				"details",
+				{ class: "scene-group", "data-group": group },
+				el("summary", {}, el("span", { class: "group-title" }, members[0].groupTitle), el("span", { class: "muted small" }, `${members.length} simulation${members.length === 1 ? "" : "s"}`)),
+				el("div", { class: "grid" }, members.map((scene) => sceneCard(scene)))
+			);
+			details.open = group in open ? !!open[group] : !GROUPS_CLOSED_BY_DEFAULT.has(group);
+			// On the user's click only ("toggle" also fires for the line above).
+			details.firstChild.addEventListener("click", () => {
+				const state = groupOpenState();
+				state[group] = !details.open;
+				try {
+					localStorage.setItem(GROUPS_KEY, JSON.stringify(state));
+				} catch {}
+			});
+			return details;
+		})
+	);
 	renderStatus();
 }
 

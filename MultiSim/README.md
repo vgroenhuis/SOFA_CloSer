@@ -6,16 +6,19 @@ simulations for many visitors at once, from a pool of limited size:
 - **Claim**: a visitor picks a scene in the lobby and gets their own live
   simulation, plus a **key** (`XXXX-XXXX-XXXX-XXXX`) that lets them take
   control again from any browser. Visitors usually try scenes one after
-  another, so starting a new simulation releases the ones that browser
-  already owns, unless they're on hold.
+  another, so once half or more of the slots are in use, starting a new
+  simulation releases the ones that browser already owns, unless they're on
+  hold (with fewer in use they stay open, and the per-address limit doesn't
+  apply).
 - **Watch**: every running simulation is public. Anyone can open it
   read-only and navigate the 3D scene themselves, but only the key holder
   can change it.
 - **Idle return**: a simulation that nobody has used for a while (15 min by
   default) goes back to the pool automatically.
 - **Hold**: an owner can reserve their simulation for longer, e.g. for a
-  live demo later in the day, by giving a duration or end time plus a reason
-  (up to 12 h by default; only 1 simulation can be on hold at a time).
+  live demo later in the day, by giving a duration or end time, and
+  optionally a reason (up to 12 h by default; only 1 simulation can be on
+  hold at a time, unless fewer than half of the slots are in use).
   A held simulation also survives its owner starting another one.
 - **Scene visibility**: the admin sets each scene to **public**,
   **private** or **admin-only**. Private scenes and their running
@@ -104,9 +107,9 @@ runSofa -l SofaPython3 HollowCubeInflation.py
 ```
 
 Use SOFA v26.06 with the SoftRobots plugin (the binary release includes
-it). `better-finger/original/`, `finger-3/original/` and `finger-4/original/` also
-have Windows launchers (`run_sofa.bat`, `BetterFinger_run_imgui.bat`, `Finger3_run_imgui.bat`,
-`Finger4_run_imgui.bat`;
+it). `better-finger/original/`, `finger-3/original/`, `finger-4/original/` and
+`finger-5/original/` also have Windows launchers (`run_sofa.bat`, `BetterFinger_run_imgui.bat`,
+`Finger3_run_imgui.bat`, `Finger4_run_imgui.bat`, `Finger5_run_imgui.bat`;
 set the SOFA path in `sofa_env.bat`). Each
 script's `params.json` holds its parameters; `params_editor.py` edits them.
 
@@ -194,6 +197,34 @@ Docker, `docker compose` restarts the orchestrator itself
   - `finger-4` ("Finger 4 with strain-limiting layer", admin-only for now):
     Finger 3 with a paper strain-limiting layer under the base (0.1 mm,
     6.5 GPa, on by default).
+  - `gripper-4` ("Gripper 4", admin-only for now): Gripper 3's rigid-segment fingers on a
+    gripper that moves in x, y and z over grocery items (apple, tomato, egg, soda can, juice
+    box, spice jar, yogurt cup, tea box, butter; real sizes and masses). Any number of fingers
+    (4 by default) around the end-effector; the hinge angles are the degrees of freedom
+    (ArticulatedSystemMapping). Contacts are friction constraints (FreeMotionAnimationLoop);
+    the end-effector follows the sliders on a stiff wrist spring. Runs in real time.
+  - `gripper-3` ("Gripper 3", admin-only for now): Gripper 2's gripper with the fingers
+    as chains of rigid segments (one per chamber) and compliant hinge joints
+    (JointSpringForceField: a pin with a torsional spring, hard stops) instead of FEM; the
+    pressure is a torque on each hinge. Fitted to Gripper 2's free-hanging fingertips
+    (within ~2 mm, 10-100 kPa); planar, so a step takes ~4 ms (faster than real time).
+  - `gripper-2` ("Gripper 2", admin-only for now): Gripper 1 with sliders (pressure,
+    and the flange's x and z) and loose rigid cylinders of different diameters on the
+    floor (axes parallel to Y): move the gripper over one, close the fingers, lift it.
+    The fingers hold it by curling under it (the contacts have no friction).
+  - `gripper-1` ("Gripper 1", admin-only for now): two Finger 6 fingers hanging
+    vertically from a fixed end-effector, facing each other with a rod between them.
+    Their pressures are set independently (a comma-separated pair in the pressure field,
+    or one value for both); each finger has its own gauge (kPa and bar).
+  - `finger-6` ("Finger 6: Finger on a rod", admin-only for now): Finger 5's finger
+    with a rigid round rod below it (customizable x, z and radius) and a simplified
+    contact model: each underside node's distance to the rod's centreline, with a
+    one-sided penalty spring (no friction), so it costs next to nothing.
+  - `finger-5` ("Finger 5: Full finger", admin-only for now): Finger 4's
+    chamber repeated along the finger (3 chambers by default), inflated
+    together, with only the Y midplane as a symmetry plane. The far-end
+    plane is kept between each pair of neighbouring chambers as a cheap
+    collision model for their end walls.
 - **scenes/_base/**: **sofaweb**, a runtime that runs an existing SOFA scene
   script headlessly and streams its visual models to a generic three.js
   viewer, with parameter panel, charts, live controls and console; plus the
@@ -295,7 +326,7 @@ directory and override `.env` until you click **Reset to server defaults**.
 | `MSD_MAX_SIMS` | 3 | Simultaneous simulations |
 | `MSD_IDLE_TIMEOUT_MINUTES` | 15 | Minutes without owner activity before release |
 | `MSD_MAX_HOLD_HOURS` | 12 | Longest hold a visitor can set |
-| `MSD_MAX_HELD_SIMS` | 1 | Simultaneous holds (so holds can't take every slot) |
+| `MSD_MAX_HELD_SIMS` | 1 | Simultaneous holds (so holds can't take every slot); not enforced while fewer than half of the slots are in use |
 | `MSD_MAX_CLAIMS_PER_CLIENT` | 1 | Simulations per client IP not on hold (0 = unlimited); matters for other browsers at the same address, since a browser's own un-held simulation is replaced anyway |
 | `MSD_SIM_CPUS` / `MSD_SIM_MEMORY` | 1.0 / 2g | Per-simulation resource caps |
 

@@ -1,0 +1,11 @@
+{
+	"title": "Gripper 2",
+	"group": "closer",
+	"description": "Two human-scale PneuNet fingers on a movable end-effector, with loose cylinders on the floor: slide the flange over a cylinder, close the fingers with the pressure slider, and try to lift it.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "2g",
+	"visibility": "admin",
+	"importPresetsFrom": ["finger-6"]
+}

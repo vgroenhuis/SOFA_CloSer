@@ -31,6 +31,16 @@ class PresetBody(BaseModel):
     name: str
 
 
+class ImportBody(BaseModel):
+    scene: str
+    name: str
+
+
+class ControlBody(BaseModel):
+    key: str
+    value: Any = None
+
+
 class Client:
     """One browser connection. Frames are dropped (not queued up) when the
     browser can't keep up; setup/status messages are never dropped."""
@@ -125,6 +135,9 @@ def create_app(config_path: Path) -> FastAPI:
             },
             "view": config.view,
             "presets": runner.presets(),
+            "imports": runner.import_sources(),
+            "hasGauge": config.gauge is not None,
+            "controls": [{k: v for k, v in c.items() if k != "apply"} for c in config.controls],
         }
 
     @app.post("/api/defaults")
@@ -164,6 +177,28 @@ def create_app(config_path: Path) -> FastAPI:
         params = await command("params", changes=params, rebuild=True)
         return {k: v for k, v in params.items() if k in runner.visible_keys()}
 
+    @app.post("/api/params/import")
+    async def import_params(body: ImportBody):
+        """Another scene's parameters preset, converted to this scene's
+        parameters (see SceneConfig.import_presets) and applied, with notes on
+        what couldn't be carried over directly."""
+        try:
+            result = await asyncio.to_thread(runner.import_preset, body.scene, body.name)
+        except KeyError as exc:
+            return JSONResponse({"detail": {"message": str(exc.args[0])}}, status_code=404)
+        params = await command("params", changes=result["params"], rebuild=True)
+        visible = runner.visible_keys()
+        return {**result, "params": {k: v for k, v in params.items() if k in visible}}
+
+    @app.post("/api/control")
+    async def control(body: ControlBody):
+        # A slider moved, a button pressed or let go (owner only: the
+        # orchestrator's proxy passes POSTs from the owner alone).
+        try:
+            return await command("control", key=body.key, value=body.value)
+        except (ValueError, RuntimeError) as exc:
+            return JSONResponse({"detail": {"message": str(exc)}}, status_code=409)
+
     @app.post("/api/simulate")
     async def simulate() -> dict:
         # Simulate a preset's recorded run live instead of playing it back.
@@ -183,6 +218,7 @@ def create_app(config_path: Path) -> FastAPI:
                 "X-Recording-Id": str(blob["serial"]),
                 "X-Recording-Start": str(blob["start"]),
                 "X-Recording-Frames": str(blob["frames"]),
+                "X-Recording-Bytes": str(len(blob["data"])),
                 "Cache-Control": "no-store",
             },
         )

@@ -51,6 +51,9 @@ RESTART_PAUSE_SECONDS = 1.5
 # drifts from its representative by more than this (relative to the
 # model's size) -- coincident-at-rest vertices that later separate.
 DEDUP_TOLERANCE = 1e-6
+# A held "hold" control lets go unless the owner's browser confirms it
+# within this time (it does every second while the button is down).
+HOLD_TIMEOUT_SECONDS = 2.5
 
 
 class ConsoleBuffer(io.TextIOBase):
@@ -226,6 +229,107 @@ def _env_saved_defaults() -> dict:
     return value if isinstance(value, dict) else {}
 
 
+def visible_fields(cfg: SceneConfig, base_dir: Path, defaults: Params) -> list[dict]:
+    """The parameter panel's fields (label, type, scale, unit), in the
+    editor's order: the original params_editor.py's fields, plus a plain one
+    for each params.json key it doesn't list; hidden, forced and display
+    keys left out."""
+    editor = base_dir / cfg.editor_file if cfg.editor_file else None
+    fields = [f for f in editor_fields(editor) if f["key"] in defaults]
+    known = {f["key"] for f in fields}
+    for key, value in defaults.items():
+        if key in known:
+            continue
+        if isinstance(value, bool):
+            fields.append({"key": key, "label": key, "type": "bool"})
+        elif isinstance(value, (int, float)):
+            fields.append({"key": key, "label": key, "type": "number", "scale": 1, "decimals": 3, "unit": ""})
+        elif isinstance(value, list) and all(isinstance(v, (int, float)) for v in value):
+            fields.append({"key": key, "label": key, "type": "vector", "length": len(value), "decimals": 3, "unit": ""})
+    display_keys = {d["key"] for d in cfg.display}
+    visible = [
+        f for f in fields
+        if f["key"] not in cfg.hidden_params and f["key"] not in cfg.forced_params and f["key"] not in display_keys
+    ]
+    for f in visible:
+        f["label"] = cfg.labels.get(f["key"], f["label"])
+    return visible
+
+
+def preset_entries(cfg: SceneConfig, saved_defaults: dict, section: str, default_values: dict) -> list[dict]:
+    """One panel's named presets: "Default" first, then the scene's built-in
+    ones, then an admin's own. Saved presets are {"presets": {section:
+    {name: values}}} in the saved defaults; a saved name replaces a built-in
+    one of the same name, and None deletes it."""
+    saved_all = saved_defaults.get("presets")
+    saved_all = saved_all if isinstance(saved_all, dict) else {}
+    entries = [{"name": "Default", "values": default_values, "builtin": True, "description":
+                "The scene's default settings."}]
+    saved = saved_all.get(section)
+    saved = dict(saved) if isinstance(saved, dict) else {}
+    for preset in cfg.presets.get(section, []):
+        name = preset["name"]
+        if name in saved:
+            values = saved.pop(name)
+            if not isinstance(values, dict):
+                continue  # deleted
+            entries.append({"name": name, "values": values, "builtin": True, "modified": True,
+                            "description": preset.get("description", "")})
+        else:
+            entries.append({"name": name, "values": dict(preset.get("values", {})), "builtin": True,
+                            "description": preset.get("description", "")})
+    for name, values in saved.items():
+        if isinstance(values, dict) and name.lower() != "default":
+            entries.append({"name": name, "values": values, "builtin": False, "description": ""})
+    return entries
+
+
+def format_value(field: Optional[dict], value: Any) -> str:
+    """A parameter value as the panel shows it (display units)."""
+    if isinstance(value, bool):
+        return "on" if value else "off"
+    if isinstance(value, (int, float)) and field is not None and field.get("type") == "number":
+        shown = value / (field.get("scale") or 1)
+        text = f"{shown:.6g}"
+        return f"{text} {field['unit']}" if field.get("unit") else text
+    if isinstance(value, float):
+        return f"{value:.6g}"
+    return json.dumps(value)
+
+
+class ImportSource:
+    """Another scene whose parameter presets this one can import: its
+    sofaweb config (read, not run), defaults and presets."""
+
+    def __init__(self, scene_id: str, scenes_dir: Path, saved_defaults: dict) -> None:
+        path = scenes_dir / scene_id / "sofaweb_scene.py"
+        if not path.is_file():
+            raise FileNotFoundError(f"no scene {scene_id!r} here ({path})")
+        spec = importlib.util.spec_from_file_location(f"sofaweb_import_{scene_id.replace('-', '_')}", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.cfg: SceneConfig = module.CONFIG
+        self.base_dir = path.parent
+        self.title = self.cfg.title
+        defaults: Params = {}
+        if self.cfg.params_file and (self.base_dir / self.cfg.params_file).is_file():
+            defaults = json.loads((self.base_dir / self.cfg.params_file).read_text(encoding="utf-8"))
+        saved_params = saved_defaults.get("params")
+        self.saved_defaults = saved_defaults
+        self.fields = {f["key"]: f for f in visible_fields(self.cfg, self.base_dir, defaults)}
+        self.defaults = {**defaults, **{k: v for k, v in (saved_params or {}).items() if k in self.fields}}
+
+    def presets(self) -> list[dict]:
+        visible = {k: v for k, v in self.defaults.items() if k in self.fields}
+        return preset_entries(self.cfg, self.saved_defaults, "params", visible)
+
+    def preset_values(self, name: str) -> Optional[Params]:
+        for entry in self.presets():
+            if entry["name"] == name:
+                return {**self.defaults, **{k: v for k, v in entry["values"].items() if k in self.fields}}
+        return None
+
+
 def pack_frame(header: dict, arrays: list[np.ndarray]) -> bytes:
     head = json.dumps(header, separators=(",", ":")).encode()
     pad = (-(4 + len(head))) % 4
@@ -251,6 +355,10 @@ class Runner:
         self.defaults = dict(self.original_defaults)
         self.spec = self._build_spec()
         self.saved_defaults: dict = {}
+        # Other scenes' admin-saved defaults and presets, for importing their
+        # presets: {"<scene id>": {...}} (MSD_SCENE_DEFAULTS' "imports").
+        self.import_defaults: dict = {}
+        self._import_cache: dict[str, ImportSource] = {}
         self.apply_saved_defaults(_env_saved_defaults())
         self.params: Params = dict(self.defaults)
         self.auto_restart = config.auto_restart
@@ -268,6 +376,7 @@ class Runner:
         self.finished = False
         self.end_reason: Optional[str] = None
         self.rtf = 0.0
+        self.fps = 0.0  # frames sent per second (one per step when the scene is slow)
         self._setup_json: Optional[str] = None
         self._full_positions: dict[int, np.ndarray] = {}
         self._last_scalars: dict[str, float] = {}
@@ -284,10 +393,17 @@ class Runner:
         self._stop_at: Optional[float] = None
         self._last_good_params: Optional[Params] = None
         self._diverged = False
+        # Interactive controls (cfg.controls): their current values, and when
+        # each held "hold" control lets go unless confirmed again.
+        self.control_values: dict[str, Any] = {}
+        self._hold_deadlines: dict[str, float] = {}
 
         # Playback: the current run's recording, or a preset's run loaded
         # from the cache (then nothing is simulated until asked).
         self._recording: Optional[Recording] = None
+        # After Stop (command "reset"): the recording is the run that was
+        # stopped, kept for the timeline until the rebuilt scene is set going.
+        self._previous_run = False
         self._cached: Optional[tuple[dict, bytes]] = None  # (meta, gzip bytes)
         self._rec_key: Optional[str] = None
         self._rec_serial = 0  # which recording: a browser refetches when it changes
@@ -318,6 +434,10 @@ class Runner:
         new simulation starts with and the Defaults button returns to; the
         display/lighting ones are passed on to the browser (/api/scene)."""
         self.saved_defaults = saved if isinstance(saved, dict) else {}
+        imports = self.saved_defaults.pop("imports", None)
+        if isinstance(imports, dict):  # only at start; a later push concerns this scene alone
+            self.import_defaults = imports
+            self._import_cache = {}
         params = self.saved_defaults.get("params")
         self.defaults = {**self.original_defaults, **self.coerce(params if isinstance(params, dict) else {})}
 
@@ -326,11 +446,7 @@ class Runner:
     def presets(self) -> dict[str, list[dict]]:
         """Each panel's named presets: "Default" first (the saved defaults,
         or params.json's), then the scene's built-in ones, then an admin's
-        own. Saved presets are {"presets": {section: {name: values}}} in
-        the saved defaults; a saved name replaces a built-in one of the
-        same name, and None deletes it."""
-        saved_all = self.saved_defaults.get("presets")
-        saved_all = saved_all if isinstance(saved_all, dict) else {}
+        own (see preset_entries)."""
         visible = self.visible_keys()
         result: dict[str, list[dict]] = {}
         for section in self.PRESET_SECTIONS:
@@ -338,29 +454,79 @@ class Runner:
                 default_values = {k: v for k, v in self.defaults.items() if k in visible}
             else:
                 default_values = self.saved_defaults.get(section) or {}
-            entries = [{"name": "Default", "values": default_values, "builtin": True, "description":
-                        "The scene's default settings."}]
-            saved = saved_all.get(section)
-            saved = dict(saved) if isinstance(saved, dict) else {}
-            for preset in self.cfg.presets.get(section, []):
-                name = preset["name"]
-                if name in saved:
-                    values = saved.pop(name)
-                    if not isinstance(values, dict):
-                        continue  # deleted
-                    entries.append({"name": name, "values": values, "builtin": True, "modified": True,
-                                    "description": preset.get("description", "")})
-                else:
-                    entries.append({"name": name, "values": dict(preset.get("values", {})), "builtin": True,
-                                    "description": preset.get("description", "")})
-            for name, values in saved.items():
-                if isinstance(values, dict) and name.lower() != "default":
-                    entries.append({"name": name, "values": values, "builtin": False, "description": ""})
+            entries = preset_entries(self.cfg, self.saved_defaults, section, default_values)
             if section == "params":
                 for entry in entries:
                     entry["values"] = self.coerce(entry["values"])
             result[section] = entries
         return result
+
+    # -- presets imported from other scenes -----------------------------------
+
+    def _import_source(self, scene_id: str) -> ImportSource:
+        source = self._import_cache.get(scene_id)
+        if source is None:
+            saved = self.import_defaults.get(scene_id)
+            source = ImportSource(scene_id, self.base_dir.parent, saved if isinstance(saved, dict) else {})
+            self._import_cache[scene_id] = source
+        return source
+
+    def import_sources(self) -> list[dict]:
+        """For the viewer: the scenes to import parameter presets from, and
+        their presets' names."""
+        out = []
+        for scene_id, spec in self.cfg.import_presets.items():
+            try:
+                source = self._import_source(scene_id)
+            except Exception as exc:  # e.g. not in this container (docker builds one scene folder)
+                log.warning("No presets to import from %s: %s", scene_id, exc)
+                continue
+            out.append({"scene": scene_id, "title": spec.get("title") or source.title,
+                        "presets": [{"name": p["name"], "description": p.get("description", "")}
+                                    for p in source.presets()]})
+        return out
+
+    def import_preset(self, scene_id: str, name: str) -> dict:
+        """This scene's full parameter set for another scene's preset, and
+        notes on what couldn't be carried over directly."""
+        spec = self.cfg.import_presets.get(scene_id)
+        if spec is None:
+            raise KeyError(f"no presets to import from {scene_id!r}")
+        source = self._import_source(scene_id)
+        values = source.preset_values(name)
+        if values is None:
+            raise KeyError(f"{source.title} has no preset {name!r}")
+        converted = spec["convert"](dict(values))
+        fields = {f["key"]: f for section in self.spec for f in section["fields"]}
+        params = {k: v for k, v in self.defaults.items() if k in fields}
+        set_keys = set()
+        for key, value in converted.get("params", {}).items():
+            if key in fields:
+                params[key] = value
+                set_keys.add(key)
+        handled = set(converted.get("handled", ())) | set_keys
+        copied = set()
+        for key, value in values.items():
+            if key in fields and key in source.fields and key not in handled:
+                params[key] = value
+                copied.add(key)
+        notes = []
+        noted = set()
+        for kind, key, text in converted.get("notes", ()):
+            field = source.fields.get(key) if kind == "not imported" else fields.get(key)
+            label = field["label"] if field else key
+            notes.append({"kind": kind, "key": key, "label": label, "text": text})
+            noted.add((kind, key))
+        for key, field in source.fields.items():
+            if key not in copied and key not in handled and ("not imported", key) not in noted:
+                notes.append({"kind": "not imported", "key": key, "label": field["label"],
+                              "text": f"{format_value(field, values.get(key))}: no counterpart here."})
+        for key, field in fields.items():
+            if key not in copied and key not in set_keys and not any(k == key for kind, k in noted if kind != "not imported"):
+                notes.append({"kind": "assumed", "key": key, "label": field["label"],
+                              "text": f"{format_value(field, params.get(key))}: this scene's default."})
+        params = self.coerce(params)
+        return {"source": source.title, "preset": name, "params": params, "notes": notes}
 
     def preset_params(self, name: str) -> Optional[Params]:
         """The full parameter set of a params preset: the defaults with the
@@ -381,28 +547,14 @@ class Runner:
         return keys
 
     def _build_spec(self) -> list[dict]:
-        editor = self.base_dir / self.cfg.editor_file if self.cfg.editor_file else None
-        fields = [f for f in editor_fields(editor) if f["key"] in self.defaults]
-        known = {f["key"] for f in fields}
-        # params.json keys the editor doesn't list still get a plain field.
-        for key, value in self.defaults.items():
-            if key in known:
-                continue
-            if isinstance(value, bool):
-                fields.append({"key": key, "label": key, "type": "bool"})
-            elif isinstance(value, (int, float)):
-                fields.append({"key": key, "label": key, "type": "number", "scale": 1, "decimals": 3, "unit": ""})
-            elif isinstance(value, list) and all(isinstance(v, (int, float)) for v in value):
-                fields.append({"key": key, "label": key, "type": "vector", "length": len(value), "decimals": 3, "unit": ""})
-        display_keys = {d["key"] for d in self.cfg.display}
-        visible = [
-            f for f in fields
-            if f["key"] not in self.cfg.hidden_params
-            and f["key"] not in self.cfg.forced_params
-            and f["key"] not in display_keys
-        ]
+        visible = visible_fields(self.cfg, self.base_dir, self.defaults)
+        excludes = {}
+        for a, b in self.cfg.exclusive:
+            excludes.setdefault(a, []).append(b)
+            excludes.setdefault(b, []).append(a)
         for f in visible:
-            f["label"] = self.cfg.labels.get(f["key"], f["label"])
+            if f["key"] in excludes:
+                f["excludes"] = excludes[f["key"]]  # switching it on switches these off
             f["live"] = f["key"] in self.cfg.live_params
             f["integer"] = isinstance(self.defaults[f["key"]], int) and not isinstance(self.defaults[f["key"]], bool)
             if f["key"] in self.cfg.param_limits:
@@ -442,7 +594,9 @@ class Runner:
                     value = float(value)
                 elif isinstance(default, list):
                     value = [float(v) for v in value][: len(default)]
-                    if len(value) != len(default):
+                    if not all(math.isfinite(v) for v in value):
+                        continue
+                    if len(value) != len(default) and not (key in self.cfg.short_vectors and value):
                         continue
                 else:
                     continue
@@ -512,10 +666,14 @@ class Runner:
             "dt": float(root.dt.value) if root is not None else None,
             "simTime": self._sim_time,
             "rtf": self.rtf,
+            "fps": self.fps,
             "stopAt": self._stop_at,
             "status": self.status,
             "generation": self.generation,
             "models": [{"name": m.name, "vertices": m.vertex_count, "kind": m.kind} for m in self._models],
+            # The FEM meshes: elements (tetrahedra) and nodes of each.
+            "fem": [{"name": m.name, "elements": len(m.index) // 4, "nodes": m.vertex_count}
+                    for m in self._models if m.kind == "tetra"],
         }
 
     # -- sim thread -----------------------------------------------------------
@@ -538,6 +696,7 @@ class Runner:
             "stopAt": self._stop_at,
             "generation": self.generation,
             "recording": self._recording_status(),
+            "controls": self.control_values,
         })
 
     def _emit_status(self) -> None:
@@ -592,6 +751,7 @@ class Runner:
                 raise
 
         self._root, self._module, self._capture = root, module, capture
+        self._init_controls()
         self._models = [m for m in (_build_model(i, r) for i, r in enumerate(capture.visuals)) if m is not None]
         self._models += _fem_models(root, len(capture.visuals))
         self._sim_time = 0.0
@@ -602,6 +762,7 @@ class Runner:
         self._prev_lights_sent = None
         self._undeduped = set()
         self._recording = None
+        self._previous_run = False
         self._cached = self._load_cached(effective)
         if self._cached is not None:
             self._rec_serial += 1
@@ -624,6 +785,7 @@ class Runner:
             "view": self.cfg.view,
             "up": list(self.cfg.up),
             "models": [m.setup() for m in self._models],
+            "gauge": self._gauge_layout(),
         }
         full = {m.id: m.packed(np.asarray(m.obj.position.value, dtype=np.float64)) for m in self._models}
         for m in self._models:
@@ -636,9 +798,12 @@ class Runner:
                 self._csv_rows.extend(self._cached[0].get("rows", []))
         self.status = "running"
         self._last_good_params = dict(params)
+        visual = [m for m in self._models if m.kind != "tetra"]
+        fem = [m for m in self._models if m.kind == "tetra"]
+        fem_text = "".join(f", FEM {len(m.index) // 4} tetrahedra / {m.vertex_count} nodes" for m in fem)
         self.console.note(
-            f"scene ready: {len(self._models)} visual models, "
-            f"{sum(m.vertex_count for m in self._models)} vertices, dt={float(root.dt.value):g}s"
+            f"scene ready: {len(visual)} visual models, "
+            f"{sum(m.vertex_count for m in visual)} vertices{fem_text}, dt={float(root.dt.value):g}s"
         )
         if self._cached is not None:
             # A preset's run, recorded before: it plays back in the browser;
@@ -652,6 +817,15 @@ class Runner:
         self._emit(self._setup_json)
         self._emit_status()
         self._broadcast_frame(full=True)
+
+    def _gauge_layout(self) -> Optional[dict]:
+        if self.cfg.gauge is None:
+            return None
+        try:
+            return self.cfg.gauge(self._root, self._module)
+        except Exception as exc:  # a gauge that can't be laid out is left out, not a failed build
+            self.console.note(f"pressure gauge left out: {exc}")
+            return None
 
     @staticmethod
     def _background(root) -> list[float]:
@@ -698,6 +872,80 @@ class Runner:
             self.error = f"The scene failed to build: {detail}"
             self._emit_status()
 
+    # -- interactive controls --------------------------------------------------
+
+    def _control(self, key: str) -> Optional[dict]:
+        return next((c for c in self.cfg.controls if c["key"] == key), None)
+
+    @staticmethod
+    def _control_value(control: dict, value: Any) -> Any:
+        kind = control["type"]
+        if kind == "slider":
+            value = float(value)
+            if not np.isfinite(value):
+                raise ValueError("not a number")
+            return min(max(value, float(control["min"])), float(control["max"]))
+        if kind in ("toggle", "hold"):
+            return bool(value)
+        return None  # button
+
+    def _init_controls(self) -> None:
+        """Every build starts the controls at their defaults."""
+        self.control_values = {}
+        self._hold_deadlines = {}
+        for control in self.cfg.controls:
+            kind = control["type"]
+            if kind == "button":
+                continue
+            value = self._control_value(control, control.get("default", control.get("min", 0.0) if kind == "slider" else False))
+            with contextlib.redirect_stdout(self.console):
+                control["apply"](self._root, value)
+            self.control_values[control["key"]] = value
+
+    def _apply_control(self, key: str, value: Any) -> dict:
+        control = self._control(key)
+        if control is None:
+            raise ValueError(f"unknown control {key!r}")
+        if self._root is None or self.status != "running":
+            raise RuntimeError("the scene isn't running")
+        value = self._control_value(control, value)
+        kind = control["type"]
+        if kind == "hold" and value:
+            self._hold_deadlines[key] = time.monotonic() + HOLD_TIMEOUT_SECONDS
+        else:
+            self._hold_deadlines.pop(key, None)
+        if kind != "button" and self.control_values.get(key) == value:
+            return {"key": key, "value": value}  # a hold's keep-alive, or nothing new
+        if self._cached is not None:
+            self._start_live(paused=self.paused)
+        self._leave_previous_run()
+        with contextlib.redirect_stdout(self.console):
+            if kind == "button":
+                control["apply"](self._root)
+            else:
+                control["apply"](self._root, value)
+        if kind != "button":
+            self.control_values[key] = value
+        if kind != "slider":
+            self.console.note(f"control: {control['label']}" + ("" if kind == "button" else f" = {value}"))
+        # The run is no longer what its parameters alone would give.
+        if self._recording is not None:
+            self._recording.pure = False
+        if self.finished:
+            self._extend_run()
+        self._emit_status()
+        return {"key": key, "value": value}
+
+    def _expire_holds(self) -> None:
+        now = time.monotonic()
+        for key, deadline in list(self._hold_deadlines.items()):
+            if now >= deadline:
+                self.console.note(f"control: {key} released (no word from the browser)")
+                try:
+                    self._apply_control(key, False)
+                except Exception:
+                    self._hold_deadlines.pop(key, None)
+
     # -- recording / playback ------------------------------------------------
 
     def _new_recording(self) -> Recording:
@@ -734,6 +982,17 @@ class Runner:
                                   self._full_positions, self._last_scalars, self._last_lights, force=True)
         self.console.note("simulating live")
 
+    def _leave_previous_run(self) -> None:
+        """The scene Stop rebuilt is set going (or changed): from playing back
+        the stopped run to recording this one."""
+        if not self._previous_run:
+            return
+        self._previous_run = False
+        self._recording = self._new_recording()
+        with self._lock:
+            self._recording.offer(self._sim_time, self._steps, [m.id for m in self._models],
+                                  self._full_positions, self._last_scalars, self._last_lights, force=True)
+
     def _flush_recording(self) -> None:
         if self._recording is not None:
             with self._lock:
@@ -749,7 +1008,7 @@ class Runner:
         with self._lock:
             snapshot = rec.copy()
             rows = list(self._csv_rows)
-        data = snapshot.encoded()
+        data = snapshot.encoded(level=6)
         rec.adopt_encoding(snapshot)
         meta = {
             "title": self.cfg.title,
@@ -799,7 +1058,7 @@ class Runner:
         if rec is None:
             return None
         return {"id": self._rec_serial, "frames": len(rec), "end": rec.end_time, "cached": False, "saved": rec.saved,
-                "truncated": rec.truncated}
+                "truncated": rec.truncated, "previous": self._previous_run}
 
     def _probe(self) -> dict[str, float]:
         scalars: dict[str, float] = {}
@@ -818,6 +1077,7 @@ class Runner:
             "t": self._sim_time,
             "step": self._steps,
             "rtf": self.rtf,
+            "fps": self.fps,
             "paused": self.paused,
             "finished": self.finished,
             "full": full,
@@ -913,8 +1173,18 @@ class Runner:
         try:
             if command == "reset":
                 # A paused simulation stays paused (at its new start) until
-                # the owner resumes it.
+                # the owner resumes it. The run just stopped stays on the
+                # timeline until then, if the scene came back the same (same
+                # parameters, so the same visual models).
+                previous = self._recording if self._cached is None else None
+                signature = self._model_signature()
+                self._flush_recording()
                 self._safe_build(self.params)
+                if (previous is not None and len(previous) >= 2 and self._cached is None
+                        and self.status == "running" and self._model_signature() == signature):
+                    self._recording = previous
+                    self._previous_run = True
+                    self._emit_status()
                 future.set_result(True)
             elif command == "pause":
                 self.paused = True
@@ -935,6 +1205,7 @@ class Runner:
                     return
                 if self.finished:
                     self._extend_run()
+                self._leave_previous_run()
                 self.paused = False
                 self._emit_status()
                 future.set_result(True)
@@ -949,6 +1220,8 @@ class Runner:
                     self._save_recording()
                 self._emit_status()
                 future.set_result(True)
+            elif command == "control":
+                future.set_result(self._apply_control(kwargs["key"], kwargs.get("value")))
             elif command == "auto_restart":
                 self.auto_restart = bool(kwargs["enabled"])
                 self._emit_status()
@@ -958,11 +1231,18 @@ class Runner:
                 rebuild = {k: v for k, v in changes.items() if k not in self.cfg.live_params and v != self.params.get(k)}
                 live = {k: v for k, v in changes.items() if k in self.cfg.live_params}
                 self.params.update(changes)
+                for a, b in self.cfg.exclusive:
+                    if self.params.get(a) and self.params.get(b):
+                        keep = b if changes.get(b) and not changes.get(a) else a
+                        drop = b if keep == a else a
+                        self.params[drop] = False
+                        self.console.note(f"{drop} switched off: it can't be on together with {keep}")
                 if rebuild or kwargs.get("rebuild") or (live and self._diverged):
                     self._safe_build(self.params)
                 elif live and self._root is not None:
                     if self._cached is not None:
                         self._start_live(paused=True)
+                    self._leave_previous_run()
                     for key, value in live.items():
                         self.cfg.live_params[key](self._root, value)
                         self.console.note(f"live change: {key} = {value}")
@@ -991,11 +1271,14 @@ class Runner:
                 continue
             except queue.Empty:
                 pass
+            if self._hold_deadlines:
+                self._expire_holds()
 
             runnable = self._root is not None and self.status == "running" and not self.paused and not self.finished
             if not runnable:
                 was_running = False
                 self.rtf = 0.0
+                self.fps = 0.0
                 time.sleep(0.05)
                 continue
             now = time.monotonic()
@@ -1012,6 +1295,7 @@ class Runner:
                 time.sleep(min(max(target - self._sim_time + 0.001, 0.001), 0.02))
             else:
                 dt = float(self._root.dt.value)
+                step_start = time.monotonic()
                 with contextlib.redirect_stdout(self.console):
                     try:
                         Sofa.Simulation.animate(self._root, dt)
@@ -1025,12 +1309,22 @@ class Runner:
                 self._steps += 1
                 if target - self._sim_time > 0.5:
                     wall_anchor, sim_anchor = time.monotonic(), self._sim_time
+                # A step holds the GIL throughout (SOFA's animate doesn't release
+                # it), so a scene that steps flat out at ~1 s per step (e.g. a
+                # full finger) starved the web server: every request waited a
+                # step per GIL hand-over and timed out. Pause briefly after a
+                # long step (5 % of it, at most 50 ms) so requests get through.
+                step_time = time.monotonic() - step_start
+                if step_time > 0.02:
+                    time.sleep(min(0.05, 0.05 * step_time))
 
             now = time.monotonic()
             if now >= next_frame:
                 rtf_window.append((now, self._sim_time))
                 if len(rtf_window) >= 2 and rtf_window[-1][0] > rtf_window[0][0]:
-                    self.rtf = (rtf_window[-1][1] - rtf_window[0][1]) / (rtf_window[-1][0] - rtf_window[0][0])
+                    span = rtf_window[-1][0] - rtf_window[0][0]
+                    self.rtf = (rtf_window[-1][1] - rtf_window[0][1]) / span
+                    self.fps = (len(rtf_window) - 1) / span
                 self._broadcast_frame()
                 next_frame = now + frame_interval
 

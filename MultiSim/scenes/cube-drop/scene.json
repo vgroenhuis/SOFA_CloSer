@@ -1,5 +1,6 @@
 {
 	"title": "Falling cube",
+	"group": "playground",
 	"description": "A rigid cube dropped with a random spin bounces and settles on a floor. Tune floor stiffness, damping and friction live, and follow height and energy in real-time graphs.",
 	"thumbnail": "docs/screenshot.png",
 	"port": 8000,

@@ -24,7 +24,7 @@
 		<section id="mine-section" class="hidden">
 			<h2>Your simulations</h2>
 			<div class="sim-list" id="mine-list"></div>
-			<p id="mine-note" class="muted small hidden" style="margin: 8px 0 0">Starting another simulation releases these, except ones on hold. Use <strong>Hold...</strong> in a simulation's toolbar to keep it.</p>
+			<p id="mine-note" class="muted small hidden" style="margin: 8px 0 0">Half or more of the slots are in use: starting another simulation releases these, except ones on hold. Use <strong>Hold...</strong> in a simulation's toolbar to keep it.</p>
 		</section>
 
 		<section>
@@ -33,13 +33,8 @@
 				<label for="owner-name">Your name <span class="muted">(optional, shown to others)</span></label>
 				<input id="owner-name" maxlength="40" placeholder="e.g. Vincent" autocomplete="nickname" />
 			</div>
-			<div class="grid" id="scene-grid"></div>
 			<div id="start-notice" class="notice hidden"></div>
-		</section>
-
-		<section id="admin-scenes-section" class="hidden">
-			<h2>Admin only</h2>
-			<div class="grid" id="admin-scene-grid"></div>
+			<div id="scene-groups"></div>
 		</section>
 
 		<section>

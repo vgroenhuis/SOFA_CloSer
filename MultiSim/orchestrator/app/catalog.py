@@ -19,6 +19,10 @@ log = logging.getLogger(__name__)
 
 _SCENE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,40}$")
 
+# scene.json "group" (or the admin page's choice): the lobby lists scenes
+# per group, in this order. A scene without a (known) group goes under "Other".
+GROUPS = {"closer": "CloSer project", "playground": "Playground", "archive": "Archive", "other": "Other"}
+
 
 @dataclass
 class Scene:
@@ -34,6 +38,10 @@ class Scene:
     # scene.json "visibility": public | private | admin ("private": true still
     # means private); the admin page can override it.
     visibility_default: str = "public"
+    group: str = "other"  # scene.json's; main.scene_groups() applies the admin page's choice
+    # scene.json "importPresetsFrom": scenes whose parameter presets this one
+    # can import (their admin-saved presets are handed over at start).
+    import_presets_from: tuple[str, ...] = ()
 
     def public(self) -> dict:
         return {
@@ -41,6 +49,8 @@ class Scene:
             "title": self.title,
             "description": self.description,
             "thumbnail": f"scenes/{self.id}/thumbnail" if self.thumbnail else None,
+            "group": self.group,
+            "groupTitle": GROUPS[self.group],
         }
 
 
@@ -68,7 +78,14 @@ def _load_scene(scene_dir: Path) -> Optional[Scene]:
         buildable=(scene_dir / "Dockerfile").is_file() if config.BACKEND == "docker"
         else (scene_dir / "sofaweb_scene.py").is_file() or (scene_dir / "check.py").is_file(),
         visibility_default=_visibility(meta),
+        group=_group(meta),
+        import_presets_from=tuple(str(i) for i in meta.get("importPresetsFrom", ()) if _SCENE_ID.match(str(i))),
     )
+
+
+def _group(meta: dict) -> str:
+    group = str(meta.get("group", "")).lower()
+    return group if group in GROUPS else "other"
 
 
 def _visibility(meta: dict) -> str:

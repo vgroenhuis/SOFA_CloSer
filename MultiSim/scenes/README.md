@@ -19,7 +19,7 @@ There are two ways to make a scene:
 - **Custom web app** (`cube-drop`, `double-pendulum`): your own backend and
   frontend, following the contract below. Most work, full control.
 - **sofaweb** (`rod-with-balls`, `asymmetric-square-tube`, `hollow-cube`,
-  `pneunet-finger`, `better-finger`, `finger-3`, `finger-4`): drop in an existing SOFA scene script unmodified, plus a
+  `pneunet-finger`, `better-finger`, `finger-3`, `finger-4`, `finger-5`, `finger-6`, `gripper-1`, `gripper-2`, `soft-beam`): drop in an existing SOFA scene script unmodified, plus a
   short config file. The generic viewer draws its visual models, camera and
   lights; parameters, charts and live controls come from the config.
 
@@ -52,6 +52,10 @@ the admin page's **Build image** button produce. `cpus` / `memory` default
 to `MSD_SIM_CPUS` / `MSD_SIM_MEMORY`. `"visibility"` (`public`, `private` or
 `admin`) is the scene's visibility until the admin page says otherwise (see
 [Public, private and admin-only scenes](../README.md#public-private-and-admin-only-scenes)).
+`"group"` (`closer`, `playground` or `archive`) is the lobby section the
+scene is listed under: "CloSer project" (open by default), "Playground" or
+"Archive" (both collapsed by default); without it, the scene goes under
+"Other". The admin page's Group column overrides it.
 
 The catalog is re-read on every request: add a folder, build its image, and
 it shows up in the lobby without restarting anything.
@@ -156,6 +160,7 @@ In `sofaweb_scene.py`, at minimum set `title` and `script`. Useful extras
 | `param_limits` | clamp user input, above all mesh resolutions, so nobody can take down the container |
 | `sections`, `labels` | group and relabel the parameter panel |
 | `live_params` | `key -> fn(root, value)`: applied to the running scene without a rebuild (e.g. a controller's Data field) |
+| `controls` | The Controls panel: sliders, toggles, hold-down and click buttons that act on the running simulation (`apply(root, value)`), e.g. a force; owner only, watchers see them move (see `soft-beam`) |
 | `probes`, `charts`, `readouts` | `fn(root, module) -> {name: value}` sampled every frame, plotted and shown |
 | `stop_at`, `extend_by`, `end_condition`, `auto_restart` | when a run ends and what happens then |
 | `view` | `"3d"` (orbit) or `"2d"` (pan/zoom, drawn in creation order for flat scenes) |

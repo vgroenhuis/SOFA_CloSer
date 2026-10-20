@@ -15,20 +15,29 @@
 			<h1 id="title">SOFA Simulation</h1>
 			<button id="play-btn" class="icon-btn owner-only" title="Pause" aria-label="Pause"></button>
 			<button id="stop-btn" class="icon-btn owner-only" title="Stop: rebuild the scene at its start, paused" aria-label="Stop"></button>
-			<button id="download-btn" title="Probe values per frame, as CSV">Download data</button>
-			<button id="view-btn" class="secondary" title="Back to the scene's own camera">Reset view</button>
-			<button id="console-btn" class="secondary" title="The scene script's own console output">Console</button>
-			<button id="info-btn" class="secondary">Info</button>
-			<label class="owner-only" title="Start over automatically when a run ends"><input type="checkbox" id="auto-restart-checkbox" /> Auto restart</label>
+			<button id="hud-toggle" class="secondary icon-btn" type="button" title="More: download, reset view, console, info" aria-label="More" aria-expanded="false">&#8943;</button>
+			<div id="hud-more">
+				<button id="download-btn" title="Probe values per frame, as CSV">Download data</button>
+				<button id="view-btn" class="secondary" title="Back to the scene's own camera">Reset view</button>
+				<button id="console-btn" class="secondary" title="The scene script's own console output">Console</button>
+				<button id="info-btn" class="secondary">Info</button>
+				<label class="owner-only" title="Start over automatically when a run ends"><input type="checkbox" id="auto-restart-checkbox" /> Auto restart</label>
+			</div>
 			<div id="status-line">
 				<span id="status">connecting...</span>
 				<span id="time"></span>
-				<span id="rtf" title="Simulated seconds per real second"></span>
+				<span id="rtf" title="Simulated seconds per real second, and frames per second sent to the viewer"></span>
 				<span id="viewer-note">watching (read-only)</span>
 			</div>
 		</div>
 		<div id="side-panels">
-			<details id="display-panel" class="panel side-panel" open>
+			<details id="controls-panel" class="panel side-panel hidden">
+				<summary>Controls</summary>
+				<div id="controls-form"></div>
+				<p class="display-note owner-only">Act on the simulation at once, while it runs (press ▶ if it's paused).</p>
+				<p class="display-note viewer-only">The owner's controls: they show what the owner is doing.</p>
+			</details>
+			<details id="display-panel" class="panel side-panel">
 				<summary>Display</summary>
 				<div class="preset-row" data-section="display"><label for="display-preset">Preset</label><select id="display-preset" title="Load a named preset of the display settings"></select><button class="secondary admin-only preset-save" type="button" title="Admin: overwrite the selected preset with the current display settings">Save</button><button class="secondary admin-only preset-save-as" type="button" title="Admin: save the current display settings as a new named preset">Save as…</button><button class="secondary admin-only preset-delete" type="button" title="Admin: delete the selected preset">Delete</button></div>
 				<form id="display-form" autocomplete="off"></form>
@@ -48,9 +57,9 @@
 				</div>
 				<p class="display-note">Yaw and pitch are around the scene's up axis. A light follows the scene (including a moving light) until you change it here.</p>
 			</details>
-			<details id="params-panel" class="panel side-panel" open>
+			<details id="params-panel" class="panel side-panel">
 				<summary>Parameters</summary>
-				<div class="preset-row" data-section="params"><label for="params-preset">Preset</label><select id="params-preset" title="Load a named preset of the running parameters"></select><button class="secondary admin-only preset-save" type="button" title="Admin: overwrite the selected preset with the current running parameters">Save</button><button class="secondary admin-only preset-save-as" type="button" title="Admin: save the current running parameters as a new named preset">Save as…</button><button class="secondary admin-only preset-delete" type="button" title="Admin: delete the selected preset">Delete</button></div>
+				<div class="preset-row" data-section="params"><label for="params-preset">Preset</label><select id="params-preset" title="Load a named preset of the running parameters"></select><button class="secondary admin-only preset-save" type="button" title="Admin: overwrite the selected preset with the current running parameters">Save</button><button class="secondary admin-only preset-save-as" type="button" title="Admin: save the current running parameters as a new named preset">Save as…</button><button class="secondary admin-only preset-delete" type="button" title="Admin: delete the selected preset">Delete</button><button class="secondary preset-import hidden" type="button" title="Load a parameters preset of another scene, converted to this scene's parameters">Import…</button></div>
 				<form id="params-form" autocomplete="off" novalidate></form>
 				<div class="param-buttons">
 					<button id="apply-params-btn" class="owner-only" type="submit" form="params-form" disabled>Apply &amp; restart</button>
@@ -61,7 +70,7 @@
 		</div>
 	</div>
 
-	<div id="banner" class="hidden"></div>
+	<div id="banner" class="hidden"><span id="banner-text"></span><button id="banner-close" type="button" aria-label="Close message" title="Close">&times;</button></div>
 	<div id="building" class="hidden"><div class="spinner"></div><span>Building scene...</span></div>
 
 	<div id="bottom">
@@ -101,12 +110,26 @@
 				<li>The original SOFA scene script runs unmodified in this container, headless. Its OpenGL visual models are swapped for SOFA's GL-free <code>VisualModelImpl</code> as the scene is built, and their vertex positions are streamed to your browser, which draws them with <a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a> using the scene's own camera, lights and colors.</li>
 				<li>Parameters come from the scene's own <code>params.json</code> (labels from its parameter editor). Changing one rebuilds the scene from scratch, exactly like the SOFA GUI's Reload; fields marked <span class="live-badge">live</span> are applied to the running simulation instead.</li>
 				<li>The simulation never runs faster than real time; the <em>&times; real time</em> figure shows when it can't keep up.</li>
-				<li>Every run is recorded: once it's paused or finished, the timeline below plays it back at real speed (or faster or slower) and lets you scrub through it. A run of a preset's parameters is kept on the server, so the next simulation of that preset plays it back straight away instead of simulating it again (<em>Simulate live</em> runs it anyway). Other runs are only kept until the parameters change or the simulation ends.</li>
+				<li>Every run is recorded: once it's paused or finished, the timeline below plays it back at real speed (or faster or slower) and lets you scrub through it. After ■ (back to the start), the run before it stays on the timeline until the simulation runs again. A run of a preset's parameters is kept on the server, so the next simulation of that preset plays it back straight away instead of simulating it again (<em>Simulate live</em> runs it anyway). Other runs are only kept until the parameters change or the simulation ends.</li>
 				<li>Drag to rotate (or pan, in 2D scenes), right-drag to pan, scroll to zoom. Your view is your own.</li>
 			</ul>
 		</div>
 	</div>
 
+	<dialog id="import-dialog" aria-labelledby="import-title">
+		<h3 id="import-title">Import a parameters preset</h3>
+		<div id="import-pick">
+			<div class="import-row"><label for="import-scene">From</label><select id="import-scene"></select></div>
+			<div class="import-row"><label for="import-preset">Preset</label><select id="import-preset"></select></div>
+			<p id="import-desc"></p>
+			<p class="import-hint">Its parameters are converted to this scene's and the simulation is rebuilt with them. Afterwards you see which couldn't be carried over directly.</p>
+		</div>
+		<div id="import-result" class="hidden"></div>
+		<div class="dialog-buttons">
+			<button type="button" class="secondary" id="import-cancel">Cancel</button>
+			<button type="button" id="import-go">Import</button>
+		</div>
+	</dialog>
 	<script type="importmap">
 		{
 			"imports": {

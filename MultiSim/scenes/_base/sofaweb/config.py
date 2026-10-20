@@ -41,6 +41,23 @@ class SceneConfig:
     # Parameters applied to the running scene without a rebuild:
     # key -> fn(root, value).
     live_params: dict[str, Callable[[Any, Any], None]] = field(default_factory=dict)
+    # Interactive controls (the Controls panel): act on the running
+    # simulation at once, like a hand on the model. Only the owner can use
+    # them; watchers see where they are. Each is
+    #   {"key", "label", "type": "slider", "min", "max", "step", "default",
+    #    "unit", "digits", "apply": fn(root, value)}
+    #       -- "wide": True gives the slider a row of its own, the panel's full width
+    #          (e.g. a position, finer to set on a touchscreen);
+    #   {"key", "label", "type": "toggle", "default", "apply": fn(root, on)}
+    #   {"key", "label", "type": "hold", "apply": fn(root, pressed)}
+    #       -- on while the button is held down (released automatically if
+    #          the owner's browser stops confirming it, e.g. disconnects);
+    #   {"key", "label", "type": "button", "apply": fn(root)}
+    #       -- one action per click (e.g. a kick).
+    # Optional "description" (tooltip). Every build starts them at their
+    # default (applied after the scene is built). A run that used them is
+    # never kept as a preset's recorded run.
+    controls: list[dict] = field(default_factory=list)
 
     # Telemetry: fn(root, module) -> {key: float}, sampled every frame.
     probes: Optional[Callable[[Any, Any], dict[str, float]]] = None
@@ -97,6 +114,47 @@ class SceneConfig:
     # can overwrite or delete them like their own (stored per scene in the
     # orchestrator).
     presets: dict[str, list[dict]] = field(default_factory=dict)
+
+    # Parameter presets importable from other scenes (sibling folders under
+    # scenes/), e.g. to compare two models of the same thing:
+    #   {"<scene id>": {"title": "Finger 5", "convert": fn(values) -> {
+    #       "params": {key: value}  -- this scene's parameters that differ in
+    #                                  name or meaning, converted;
+    #       "handled": [source keys] -- source parameters dealt with above;
+    #       "notes": [(kind, key, text)]}}}
+    # `values` is the source preset's full parameter set (its defaults with
+    # the preset on top). Parameters with the same name in both scenes are
+    # copied as they are, unless set by `params` or listed in `handled`.
+    # kind: "not imported" (a source parameter with no counterpart here, key
+    # its key), "estimated" or "assumed" (a parameter of this scene, key its
+    # key). Source parameters neither copied nor handled are reported as not
+    # imported, and this scene's parameters left at their default as assumed.
+    # The scene's scene.json lists the same ids under "importPresetsFrom", so
+    # the orchestrator hands over their admin-saved presets too.
+    import_presets: dict[str, dict] = field(default_factory=dict)
+
+    # A pressure gauge drawn in the 3D scene by the viewer (an analog manometer
+    # with a needle, on a tube into the model), for scenes with a pressure:
+    # fn(root, module) -> {
+    #   "key": scalar (a probe) the needle shows,     "min", "max": the scale's ends,
+    #   "unit": "kPa",  "major": step of the labelled ticks, "minor": step of the small ones,
+    #   "center": [x, y, z], "radius": dial radius (all in the scene's units, m),
+    #   "right": [x, y, z], "up": [x, y, z]  -- the dial's right and up directions
+    #                                           (it faces right x up: towards the viewer),
+    #   "tube": [[x, y, z], ...]  -- waypoints of the tube (smoothed), the last one at the
+    #                                gauge's casing, "tubeRadius": ...,
+    # } (or a list of these, one gauge each) evaluated at every build. Switchable in the Display panel; the needle follows
+    # recorded playback too.
+    gauge: Optional[Callable[[Any, Any], Optional[dict]]] = None
+
+    # Vector parameters that may be given fewer values than their default has (at least one),
+    # e.g. {"pressures"}: one pressure for every finger, or one each. The scene reads the list.
+    short_vectors: set[str] = field(default_factory=set)
+
+    # Pairs of boolean parameters that can't both be on: switching one on in
+    # the panel switches the other off (and a change that turns both on keeps
+    # the one just switched on).
+    exclusive: list[tuple[str, str]] = field(default_factory=list)
 
     # "3d": orbit/pan/zoom; "2d": pan/zoom only, painter's-order drawing.
     view: str = "3d"

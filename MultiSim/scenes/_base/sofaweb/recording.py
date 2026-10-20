@@ -173,11 +173,13 @@ class Recording:
         pad = (-(4 + len(head))) % 4
         return b"".join([struct.pack("<I", len(head)), head, b" " * pad, *blocks])
 
-    def encoded(self, start: int = 0) -> bytes:
-        """gzip of payload(start); the full recording is cached until it grows."""
+    def encoded(self, start: int = 0, level: int = 3) -> bytes:
+        """gzip of payload(start); the full recording is cached until it grows. A browser waits for it, so
+        the level is low by default (positions are floats: a higher level gains little); a run that is
+        saved for good is compressed harder."""
         if start == 0 and self._encoded and self._encoded[0] == len(self.frames):
             return self._encoded[1]
-        data = gzip.compress(self.payload(start), compresslevel=6, mtime=0)
+        data = gzip.compress(self.payload(start), compresslevel=level, mtime=0)
         if start == 0:
             self._encoded = (len(self.frames), data)
         return data

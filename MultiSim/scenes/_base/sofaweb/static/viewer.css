@@ -66,6 +66,9 @@ button.secondary:hover { background: #5a606d; }
 	padding: 8px 12px;
 	max-width: 680px;
 }
+/* The buttons after play / stop: laid out as before on a desktop (display: contents), behind a "..." button on a phone. */
+#hud-more { display: contents; }
+#hud-toggle { display: none; }
 #hud h1 { font-size: 14px; font-weight: 600; margin: 0 6px 0 0; color: #cfd3da; }
 #hud label { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #cfd3da; cursor: pointer; user-select: none; }
 #status-line { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #8f97a3; font-variant-numeric: tabular-nums; }
@@ -76,6 +79,7 @@ button.secondary:hover { background: #5a606d; }
 #viewer-note { display: none; color: #e8b33c; }
 body.viewer #viewer-note { display: inline; }
 body.viewer .owner-only { display: none !important; }
+body:not(.viewer) .viewer-only { display: none !important; }
 /* "Set as default": only in a browser logged in to the admin page. */
 body:not(.admin) .admin-only { display: none !important; }
 
@@ -160,6 +164,14 @@ body:not(.admin) .admin-only { display: none !important; }
 .display-row.strain .display-value { text-align: left; }
 .mini-btn { padding: 0 8px; font-size: 11px; line-height: 18px; }
 .display-row.disabled { opacity: 0.4; }
+#controls-panel { flex: 0 0 auto; }
+.display-row.control.slider { grid-template-columns: 1fr 110px 62px auto; }
+.display-row.control.slider.wide { grid-template-columns: 1fr 62px auto; row-gap: 2px; }
+.display-row.control.slider.wide input[type="range"] { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 28px; margin: 0; }
+.display-row.control.toggle { grid-template-columns: 1fr; }
+.display-row.control.hold, .display-row.control.button { grid-template-columns: 1fr; }
+.control-btn { width: 100%; padding: 6px 10px; font-size: 12px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.control-btn.active { background: #2e9e4f; border-color: #2e9e4f; }
 .display-row.disabled .toggle-label { cursor: default; }
 .param-section { margin-bottom: 6px; }
 .param-section h3 { font-size: 11px; font-weight: 600; color: #8f97a3; margin: 8px 0 4px; }
@@ -210,11 +222,29 @@ body.viewer .param-note { display: none; }
 	background: #3b3220;
 	border: 1px solid #e8b33c;
 	border-radius: 8px;
-	padding: 8px 14px;
+	padding: 8px 34px 8px 14px;
 	font-size: 13px;
 	pointer-events: none;
 }
+/* The banner lets clicks through to the scene, except on its close button. */
+#banner-close {
+	position: absolute;
+	top: 3px;
+	right: 6px;
+	padding: 0 4px;
+	background: none;
+	border: 0;
+	color: inherit;
+	font-size: 20px;
+	line-height: 1.2;
+	opacity: 0.7;
+	cursor: pointer;
+	pointer-events: auto;
+}
+#banner-close:hover { opacity: 1; }
 #banner.error { background: #3b2024; border-color: #e5636b; }
+#banner.fade-in { animation: banner-fade-in 0.6s ease-out; }
+@keyframes banner-fade-in { from { opacity: 0; } to { opacity: 1; } }
 #building {
 	position: absolute;
 	inset: 0;
@@ -347,9 +377,46 @@ body.viewer .param-note { display: none; }
 #info-sim-list dt { font-size: 12px; color: #8f97a3; }
 #info-sim-list dd { margin: 0; font-size: 12px; color: #e8e8e8; font-variant-numeric: tabular-nums; }
 
+/* A phone (or a landscape phone: little height): everything smaller and closer, the panels two to a row while
+   collapsed (an open one takes the whole row), the top bar reduced to the title, play, stop and a "..." button. */
+@media (max-width: 700px), (max-height: 520px) {
+	#top-controls { top: 6px; left: 6px; right: 6px; gap: 6px; }
+	#hud { flex: 1 1 100%; max-width: none; padding: 5px 8px; gap: 5px 8px; }
+	#hud h1 { flex: 1 1 0; min-width: 0; margin: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	#hud button { padding: 5px 10px; font-size: 12px; }
+	#hud .icon-btn { padding: 5px 10px; }
+	#hud-toggle { display: inline-flex; }
+	#hud-more { display: none; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+	#hud.open #hud-more { display: flex; }
+	#status-line { flex: 1 1 100%; gap: 2px 8px; font-size: 11px; }
+	#side-panels { width: 100%; max-height: none; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
+	.side-panel { width: calc(50% - 3px); padding: 6px 10px; }
+	.side-panel[open] { width: 100%; max-height: 62vh; padding: 8px 10px 10px; }
+	.side-panel[open] summary { margin-bottom: 4px; }
+	#bottom { left: 6px; right: 6px; bottom: 6px; gap: 6px; }
+	#charts { flex: 1 1 100%; gap: 6px; align-items: flex-end; }
+	.chart-panel { width: calc(100vw - 12px); height: 150px; min-width: 0; min-height: 0; padding: 6px 8px 3px; }
+	.chart-panel.collapsed { width: calc(50% - 3px); padding: 5px 8px; }
+	.readout-panel { padding: 6px 8px; min-width: 0; width: calc(100vw - 12px); }
+	.readout-panel.collapsed { width: calc(50% - 3px); }
+	.chart-panel h2, .readout-panel h2 { font-size: 11px; margin: 0 0 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	#timeline { padding: 4px 8px; gap: 6px; }
+	#banner { top: 56px; font-size: 12px; padding: 6px 30px 6px 10px; }
+}
+/* A landscape phone: little height, so more panels to a row, and the status next to the title. */
+@media (max-height: 520px) and (min-width: 701px) {
+	#status-line { flex: 0 1 auto; }
+	.side-panel { width: calc(25% - 5px); }
+	.side-panel[open] { width: 50%; max-height: 70vh; }
+	.chart-panel.collapsed, .readout-panel.collapsed { width: calc(20% - 5px); min-width: 0; }
+	.chart-panel { width: calc(50vw - 9px); height: 130px; }
+	.readout-panel { width: calc(50vw - 9px); }
+	#timeline { flex: 0 0 100%; }
+	#banner { top: 100px; max-width: 60%; }
+}
+/* A portrait phone: below the top bar and the two rows of panels, not over them. */
 @media (max-width: 700px) {
-	#side-panels { width: 100%; max-height: 45vh; }
-	.chart-panel { width: calc(100vw - 24px); height: 170px; }
+	#banner { top: 150px; }
 }
 /* Named presets at the top of the Display / Lighting / Parameters panels. */
 .preset-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #2c3038; }
@@ -402,3 +469,28 @@ body.viewer .param-note { display: none; }
 	#timeline #scrub { flex-basis: 100%; order: -1; }
 	#timeline-note { white-space: normal; }
 }
+
+/* Importing another scene's parameters preset. */
+#import-dialog {
+	background: #23252c;
+	color: #e8e8e8;
+	border: 1px solid #3a3d47;
+	border-radius: 10px;
+	padding: 16px 18px;
+	width: min(560px, calc(100% - 32px));
+	max-height: calc(100% - 48px);
+	box-sizing: border-box;
+	font-size: 13px;
+}
+#import-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+#import-dialog h3 { margin: 0 0 12px; font-size: 15px; }
+#import-dialog h4 { margin: 14px 0 6px; font-size: 13px; color: #cfd3da; }
+.import-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.import-row label { width: 52px; color: #aab0bb; }
+.import-row select { flex: 1; min-width: 0; }
+#import-desc { color: #cfd3da; margin: 4px 0 8px; min-height: 1em; }
+.import-hint { color: #8f97a3; margin: 0; }
+#import-result ul { margin: 0; padding-left: 18px; }
+#import-result li { margin: 3px 0; }
+#import-result .import-ok { color: #8fd19e; margin: 0 0 4px; }
+.dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }

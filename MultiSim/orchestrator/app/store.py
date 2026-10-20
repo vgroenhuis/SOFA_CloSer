@@ -60,6 +60,13 @@ CREATE TABLE IF NOT EXISTS scene_visibility (
     private    INTEGER NOT NULL,
     updated_at REAL NOT NULL
 );
+-- The lobby group per scene as set on the admin page (overrides scene.json's
+-- "group"): one of catalog.GROUPS.
+CREATE TABLE IF NOT EXISTS scene_group (
+    scene_id   TEXT PRIMARY KEY,
+    grp        TEXT NOT NULL,
+    updated_at REAL NOT NULL
+);
 """
 
 VISIBILITY_LEVELS = ("public", "private", "admin")
@@ -239,6 +246,19 @@ class Store:
             "ON CONFLICT(scene_id) DO UPDATE SET private = excluded.private, level = excluded.level, "
             "updated_at = excluded.updated_at",
             (scene_id, int(level != "public"), level, time.time()),
+        )
+
+    # -- scene groups (lobby sections) ------------------------------------
+
+    def scene_groups(self) -> dict[str, str]:
+        """scene id -> group, for the scenes an admin has put in one."""
+        return {row["scene_id"]: row["grp"] for row in self._query("SELECT scene_id, grp FROM scene_group")}
+
+    def set_scene_group(self, scene_id: str, group: str) -> None:
+        self._execute(
+            "INSERT INTO scene_group (scene_id, grp, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(scene_id) DO UPDATE SET grp = excluded.grp, updated_at = excluded.updated_at",
+            (scene_id, group, time.time()),
         )
 
     # -- event log ------------------------------------------------------

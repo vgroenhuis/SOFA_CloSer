@@ -132,6 +132,16 @@ def has_access(conn: HTTPConnection) -> bool:
     )
 
 
+def scene_groups() -> dict[str, str]:
+    """scene id -> lobby group: the admin page's choice, else scene.json's."""
+    chosen = S.store.scene_groups()
+    return {s.id: chosen[s.id] if chosen.get(s.id) in catalog.GROUPS else s.group for s in catalog.list_scenes()}
+
+
+def with_group(scene_info: dict, group: str) -> dict:
+    return {**scene_info, "group": group, "groupTitle": catalog.GROUPS[group]}
+
+
 def scene_levels() -> dict[str, str]:
     """scene id -> public | private | admin: the admin page's choice, else scene.json's."""
     chosen = S.store.scene_visibility()
@@ -237,7 +247,12 @@ async def create_sim(
     async with S.claim_lock:
         limits = S.store.get_limits()
         all_sims = S.store.list_sims()
-        replaced = [s for s in all_sims if replace_for is not None and owns(replace_for, s) and not s.is_held()]
+        # While fewer than half of the slots are in use, nobody is crowded out:
+        # a browser keeps its other simulations open (no hold needed) and the
+        # per-address limit doesn't apply.
+        roomy = plenty_of_room(len(all_sims), limits)
+        replaced = [s for s in all_sims
+                    if replace_for is not None and not roomy and owns(replace_for, s) and not s.is_held()]
         replaced_ids = {s.id for s in replaced}
         # The slots of replaced simulations count as free.
         sims = [s for s in all_sims if s.id not in replaced_ids]
@@ -248,7 +263,7 @@ async def create_sim(
                 "All simulation slots are in use. You can watch a running simulation in the meantime.",
                 nextFreeAt=next_free,
             )
-        if enforce_client_limit and limits.max_claims_per_client > 0:
+        if enforce_client_limit and limits.max_claims_per_client > 0 and not roomy:
             # Held simulations don't count: holding one for later while
             # trying other scenes is the point of a hold.
             mine = [s for s in sims if s.client_addr == addr and not s.is_held()]
@@ -291,7 +306,7 @@ async def create_sim(
         _background.add(task)  # keep a reference until it's done
         task.add_done_callback(_background.discard)
     try:
-        await asyncio.to_thread(S.backend.start, sim_id, sim.container_name, scene, S.store.get_scene_defaults(scene.id))
+        await asyncio.to_thread(S.backend.start, sim_id, sim.container_name, scene, start_defaults(scene))
     except Exception as exc:
         log.exception("Starting %s failed", sim_id)
         await release(sim_id, f"failed to start container: {exc}")
@@ -316,13 +331,19 @@ def fmt_utc(epoch: float) -> str:
 
 
 def validate_hold(sim: Sim, until: float, reason: str, max_hours: Optional[float]) -> None:
+    """The reason is optional (a quick hold needs none)."""
     now = time.time()
     if until <= now:
         raise api_error(400, "The hold must end in the future.")
     if max_hours is not None and until > now + max_hours * 3600 + 60:
         raise api_error(400, f"A hold can last at most {max_hours:g} hours.")
-    if len(reason.strip()) < 3:
-        raise api_error(400, "Please give a reason for the hold.")
+
+
+def plenty_of_room(in_use: int, limits) -> bool:
+    """Fewer than half of the slots in use: then the limits that keep one
+    visitor from taking several slots (replacing on a new claim, claims per
+    address, simultaneous holds) are relaxed."""
+    return in_use < limits.max_sims / 2
 
 
 # -- reaper ----------------------------------------------------------------
@@ -476,7 +497,7 @@ class CreateSimRequest(BaseModel):
 
 class HoldRequest(BaseModel):
     until: float  # unix epoch seconds
-    reason: str = Field(max_length=300)
+    reason: str = Field(default="", max_length=300)  # optional
 
 
 class HeartbeatRequest(BaseModel):
@@ -490,8 +511,9 @@ class ReclaimRequest(BaseModel):
 @app.get("/api/scenes")
 async def api_scenes(request: Request) -> list[dict]:
     levels = scene_levels()
+    groups = scene_groups()
     return [
-        {**s.public(), "visibility": levels[s.id]}
+        {**with_group(s.public(), groups[s.id]), "visibility": levels[s.id]}
         for s in catalog.list_scenes()
         if may_see_level(request, levels[s.id])
     ]
@@ -596,12 +618,14 @@ async def api_set_hold(sim_id: str, body: HoldRequest, request: Request) -> dict
     limits = S.store.get_limits()
     validate_hold(sim, body.until, body.reason, limits.max_hold_hours)
     async with S.claim_lock:
-        others_held = [s for s in S.store.list_sims() if s.id != sim.id and s.is_held()]
-        if len(others_held) >= limits.max_held_sims:
+        all_sims = S.store.list_sims()
+        others_held = [s for s in all_sims if s.id != sim.id and s.is_held()]
+        if len(others_held) >= limits.max_held_sims and not plenty_of_room(len(all_sims), limits):
             raise api_error(
                 409,
-                f"At most {limits.max_held_sims} simulation(s) can be on hold at the same time, "
-                "and that limit is reached. Contact the administrator if you need an exception.",
+                f"At most {limits.max_held_sims} simulation(s) can be on hold at the same time while half or "
+                "more of the slots are in use, and that limit is reached. Contact the administrator if you "
+                "need an exception.",
             )
         S.store.set_hold(sim.id, body.until, body.reason.strip())
     S.store.touch(sim.id)
@@ -736,6 +760,7 @@ async def admin_state() -> dict:
     containers = await asyncio.to_thread(S.backend.managed_containers)
     defaults_set = S.store.scenes_with_defaults()
     levels = scene_levels()
+    groups = scene_groups()
     return {
         "limits": S.store.get_limits().as_dict(),
         "sims": [
@@ -743,7 +768,8 @@ async def admin_state() -> dict:
         ],
         "scenes": [
             {
-                **scene.public(),
+                **with_group(scene.public(), groups[scene.id]),
+                "groupDefault": scene.group,
                 "image": scene.image,
                 "imageAvailable": available,
                 "buildable": scene.buildable,
@@ -865,6 +891,15 @@ class DefaultsRequest(BaseModel):
     values: dict
 
 
+def start_defaults(scene: Scene) -> dict:
+    """What a new simulation gets as MSD_SCENE_DEFAULTS: its scene's admin-set
+    defaults and presets, plus those of the scenes it imports presets from."""
+    defaults = S.store.get_scene_defaults(scene.id)
+    if scene.import_presets_from:
+        defaults = {**defaults, "imports": {i: S.store.get_scene_defaults(i) for i in scene.import_presets_from}}
+    return defaults
+
+
 async def push_scene_defaults(scene_id: str, defaults: dict) -> None:
     """Hands new defaults to the scene's running containers too (best
     effort), so their own Reset / Defaults buttons and page reloads use
@@ -942,6 +977,21 @@ async def admin_clear_defaults(scene_id: str) -> dict:
         S.store.log("defaults-cleared", detail=f"scene={scene_id}")
         await push_scene_defaults(scene_id, {})
     return {"ok": True}
+
+
+class GroupRequest(BaseModel):
+    group: Literal[tuple(catalog.GROUPS)]  # type: ignore[valid-type]
+
+
+@app.put("/admin/api/scenes/{scene_id}/group", dependencies=[Depends(require_admin)])
+async def admin_set_group(scene_id: str, body: GroupRequest) -> dict:
+    """The lobby section the scene is listed in (CloSer project, Playground,
+    Archive, ...), instead of its scene.json "group"."""
+    if catalog.get_scene(scene_id) is None:
+        raise api_error(404, "Unknown scene.")
+    S.store.set_scene_group(scene_id, body.group)
+    S.store.log("group", detail=f"scene={scene_id} {body.group}")
+    return {"ok": True, "group": body.group}
 
 
 class VisibilityRequest(BaseModel):

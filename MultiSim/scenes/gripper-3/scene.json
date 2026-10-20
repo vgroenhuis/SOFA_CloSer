@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 3",
+	"group": "closer",
+	"description": "The gripper of Gripper 2 with rigid segments and compliant hinge joints instead of finite elements: slide the flange over a cylinder, close the fingers with the pressure slider, and lift it. Runs faster than real time.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

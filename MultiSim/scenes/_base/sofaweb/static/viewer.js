@@ -840,6 +840,13 @@ function sceneView() {
 	const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
 	controls.target.copy(camera.position).addScaledVector(forward, cam.distance);
 	camera.zoom = 1;
+	// A portrait screen (a phone) shows less width for the same vertical field: back off to keep the scene's
+	// width in view (the scene's camera is set for a landscape window).
+	const aspect = window.innerWidth / window.innerHeight;
+	if (aspect < 1) {
+		if (camera.isOrthographicCamera) camera.zoom = Math.max(0.45, aspect);
+		else camera.position.copy(controls.target).addScaledVector(forward, -cam.distance * Math.min(2.2, 1 / aspect));
+	}
 	camera.updateProjectionMatrix();
 	controls.update();
 	showCameraPose();
@@ -871,9 +878,11 @@ function applySetup(message) {
 	livePositions.clear();
 	disposeScene();
 	scene.background = sofaColor(message.background);
+	rulerKey = null; // the ruler follows the new background
 	document.body.style.background = `#${scene.background.getHexString()}`;
 	buildLights(message.ambient, message.lights);
 	message.models.forEach((info, order) => buildModel(info, order));
+	buildGauge(message.gauge);
 	buildMirrorCopies();
 	buildLightControls(message);
 	applyDisplay(); // this viewer's display settings, onto the fresh models and lights
@@ -977,7 +986,10 @@ function buildCharts(config) {
 }
 
 // Clicking a chart's or the readouts' title collapses the panel to just
-// that title; remembered per scene in this browser.
+// that title; the side panels (Controls, Display, Lighting, Parameters) open
+// and close with theirs. Everything starts collapsed, and what a visitor
+// opens stays open in this browser, per scene ({id: true (collapsed) |
+// false (open)}; no entry: collapsed).
 const panelStoreKey = () => `sofaweb-panels:${sceneInfo.title}`;
 
 function collapsedPanels() {
@@ -992,12 +1004,11 @@ function makeCollapsible(panel, id) {
 	const title = panel.querySelector("h2");
 	title.classList.add("collapsible-title");
 	title.title = "Click to collapse or expand";
-	panel.classList.toggle("collapsed", !!collapsedPanels()[id]);
+	panel.classList.toggle("collapsed", collapsedPanels()[id] !== false);
 	title.addEventListener("click", () => {
 		const collapsed = panel.classList.toggle("collapsed");
 		const state = collapsedPanels();
-		if (collapsed) state[id] = true;
-		else delete state[id];
+		state[id] = collapsed;
 		try {
 			localStorage.setItem(panelStoreKey(), JSON.stringify(state));
 		} catch {}
@@ -1030,6 +1041,7 @@ function updateTelemetry(t, scalars, full) {
 }
 
 function showReadouts(scalars) {
+	updateGauge(scalars);
 	for (const [key, { el, def }] of readoutEls) {
 		const v = scalars[key];
 		if (v === undefined || !Number.isFinite(v)) continue;
@@ -1054,6 +1066,20 @@ function applyHistory(message) {
 }
 
 let lastStatus = null;
+// The "recorded run" hint waits a few seconds, so it doesn't cover the
+// scene the moment it loads: when it first applies, and whether it's due.
+const RECORDED_HINT_DELAY_MS = 4000;
+let recordedHintSince = null;
+let recordedHintTimer = null;
+
+// A message in the banner can be closed with its x, and hides itself after a while unless it is an error.
+// Either way it stays away until the message changes or the situation ends, so it doesn't pop back on every status update.
+const BANNER_AUTO_HIDE_MS = 20000;
+let shownMessage = "";
+let shownMessageSince = 0;
+let dismissedMessage = "";
+let bannerTimer = null;
+
 function renderStatus() {
 	const statusEl = $("status");
 	const banner = $("banner");
@@ -1076,6 +1102,7 @@ function renderStatus() {
 	$("building").classList.toggle("hidden", s.status !== "building");
 	$("auto-restart-checkbox").checked = !!s.autoRestart;
 	updateTimeline();
+	updateControls(s);
 
 	let message = "";
 	banner.className = "";
@@ -1083,16 +1110,45 @@ function renderStatus() {
 		message = s.error;
 		banner.className = "error";
 	} else if (s.recording?.cached) {
-		message = "These parameters' run was recorded before (they're a preset's): play it back with ▶ or the timeline."
-			+ (isViewer ? "" : " Simulate live runs the simulation itself.");
+		if (recordedHintSince === null) {
+			recordedHintSince = performance.now();
+			clearTimeout(recordedHintTimer);
+			recordedHintTimer = setTimeout(renderStatus, RECORDED_HINT_DELAY_MS);
+		}
+		if (performance.now() - recordedHintSince >= RECORDED_HINT_DELAY_MS - 50) {
+			message = "These parameters' run was recorded before (they're a preset's): play it back with ▶ or the timeline."
+				+ (isViewer ? "" : " Simulate live runs the simulation itself.");
+			banner.classList.add("fade-in");
+		}
 	} else if (s.finished && !s.autoRestart) {
 		message = `Run finished (${s.endReason}).` + (isViewer ? " Replay it with the timeline." : " Replay it with the timeline, press ▶ to continue it, or ■ to go back to the start.");
 	} else if (s.finished && s.autoRestart) {
 		message = `Run finished (${s.endReason}) -- restarting...`;
 	}
-	banner.textContent = message;
+	if (!s.recording?.cached) {
+		recordedHintSince = null;
+		clearTimeout(recordedHintTimer);
+	}
+	if (!message) {
+		shownMessage = "";
+		dismissedMessage = "";
+		clearTimeout(bannerTimer);
+	} else if (message !== shownMessage) {
+		shownMessage = message;
+		shownMessageSince = performance.now();
+		clearTimeout(bannerTimer);
+		if (!s.error) bannerTimer = setTimeout(renderStatus, BANNER_AUTO_HIDE_MS + 50);
+	}
+	if (message && !s.error && performance.now() - shownMessageSince >= BANNER_AUTO_HIDE_MS) dismissedMessage = message;
+	if (message === dismissedMessage) message = "";
+	$("banner-text").textContent = message;
 	banner.classList.toggle("hidden", !message);
 }
+
+$("banner-close").addEventListener("click", () => {
+	dismissedMessage = shownMessage;
+	renderStatus();
+});
 
 // ---------------------------------------------------------------------------
 // Connection
@@ -1124,12 +1180,17 @@ function handleFrame(buffer) {
 	}
 	const rtfEl = $("rtf");
 	if (header.rtf > 0 && !header.paused && !header.finished) {
-		rtfEl.textContent = `${header.rtf.toFixed(2)}× real time`;
+		rtfEl.textContent = `${header.rtf.toFixed(2)}× real time${header.fps > 0 ? ` · ${formatFps(header.fps)}` : ""}`;
 		rtfEl.className = header.rtf < 0.95 ? "slow" : "";
 	} else {
 		rtfEl.textContent = "";
 	}
 	updateTelemetry(header.t, header.scalars || {}, header.full);
+}
+
+// Frames per second the server sends (one per step when the scene runs slower than real time).
+function formatFps(fps) {
+	return `${fps < 10 ? fps.toFixed(1) : Math.round(fps)} fps`;
 }
 
 function connect() {
@@ -1163,6 +1224,167 @@ function connect() {
 			handleFrame(event.data);
 		}
 	});
+}
+
+// ---------------------------------------------------------------------------
+// Controls: sliders and buttons that act on the running simulation (the
+// scene config's `controls`). The owner moves them; everyone sees them move
+// with the status messages.
+// ---------------------------------------------------------------------------
+
+const controlRows = new Map(); // key -> { control, row, show(value) }
+const controlSends = new Map(); // key -> { busy, next } (a slider sends its latest value only)
+
+function postControl(key, value) {
+	return fetch("api/control", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ key, value }),
+	}).catch(() => {});
+}
+
+function sendControl(key, value) {
+	let state = controlSends.get(key);
+	if (!state) controlSends.set(key, (state = { busy: false, next: undefined }));
+	if (state.busy) {
+		state.next = value;
+		return;
+	}
+	state.busy = true;
+	postControl(key, value).finally(() => {
+		state.busy = false;
+		if (state.next !== undefined) {
+			const next = state.next;
+			state.next = undefined;
+			sendControl(key, next);
+		}
+	});
+}
+
+const fmtControl = (c, v) => `${Number(v).toFixed(c.digits ?? 2)}${c.unit ? " " + c.unit : ""}`;
+
+function controlLabel(c, forId) {
+	const label = document.createElement("label");
+	label.textContent = c.label;
+	if (forId) label.htmlFor = forId;
+	return label;
+}
+
+function buildControlsPanel(controls) {
+	const form = $("controls-form");
+	form.replaceChildren();
+	controlRows.clear();
+	$("controls-panel").classList.toggle("hidden", !controls.length);
+	for (const c of controls) {
+		const row = document.createElement("div");
+		row.className = `display-row control ${c.type}`;
+		if (c.description) row.title = c.description;
+		const id = `c-${c.key}`;
+		let show = () => {};
+		if (c.type === "slider") {
+			const input = document.createElement("input");
+			Object.assign(input, { type: "range", id, min: c.min, max: c.max, step: c.step ?? "any", value: c.default ?? c.min, disabled: isViewer });
+			const value = document.createElement("span");
+			value.className = "display-value";
+			value.textContent = fmtControl(c, input.value);
+			const reset = document.createElement("button");
+			Object.assign(reset, { type: "button", className: "secondary mini-btn owner-only", textContent: "↺", title: `Back to ${fmtControl(c, c.default ?? c.min)}` });
+			let grabbed = false;
+			input.addEventListener("pointerdown", () => (grabbed = true));
+			window.addEventListener("pointerup", () => (grabbed = false));
+			input.addEventListener("input", () => {
+				value.textContent = fmtControl(c, input.value);
+				sendControl(c.key, Number(input.value));
+			});
+			reset.addEventListener("click", () => {
+				input.value = c.default ?? c.min;
+				value.textContent = fmtControl(c, input.value);
+				sendControl(c.key, Number(input.value));
+			});
+			show = (v) => {
+				// Not while the owner is dragging it (the status lags behind).
+				if (grabbed || controlSends.get(c.key)?.busy) return;
+				input.value = v;
+				value.textContent = fmtControl(c, v);
+			};
+			// "wide": the range input gets a row of its own, the panel's full width (finer control on a touchscreen).
+			if (c.wide) row.classList.add("wide");
+			row.append(controlLabel(c, id), input, value, reset);
+		} else if (c.type === "toggle") {
+			const label = document.createElement("label");
+			label.className = "toggle-label";
+			const input = document.createElement("input");
+			Object.assign(input, { type: "checkbox", id, checked: !!c.default, disabled: isViewer });
+			input.addEventListener("change", () => sendControl(c.key, input.checked));
+			label.append(input, c.label);
+			show = (v) => {
+				if (!controlSends.get(c.key)?.busy) input.checked = !!v;
+			};
+			row.append(label);
+		} else {
+			// "hold": on while held down; "button": one action per click.
+			const button = document.createElement("button");
+			Object.assign(button, { type: "button", id, className: "control-btn", textContent: c.label, disabled: isViewer });
+			if (c.type === "hold") {
+				let held = false;
+				let keepAlive = null;
+				const press = () => {
+					if (held) return;
+					held = true;
+					button.classList.add("active");
+					sendControl(c.key, true);
+					// The server lets go unless told again within a few seconds.
+					keepAlive = setInterval(() => sendControl(c.key, true), 1000);
+				};
+				const release = () => {
+					if (!held) return;
+					held = false;
+					clearInterval(keepAlive);
+					button.classList.remove("active");
+					sendControl(c.key, false);
+				};
+				button.addEventListener("pointerdown", (event) => {
+					if (event.button !== 0) return;
+					button.setPointerCapture(event.pointerId);
+					press();
+				});
+				for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) button.addEventListener(type, release);
+				button.addEventListener("keydown", (event) => {
+					if ((event.key === " " || event.key === "Enter") && !event.repeat) {
+						event.preventDefault();
+						press();
+					}
+				});
+				button.addEventListener("keyup", (event) => {
+					if (event.key === " " || event.key === "Enter") release();
+				});
+				button.addEventListener("blur", release);
+				window.addEventListener("blur", release);
+				document.addEventListener("visibilitychange", () => document.hidden && release());
+				button.addEventListener("contextmenu", (event) => event.preventDefault()); // long press on touch
+				show = (v) => {
+					if (!held) button.classList.toggle("active", !!v);
+				};
+			} else {
+				button.addEventListener("click", () => {
+					postControl(c.key, null);
+					button.classList.add("active");
+					setTimeout(() => button.classList.remove("active"), 150);
+				});
+			}
+			row.append(button);
+		}
+		form.appendChild(row);
+		controlRows.set(c.key, { control: c, row, show });
+	}
+}
+
+function updateControls(s) {
+	const usable = s.status === "running";
+	for (const [key, { row, show }] of controlRows) {
+		row.classList.toggle("disabled", !usable);
+		if (s.controls && key in s.controls) show(s.controls[key]);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -1218,6 +1440,17 @@ function buildParamsPanel(spec) {
 			}
 			if (isViewer) input.disabled = true;
 			input.addEventListener(field.type === "bool" ? "change" : "input", () => {
+				// Switching on one of a pair that can't both be on switches the other off.
+				if (field.type === "bool" && input.checked) {
+					for (const other of field.excludes || []) {
+						const entry = fieldInputs.get(other);
+						if (entry && entry.input.checked) {
+							entry.input.checked = false;
+							entry.input.classList.add("dirty");
+							$("apply-params-btn").disabled = false;
+						}
+					}
+				}
 				if (field.live) return;
 				input.classList.add("dirty");
 				$("apply-params-btn").disabled = false;
@@ -1963,7 +2196,9 @@ function renderPresets(section) {
 	row.querySelector(".preset-delete").disabled = name === null || name === "Default";
 	// Loading parameters is the owner's; a watching admin picks a preset only to save to it.
 	select.disabled = section === "params" && isViewer && !isAdmin();
-	row.classList.toggle("hidden", list.length <= 1 && !isAdmin());
+	const canImport = section === "params" && !isViewer && (sceneInfo?.imports || []).length > 0;
+	row.querySelector(".preset-import")?.classList.toggle("hidden", !canImport);
+	row.classList.toggle("hidden", list.length <= 1 && !isAdmin() && !canImport);
 }
 
 function renderAllPresets() {
@@ -2053,6 +2288,111 @@ function presetValues(section) {
 		Object.entries(displayState).filter(([key]) => !key.startsWith("light:") && key !== "overlay:femStrainPeak"),
 	);
 }
+
+// Importing another scene's parameters preset (api/scene's `imports`, see
+// SceneConfig.import_presets): converted on the server, applied like a
+// preset of this scene; the dialog then lists what couldn't be carried over.
+const importSources = () => sceneInfo?.imports || [];
+
+function fillImportPresets() {
+	const source = importSources().find((s) => s.scene === $("import-scene").value);
+	const select = $("import-preset");
+	select.replaceChildren(...(source?.presets || []).map((p) => {
+		const option = new Option(p.name, p.name);
+		if (p.description) option.title = p.description;
+		return option;
+	}));
+	showImportDescription();
+}
+
+function showImportDescription() {
+	const source = importSources().find((s) => s.scene === $("import-scene").value);
+	const preset = source?.presets.find((p) => p.name === $("import-preset").value);
+	$("import-desc").textContent = preset?.description || "";
+}
+
+function openImportDialog() {
+	const sources = importSources();
+	if (!sources.length) return;
+	$("import-scene").replaceChildren(...sources.map((s) => new Option(s.title, s.scene)));
+	fillImportPresets();
+	$("import-pick").classList.remove("hidden");
+	$("import-result").classList.add("hidden");
+	$("import-go").classList.remove("hidden");
+	$("import-go").disabled = false;
+	$("import-cancel").textContent = "Cancel";
+	$("import-title").textContent = "Import a parameters preset";
+	$("import-dialog").showModal();
+}
+
+function showImportResult(result) {
+	const box = $("import-result");
+	box.replaceChildren();
+	const ok = document.createElement("p");
+	ok.className = "import-ok";
+	ok.textContent = `Imported "${result.preset}" from ${result.source}; the simulation was rebuilt with it.`;
+	box.appendChild(ok);
+	const groups = [
+		["not imported", `Not imported (no counterpart in ${sceneInfo.title})`],
+		["estimated", "Estimated"],
+		["assumed", "Assumed"],
+	];
+	let any = false;
+	for (const [kind, title] of groups) {
+		const notes = result.notes.filter((n) => n.kind === kind);
+		if (!notes.length) continue;
+		any = true;
+		const h = document.createElement("h4");
+		h.textContent = title;
+		const ul = document.createElement("ul");
+		for (const note of notes) {
+			const li = document.createElement("li");
+			const b = document.createElement("strong");
+			b.textContent = note.label;
+			li.append(b, `: ${note.text}`);
+			ul.appendChild(li);
+		}
+		box.append(h, ul);
+	}
+	if (!any) {
+		const p = document.createElement("p");
+		p.textContent = "Every parameter was carried over directly.";
+		box.appendChild(p);
+	}
+	$("import-title").textContent = "Imported";
+	$("import-pick").classList.add("hidden");
+	box.classList.remove("hidden");
+	$("import-go").classList.add("hidden");
+	$("import-cancel").textContent = "Close";
+}
+
+async function runImport() {
+	const scene = $("import-scene").value;
+	const name = $("import-preset").value;
+	if (!scene || !name) return;
+	$("import-go").disabled = true;
+	try {
+		const response = await fetch("api/params/import", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ scene, name }),
+		});
+		const body = await response.json();
+		if (!response.ok) throw new Error(body?.detail?.message || `${response.status} ${response.statusText}`);
+		selectedPreset.params = null;
+		showParams(body.params);
+		showImportResult(body);
+	} catch (err) {
+		$("import-go").disabled = false;
+		alert(`Couldn't import the preset: ${err.message}`);
+	}
+}
+
+$("import-scene").addEventListener("change", fillImportPresets);
+$("import-preset").addEventListener("change", showImportDescription);
+$("import-go").addEventListener("click", runImport);
+$("import-cancel").addEventListener("click", () => $("import-dialog").close());
+document.querySelector('.preset-row[data-section="params"] .preset-import').addEventListener("click", openImportDialog);
 
 async function refreshPresets() {
 	try {
@@ -2196,6 +2536,15 @@ function buildDisplayPanel(spec, useSaved = true, overrides = null) {
 			form.appendChild(checkboxRow(d.key, d.label));
 		}
 	}
+	if (sceneInfo.hasGauge) {
+		displayState.showGauge = "showGauge" in saved ? !!saved.showGauge : true;
+		form.appendChild(checkboxRow("showGauge", "Pressure gauge (manometer, tube)"));
+	}
+	if (sceneInfo.view !== "2d") {
+		// The scale ruler (see updateRuler), for every 3D scene.
+		displayState.scaleTicks = "scaleTicks" in saved ? !!saved.scaleTicks : true;
+		form.appendChild(checkboxRow("scaleTicks", "Axis scale (ticks, labels)"));
+	}
 	updateDisplayAvailability();
 }
 
@@ -2264,6 +2613,12 @@ const timelineAvailable = () => {
 	return !!(s && connected && s.status === "running" && (s.paused || s.finished) && s.recording && s.recording.frames >= 2);
 };
 
+// The timeline's text while the recording isn't there yet.
+function setLoading(text) {
+	replay.loadingText = text;
+	if (!(replay.rec && replay.rec.frames.length)) $("replay-time").textContent = text;
+}
+
 async function fetchRecording() {
 	if (replay.fetching || performance.now() < replay.retryAt) return;
 	replay.fetching = true;
@@ -2271,12 +2626,39 @@ async function fetchRecording() {
 	try {
 		const wanted = lastStatus?.recording?.id;
 		const have = replay.rec && replay.rec.generation === generation && replay.rec.id === wanted ? replay.rec.frames.length : 0;
-		const response = await fetch(`api/recording?start=${have}`, { cache: "no-store" });
+		// While no frames are shown yet, the timeline says what's going on: the server
+		// compresses the recording first (nothing arrives meanwhile), then it downloads.
+		const began = performance.now();
+		const waiting = setInterval(() => {
+			if (!have) setLoading(`loading the recording: preparing it on the server, ${Math.round((performance.now() - began) / 1000)} s...`);
+		}, 400);
+		if (!have) setLoading("loading the recording: preparing it on the server...");
+		let response;
+		try {
+			response = await fetch(`api/recording?start=${have}`, { cache: "no-store" });
+		} finally {
+			clearInterval(waiting);
+		}
 		if (response.status !== 200) return;
 		const gen = Number(response.headers.get("X-Recording-Generation"));
 		const start = Number(response.headers.get("X-Recording-Start"));
 		const id = Number(response.headers.get("X-Recording-Id"));
-		const buffer = await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+		const total = Number(response.headers.get("X-Recording-Bytes") || response.headers.get("Content-Length")) || 0;
+		const chunks = [];
+		let received = 0;
+		const reader = response.body.getReader();
+		for (;;) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			chunks.push(value);
+			received += value.length;
+			if (!have) {
+				const mb = (n) => (n / 1048576).toFixed(1);
+				setLoading(total ? `loading the recording: ${Math.floor((100 * received) / total)} % (${mb(received)} of ${mb(total)} MB)` : `loading the recording: ${mb(received)} MB...`);
+			}
+		}
+		if (!have) setLoading("loading the recording: unpacking...");
+		const buffer = await new Response(new Blob(chunks).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
 		if (gen !== generation) return; // rebuilt meanwhile
 		const sameRecording = replay.rec && replay.rec.id === id;
 		const wasAtEnd = !sameRecording || replay.index >= replay.rec.frames.length - 1;
@@ -2285,18 +2667,21 @@ async function fetchRecording() {
 		replay.retryAt = 0;
 		chartsFromRecording();
 		if (!timelineAvailable()) return;
-		// Start where the simulation is: a cached run at its start, a run
-		// that's paused or finished at its end.
+		// Start where the simulation is: a cached run, or the run before
+		// Stop (the scene is back at its start), at its start; a run that's
+		// paused or finished at its end.
 		const frames = replay.rec.frames;
-		const t = lastStatus.recording.cached
+		const t = lastStatus.recording.cached || lastStatus.recording.previous
 			? (replay.active && sameRecording ? replay.clock : frames[0].t)
 			: wasAtEnd || !replay.active ? frames[frames.length - 1].t : replay.clock;
 		replay.active = true;
 		showRecordedTime(t);
 	} catch (err) {
 		console.error("Loading the recording failed", err);
+		setLoading("couldn't load the recording; trying again...");
 	} finally {
 		replay.fetching = false;
+		replay.loadingText = null;
 		updateTimeline();
 	}
 }
@@ -2509,14 +2894,17 @@ function updateTimeline() {
 	if (frames) $("scrub").value = replay.clock;
 	$("scrub").disabled = frames < 2;
 	$("replay-btn").disabled = frames < 2;
-	if (!frames) $("replay-time").textContent = "loading the recording...";
+	if (!frames) $("replay-time").textContent = replay.loadingText || "loading the recording...";
 	$("simulate-btn").classList.toggle("hidden", !status.cached);
 	let note = "this session only";
-	if (status.cached) note = "recorded run of a preset";
+	if (status.previous) note = "the run before ■ (until ▶)";
+	else if (status.cached) note = "recorded run of a preset";
 	else if (status.saved) note = "saved for this preset";
 	else if (status.truncated) note = "recording stopped: too long";
 	$("timeline-note").textContent = note;
-	$("timeline-note").title = status.cached || status.saved
+	$("timeline-note").title = status.previous
+		? "The run that was stopped: kept for playback until the simulation runs again or the parameters change"
+		: status.cached || status.saved
 		? "Kept on the server: simulations of these preset parameters play it back instead of simulating"
 		: "Kept until the parameters change or the simulation ends: these parameters aren't a preset's";
 	updateTransport();
@@ -2574,6 +2962,11 @@ $("stop-btn").addEventListener("click", async () => {
 		await fetch("api/pause", { method: "POST" });
 		await fetch("api/reset", { method: "POST" });
 	} catch {}
+});
+// On a phone the top bar keeps the title, play and stop; "..." shows the rest.
+$("hud-toggle").addEventListener("click", () => {
+	const open = $("hud").classList.toggle("open");
+	$("hud-toggle").setAttribute("aria-expanded", String(open));
 });
 $("auto-restart-checkbox").addEventListener("change", (event) => {
 	fetch(`api/auto-restart?enabled=${event.target.checked}`, { method: "POST" }).catch(() => {});
@@ -2644,8 +3037,11 @@ async function openInfo() {
 		if (info.dt) add("Timestep", `${(info.dt * 1000).toFixed(2)} ms`);
 		add("Simulated time", `${info.simTime.toFixed(3)} s`);
 		if (info.stopAt != null) add("Run ends at", `${info.stopAt.toFixed(2)} s simulated time`);
-		add("Speed", info.rtf > 0 ? `${info.rtf.toFixed(2)}× real time` : "not running");
-		add("Visual models", info.models.map((m) => `${m.name} (${m.vertices} vertices)`).join(", "));
+		add("Speed", info.rtf > 0 ? `${info.rtf.toFixed(2)}× real time${info.fps > 0 ? `, ${formatFps(info.fps)}` : ""}` : "not running");
+		add("Visual models", info.models.filter((m) => m.kind !== "tetra").map((m) => `${m.name} (${m.vertices} vertices)`).join(", "));
+		if (info.fem && info.fem.length) {
+			add("FEM elements", info.fem.map((m) => `${m.elements.toLocaleString("en")} tetrahedra, ${m.nodes.toLocaleString("en")} nodes` + (info.fem.length > 1 ? ` (${m.name.replace(/^FEM:/, "")})` : "")).join("; "));
+		}
 		add("Build", String(info.generation));
 	} catch {
 		add("Error", "Could not load simulation info.");
@@ -2687,6 +3083,41 @@ function makeTopRightResizable(panel, handle) {
 // Start
 // ---------------------------------------------------------------------------
 
+function initSidePanels() {
+	for (const panel of document.querySelectorAll("#side-panels details")) {
+		const id = `side:${panel.id}`;
+		panel.open = collapsedPanels()[id] === false; // open only if the visitor opened it before
+		panel.addEventListener("toggle", () => {
+			const state = collapsedPanels();
+			state[id] = !panel.open;
+			try {
+				localStorage.setItem(panelStoreKey(), JSON.stringify(state));
+			} catch {}
+		});
+	}
+}
+
+// Text fields: no browser autofill (on a tablet, the bar with the key, bank card and map pin icons above the
+// keyboard), no auto-capitalisation or spell checking. Covers fields built later too.
+function noAutofill(root) {
+	const fields = root.matches?.("input, textarea") ? [root, ...root.querySelectorAll("input, textarea")] : root.querySelectorAll?.("input, textarea") || [];
+	for (const el of fields) {
+		if (["checkbox", "range", "color", "button"].includes(el.type)) continue;
+		el.setAttribute("autocomplete", "off");
+		el.setAttribute("autocapitalize", "off");
+		el.setAttribute("autocorrect", "off");
+		el.setAttribute("spellcheck", "false");
+		el.setAttribute("data-lpignore", "true"); // password managers
+		el.setAttribute("data-1p-ignore", "true");
+		if (el.type === "number" && !el.hasAttribute("inputmode")) el.setAttribute("inputmode", "decimal");
+	}
+	if (root.tagName === "FORM") root.setAttribute("autocomplete", "off");
+}
+noAutofill(document.body);
+new MutationObserver((records) => {
+	for (const record of records) for (const node of record.addedNodes) if (node.nodeType === 1) noAutofill(node);
+}).observe(document.body, { childList: true, subtree: true });
+
 async function init() {
 	try {
 		sceneInfo = await (await fetch("api/scene")).json();
@@ -2710,6 +3141,8 @@ async function init() {
 	}
 	restorePresetSelection();
 	renderAllPresets();
+	initSidePanels();
+	buildControlsPanel(sceneInfo.controls || []);
 	buildParamsPanel(sceneInfo.spec);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
 	buildDisplayPanel(sceneInfo.display || []);
@@ -2762,6 +3195,351 @@ function sortTransparent() {
 	items.forEach((item, i) => (item.mesh.renderOrder = 1000 + i));
 }
 
+// ---------------------------------------------------------------------------
+// Scale ruler: ticks and labels along the three world axes through the world
+// origin (where a scene's own X / Y arrows start), so the size of what's on
+// screen can be judged -- PneuNets of 5 mm and of 50 cm
+// look alike. The tick interval (1, 2 or 5 x a power of ten) follows the zoom:
+// about eight ticks across the view. Scenes are SI (metres); labels show m, mm
+// or um according to the interval. Every 3D scene gets it, with a switch in the
+// Display panel; labels keep their size on screen.
+// ---------------------------------------------------------------------------
+
+const rulerGroup = new THREE.Group();
+scene.add(rulerGroup);
+let rulerKey = null;
+const rulerTextures = new Map();
+const RULER_TICKS_ACROSS = 8;
+const AXIS_NAME_COLORS = ["#d64545", "#2e9e4f", "#3a5bd9"];
+
+function niceInterval(raw) {
+	const power = 10 ** Math.floor(Math.log10(raw));
+	const n = raw / power;
+	return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * power;
+}
+
+function rulerUnit(interval) {
+	if (interval >= 0.1) return { f: 1, name: "m" };
+	if (interval >= 1e-4) return { f: 1e-3, name: "mm" };
+	return { f: 1e-6, name: "µm" };
+}
+
+function formatTick(value, unit, interval) {
+	const decimals = Math.max(0, Math.min(6, Math.ceil(-Math.log10(interval / unit.f) - 1e-9)));
+	const text = (value / unit.f).toFixed(decimals);
+	return /^-0(\.0+)?$/.test(text) ? text.slice(1) : text;
+}
+
+function visibleHeight() {
+	if (camera.isOrthographicCamera) return (camera.top - camera.bottom) / camera.zoom;
+	return 2 * camera.position.distanceTo(controls.target) * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+}
+
+// Dark ink with a light halo on a light background, and the other way round.
+function rulerInk() {
+	const bg = scene.background;
+	const light = bg ? 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b > 0.5 : false;
+	return light ? { fg: "#1b1d22", halo: "rgba(255,255,255,0.85)" } : { fg: "#e8e8e8", halo: "rgba(0,0,0,0.65)" };
+}
+
+function rulerLabel(text, ink, color = null) {
+	const key = `${text}|${ink.fg}|${color}`;
+	let entry = rulerTextures.get(key);
+	if (!entry) {
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d");
+		const font = "bold 44px system-ui, sans-serif";
+		ctx.font = font;
+		canvas.width = Math.ceil(ctx.measureText(text).width) + 20;
+		canvas.height = 64;
+		ctx.font = font;
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.lineJoin = "round";
+		ctx.lineWidth = 8;
+		ctx.strokeStyle = ink.halo;
+		ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+		ctx.fillStyle = color || ink.fg;
+		ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+		const texture = new THREE.CanvasTexture(canvas);
+		texture.colorSpace = THREE.SRGBColorSpace;
+		entry = { texture, aspect: canvas.width / canvas.height };
+		rulerTextures.set(key, entry);
+	}
+	const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: entry.texture, depthTest: false, depthWrite: false, transparent: true }));
+	sprite.renderOrder = 5001;
+	sprite.userData.aspect = entry.aspect;
+	return sprite;
+}
+
+function clearRuler() {
+	for (const child of [...rulerGroup.children]) {
+		rulerGroup.remove(child);
+		if (child.isSprite) child.material.dispose();
+		else {
+			child.geometry.dispose();
+			child.material.dispose();
+		}
+	}
+}
+
+function updateRuler() {
+	const on = !!setup && !!controls && setup.view !== "2d" && displayState.scaleTicks !== false;
+	const up = setup ? setup.up || [0, 0, 1] : [0, 0, 1];
+	const upIdx = up.findIndex((v) => Math.abs(v) > 0.99);
+	if (!on || upIdx < 0) {
+		rulerGroup.visible = false;
+		return;
+	}
+	rulerGroup.visible = true;
+	const horiz = [0, 1, 2].filter((i) => i !== upIdx);
+	// Each axis, and the horizontal one its ticks and labels extend along (towards negative).
+	const axes = [
+		{ axis: horiz[0], side: horiz[1] },
+		{ axis: horiz[1], side: horiz[0] },
+		{ axis: upIdx, side: horiz[0] },
+	];
+	const height = visibleHeight();
+	if (!(height > 0) || !Number.isFinite(height)) return;
+	const interval = niceInterval(height / RULER_TICKS_ACROSS);
+	const unit = rulerUnit(interval);
+	const ink = rulerInk();
+	const reach = 0.7 * height * Math.max(1, window.innerWidth / window.innerHeight);
+	const ranges = axes.map(({ axis }) => {
+		const c = controls.target.getComponent(axis);
+		const k0 = Math.floor((c - reach) / interval);
+		return [k0, Math.min(Math.ceil((c + reach) / interval), k0 + 60)];
+	});
+	const key = [interval, upIdx, unit.name, ink.fg, ...ranges.flat()].join("|");
+	if (key !== rulerKey) {
+		rulerKey = key;
+		clearRuler();
+		const tick = 0.08 * interval;
+		axes.forEach(({ axis, side }, n) => {
+			const [k0, k1] = ranges[n];
+			const point = (along, across) => {
+				const v = [0, 0, 0]; // the world origin's other coordinates
+				v[axis] = along;
+				v[side] = across;
+				return v;
+			};
+			const lines = [...point(k0 * interval, 0), ...point(k1 * interval, 0)];
+			const dir = new THREE.Vector3();
+			dir.setComponent(side, -1);
+			for (let k = k0; k <= k1; k++) {
+				const along = k * interval;
+				lines.push(...point(along, tick), ...point(along, -tick));
+				if (k === 0 && n > 0) continue; // the origin is labelled once
+				const sprite = rulerLabel(formatTick(along, unit, interval), ink);
+				sprite.userData.base = new THREE.Vector3(...point(along, 0));
+				sprite.userData.dir = dir;
+				sprite.userData.tick = tick;
+				sprite.userData.axisN = n;
+				rulerGroup.add(sprite);
+			}
+			const geometry = new THREE.BufferGeometry();
+			geometry.setAttribute("position", new THREE.Float32BufferAttribute(lines, 3));
+			const material = new THREE.LineBasicMaterial({ color: ink.fg, transparent: true, opacity: 0.75, depthTest: false, depthWrite: false });
+			const line = new THREE.LineSegments(geometry, material);
+			line.renderOrder = 5000;
+			rulerGroup.add(line);
+			// The axis name and unit, beyond the last tick.
+			const name = rulerLabel(`${"XYZ"[axis]} (${unit.name})`, ink, AXIS_NAME_COLORS[axis]);
+			name.userData.base = new THREE.Vector3(...point((k1 + 0.5) * interval, 0));
+			name.userData.dir = new THREE.Vector3();
+			name.userData.name = true;
+			rulerGroup.add(name);
+		});
+	}
+	// Labels keep their size on screen, and sit just off the axis. Where an axis is seen at a grazing angle
+	// its labels would pile up: a tick label is skipped when it would land on the previous one shown.
+	const labelHeight = 0.026 * height;
+	const lastShown = [null, null, null];
+	camera.updateMatrixWorld();
+	for (const child of rulerGroup.children) {
+		if (!child.isSprite) continue;
+		const h = child.userData.name ? 1.15 * labelHeight : labelHeight;
+		child.scale.set(h * child.userData.aspect, h, 1);
+		child.position.copy(child.userData.base);
+		if (!child.userData.name) child.position.addScaledVector(child.userData.dir, child.userData.tick + 0.7 * h);
+		child.visible = true;
+		const n = child.userData.axisN;
+		if (child.userData.name || n === undefined) continue;
+		const ndc = child.position.clone().project(camera);
+		const x = (ndc.x * window.innerWidth) / 2;
+		const y = (ndc.y * window.innerHeight) / 2;
+		const min = 0.045 * Math.min(window.innerWidth, window.innerHeight); // about a label's height on screen, with a gap
+		const previous = lastShown[n];
+		if (previous && Math.hypot(x - previous[0], y - previous[1]) < min) child.visible = false;
+		else lastShown[n] = [x, y];
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Pressure gauge: an analog manometer on a tube into the model (see the scene
+// config's `gauge`), so the pressure can be read off the 3D scene itself. The
+// needle follows the scene's pressure scalar, live and in playback. Drawn here
+// from the layout in the setup message; nothing is simulated.
+// ---------------------------------------------------------------------------
+
+const gaugeRoot = new THREE.Group();
+scene.add(gaugeRoot);
+let gauges = []; // [{ info, needle }], one per gauge of the scene (a gripper has one per finger)
+// A gauge can follow a moving model of the scene (`follow`: a regex for its name, `followRest`: the centre of
+// its bounding box at rest): the dials and tubes are shifted by how far that centre has moved.
+let gaugeFollow = null;
+const GAUGE_SWEEP = (270 * Math.PI) / 180; // the needle's travel, from lower left over the top to lower right
+
+function gaugeFace(g) {
+	const size = 1024;
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = size;
+	const ctx = canvas.getContext("2d");
+	const c = size / 2;
+	ctx.fillStyle = "#f7f5ee";
+	ctx.beginPath();
+	ctx.arc(c, c, c, 0, 2 * Math.PI);
+	ctx.fill();
+	// A value on the scale: the direction (from the dial's centre) of its tick.
+	const dir = (value) => {
+		const f = (value - g.min) / (g.max - g.min);
+		const a = (0.5 - f) * GAUGE_SWEEP;
+		return [-Math.sin(a), -Math.cos(a)]; // canvas y runs down
+	};
+	const line = (value, from, to, width, color) => {
+		const [dx, dy] = dir(value);
+		ctx.strokeStyle = color;
+		ctx.lineWidth = width;
+		ctx.beginPath();
+		ctx.moveTo(c + dx * c * from, c + dy * c * from);
+		ctx.lineTo(c + dx * c * to, c + dy * c * to);
+		ctx.stroke();
+	};
+	const text = (value, radius, color, label) => {
+		const [dx, dy] = dir(value);
+		ctx.fillStyle = color;
+		ctx.fillText(label, c + dx * c * radius, c + dy * c * radius);
+	};
+	const number = (v) => String(Math.round(v * 1000) / 1000);
+	const eps = 1e-9 * Math.abs(g.max - g.min);
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	// Two scales, in two colours: the scene's unit (kPa) round the outside, in blue; bar (100 kPa = 1 bar)
+	// inside it, in black. Red is left out: it's associated with psi.
+	const KPA = "#1d5fb8";
+	const BAR = "#111111";
+	const barPerUnit = g.unit === "kPa" ? 0.01 : null;
+	for (let v = g.min; v <= g.max + eps; v += g.minor) line(v, 0.89, 0.96, 5, KPA);
+	ctx.font = `bold ${size * 0.075}px system-ui, sans-serif`;
+	for (let v = g.min; v <= g.max + eps; v += g.major) {
+		line(v, 0.81, 0.96, 10, KPA);
+		text(v, 0.7, KPA, number(v));
+	}
+	if (barPerUnit) {
+		for (let v = g.min; v <= g.max + eps; v += g.minor) line(v, 0.6, 0.64, 4, BAR);
+		ctx.font = `bold ${size * 0.062}px system-ui, sans-serif`;
+		for (let v = g.min; v <= g.max + eps; v += g.major) {
+			line(v, 0.55, 0.64, 7, BAR);
+			text(v, 0.45, BAR, number(v * barPerUnit));
+		}
+	}
+	// The units, one under the other, in their scales' colours.
+	ctx.font = `bold ${size * 0.07}px system-ui, sans-serif`;
+	ctx.fillStyle = KPA;
+	ctx.fillText(g.unit, c, c + c * 0.27);
+	if (barPerUnit) {
+		ctx.fillStyle = BAR;
+		ctx.fillText("bar", c, c + c * 0.4);
+	}
+	ctx.fillStyle = "#333333";
+	ctx.font = `${size * 0.04}px system-ui, sans-serif`;
+	ctx.fillText("PRESSURE", c, c + c * (barPerUnit ? 0.53 : 0.4));
+	const texture = new THREE.CanvasTexture(canvas);
+	texture.colorSpace = THREE.SRGBColorSpace;
+	texture.anisotropy = 4;
+	return texture;
+}
+
+function clearGauge() {
+	for (const child of [...gaugeRoot.children]) {
+		gaugeRoot.remove(child);
+		child.traverse((o) => {
+			if (o.geometry) o.geometry.dispose();
+			if (o.material) {
+				if (o.material.map) o.material.map.dispose();
+				o.material.dispose();
+			}
+		});
+	}
+	gauges = [];
+	gaugeFollow = null;
+	gaugeRoot.position.set(0, 0, 0);
+}
+
+function buildGauge(layout) {
+	clearGauge();
+	for (const g of Array.isArray(layout) ? layout : layout ? [layout] : []) {
+		if (g && g.radius > 0 && g.max > g.min) buildOneGauge(g);
+	}
+	updateGauge({});
+}
+
+function buildOneGauge(g) {
+	const R = g.radius;
+	// The dial: local x = right, local y = up, local z = towards the viewer.
+	const right = new THREE.Vector3(...g.right).normalize();
+	const upv = new THREE.Vector3(...g.up).normalize();
+	const normal = new THREE.Vector3().crossVectors(right, upv).normalize();
+	const dial = new THREE.Group();
+	dial.matrixAutoUpdate = false;
+	dial.matrix.makeBasis(right, upv, normal).setPosition(...g.center);
+	const casing = new THREE.Mesh(new THREE.CylinderGeometry(R * 1.12, R * 1.12, R * 0.3, 64).rotateX(Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x3a3e47 }));
+	const rim = new THREE.Mesh(new THREE.TorusGeometry(R * 1.04, R * 0.07, 12, 64), new THREE.MeshLambertMaterial({ color: 0xb8bcc6 }));
+	rim.position.z = R * 0.15;
+	// The face and the needle stand clear of the casing's top (z = 0.15 R), and are pulled towards the
+	// camera by a polygon offset, so they don't z-fight with it when the view is zoomed out.
+	const face = new THREE.Mesh(new THREE.CircleGeometry(R, 64), new THREE.MeshBasicMaterial({ map: gaugeFace(g), polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 }));
+	face.position.z = R * 0.19;
+	face.renderOrder = 10;
+	const needle = new THREE.Group();
+	needle.position.z = R * 0.23;
+	const shape = new THREE.Shape([new THREE.Vector2(0, R * 0.86), new THREE.Vector2(R * 0.045, 0), new THREE.Vector2(0, -R * 0.2), new THREE.Vector2(-R * 0.045, 0)]);
+	needle.add(new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: 0xe8750a, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -16 })));
+	needle.children[0].renderOrder = 11;
+	const hub = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.08, R * 0.08, R * 0.05, 24).rotateX(Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x222222 }));
+	hub.position.z = R * 0.03;
+	needle.add(hub);
+	dial.add(casing, rim, face, needle);
+	gauges.push({ info: g, needle });
+	if (g.follow && g.followRest && !gaugeFollow) gaugeFollow = { re: new RegExp(g.follow), rest: new THREE.Vector3(...g.followRest), entry: null };
+	gaugeRoot.add(dial);
+	if (g.tube && g.tube.length > 1) {
+		const curve = new THREE.CatmullRomCurve3(g.tube.map((p) => new THREE.Vector3(...p)), false, "centripetal");
+		const radius = g.tubeRadius || R * 0.15;
+		const material = new THREE.MeshLambertMaterial({ color: 0xf2c94c });
+		gaugeRoot.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 120, radius, 14, false), material));
+		// Flat caps on the tube's two ends (the open end at the model would look hollow).
+		for (const [t, flip] of [[0, -1], [1, 1]]) {
+			const cap = new THREE.Mesh(new THREE.CircleGeometry(radius, 14), material);
+			const at = curve.getPoint(t);
+			cap.position.copy(at);
+			cap.lookAt(at.clone().addScaledVector(curve.getTangent(t), flip));
+			gaugeRoot.add(cap);
+		}
+	}
+}
+
+function updateGauge(scalars) {
+	for (const { info, needle } of gauges) {
+		const value = scalars[info.key];
+		if (value === undefined || !Number.isFinite(value)) continue;
+		const f = Math.min(1, Math.max(0, (value - info.min) / (info.max - info.min)));
+		needle.rotation.z = (0.5 - f) * GAUGE_SWEEP; // from straight up, clockwise as the pressure rises
+	}
+}
+
+const _followCentre = new THREE.Vector3();
+
 function animate() {
 	requestAnimationFrame(animate);
 	replayTick();
@@ -2770,6 +3548,19 @@ function animate() {
 		chartsDirty = false;
 	}
 	if (controls) controls.update();
+	updateRuler();
+	gaugeRoot.visible = gauges.length > 0 && displayState.showGauge !== false;
+	if (gaugeFollow) {
+		if (!gaugeFollow.entry || !models.has(gaugeFollow.entry.info.id)) {
+			gaugeFollow.entry = [...models.values()].find((e) => gaugeFollow.re.test(e.info.name)) || null;
+		}
+		const entry = gaugeFollow.entry;
+		if (entry) {
+			entry.geometry.computeBoundingBox();
+			entry.geometry.boundingBox.getCenter(_followCentre);
+			gaugeRoot.position.copy(_followCentre).sub(gaugeFollow.rest);
+		}
+	}
 	sortTransparent();
 	renderer.render(scene, camera);
 }
