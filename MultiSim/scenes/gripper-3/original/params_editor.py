@@ -42,8 +42,8 @@ _DEFAULTS = {
     'pin_stiffness': 2.0e4,      # [N/m] holds the two halves of a hinge together
     'joint_stop_stiffness': 5.0, # [N m/rad] the hard stops, and the weld to the end-effector
     'pressure_torque_gain': 1.0, # 1: the torque of the pressure on the cavity's cross-section (see the docstring)
-    'flange_acceleration': 0.06,      # [m/s2] largest acceleration of the flange
-    'flange_speed': 0.15,             # [m/s] its largest speed
+    'flange_acceleration': 0.5,       # [m/s2] largest acceleration of the flange
+    'flange_speed': 0.25,             # [m/s] its largest speed
     'finger_gap': 28.0,               # [mm] between the two fingers' inner faces (their base layers)
     # -- the loose cylinders on the floor (rigid, axis along Y), and the contact with them
     'cylinder_radii': [12.0, 9.0, 6.0],   # [mm]

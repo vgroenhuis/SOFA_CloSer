@@ -15,8 +15,8 @@
   "pin_stiffness": 20000.0,
   "joint_stop_stiffness": 5.0,
   "pressure_torque_gain": 1.0,
-  "flange_acceleration": 0.06,
-  "flange_speed": 0.15,
+  "flange_acceleration": 0.5,
+  "flange_speed": 0.25,
   "finger_gap": 28.0,
   "cylinder_radii": [
     12.0,

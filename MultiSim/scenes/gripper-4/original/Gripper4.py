@@ -37,6 +37,9 @@ accelerates smoothly towards the x / y / z set by the sliders (`flange_accelerat
 2 and 3. The spring lets it give way when it is pushed onto the floor or an item (a few millimetres for a few
 newtons), and it moves with a velocity, so that friction carries what it holds along.
 
+The large box. An open box fixed to the floor (`bin_*`: its inside, walls and where it is; at the back by default), to
+put items in: four walls (a static collision model; its bottom is the floor).
+
 Units: the scene is SI (metres, kg, s, Pa); params.json takes millimetres for lengths, as labelled.
 
 
@@ -94,8 +97,8 @@ _DEFAULT_PARAMS = {
     'joint_open_limit': 90.0,    # [deg] largest bend of a hinge (a hard stop beyond it)
     'joint_stop_stiffness': 5.0, # [N m/rad] the hard stops
     'pressure_torque_gain': 1.0, # 1: the torque of the pressure on the cavity's cross-section (see the docstring)
-    'flange_acceleration': 0.06,      # [m/s2] largest acceleration of the end-effector
-    'flange_speed': 0.15,             # [m/s] its largest speed
+    'flange_acceleration': 0.5,       # [m/s2] largest acceleration of the end-effector
+    'flange_speed': 0.25,             # [m/s] its largest speed
     'flange_mass': 0.5,               # [kg] the end-effector (it follows the target on the wrist spring)
     'wrist_stiffness': 3000.0,        # [N/m] the spring between the target and the end-effector (critically damped)
     # -- the items on the floor, and the contacts --
@@ -108,6 +111,14 @@ _DEFAULT_PARAMS = {
     'contact_distance': 0.5,     # [mm] contacts are kept this far apart
     'alarm_distance': 5.0,       # [mm] pairs closer than this are watched for contact
     'item_alpha': 1.0,
+    # -- a large open box fixed to the floor, to put items in --
+    'bin_enabled': True,
+    'bin_x': 0.0, 'bin_y': 290.0,   # [mm] its centre
+    'bin_length': 220.0,            # [mm] inside, along x
+    'bin_width': 130.0,             # [mm] inside, along y
+    'bin_height': 70.0,             # [mm] its walls
+    'bin_wall': 8.0,                # [mm] their thickness
+    'bin_alpha': 1.0,
     # -- material --
     'density': 1000.0,           # [kg/m^3] of the silicone (the segment's mass: the walls' volume)
     'gravity_enabled': True,
@@ -349,7 +360,7 @@ def _cylinder_along(p0, p1, r, n=16):
 # The fingers' collision models: their faces and corners (their edges too would add many edge-edge contacts per item held,
 # several times slower, for little difference: an item's own corners and edges still touch the fingers' faces)
 FINGER_MODELS = ('TriangleCollisionModel', 'PointCollisionModel')
-FINGERS_GROUP, ITEMS_GROUP = 100, 200  # collision groups (see createScene); item i has ITEMS_GROUP + i
+FINGERS_GROUP, ITEMS_GROUP, BIN_GROUP = 100, 200, 300  # collision groups (see createScene); item i has ITEMS_GROUP + i
 IDENTITY = [0.0, 0.0, 0.0, 1.0]  # every body's orientation at rest (the geometry is given in world coordinates and mapped)
 
 
@@ -622,8 +633,15 @@ def createScene(rootNode):
     z_top = z_palm + thick + 1.12 * R_gauge + 0.6 * H + R_gauge  # the top of the gauge
     spacing = max(float(P['item_spacing']), 0.1)
     half = max(P['floor_size'] * MM, 3 * extent) / 2
+    bin_box = None  # the large box's inside (x0, y0, x1, y1), its height and wall thickness [m]
+    if P['bin_enabled']:
+        bl, bw = max(float(P['bin_length']), 10.0) * MM / 2, max(float(P['bin_width']), 10.0) * MM / 2
+        bx, by = float(P['bin_x']) * MM, float(P['bin_y']) * MM
+        bt = max(float(P['bin_wall']), 1.0) * MM
+        bin_box = (bx - bl, by - bw, bx + bl, by + bw, max(float(P['bin_height']), 5.0) * MM, bt)
+        half = max(half, abs(bx) + bl + bt + 30 * MM, abs(by) + bw + bt + 30 * MM)
 
-    cam_lookat = [0.0, 0.0, 0.35 * z_top]
+    cam_lookat = [0.0, 0.3 * (bin_box[1] + bin_box[3]) / 2 if bin_box else 0.0, 0.35 * z_top]
     cam_dir = (0.25, -1.0, 0.75)
     norm = math.sqrt(sum(c * c for c in cam_dir))
     cam_distance = max(1.25 * z_top, 1.05 * (140 * MM * spacing + 60 * MM)) / math.tan(math.radians(22.5))
@@ -647,6 +665,29 @@ def createScene(rootNode):
     floor_visual.addObject('MeshTopology', name='topo', triangles=[[0, 1, 2], [0, 2, 3]],
                            position=[[p[0], p[1], p[2] - 1e-4] for p in floor_pts])
     floor_visual.addObject('OglModel', name='visual', src='@topo', color=[0.08, 0.28, 0.1, 1.0])
+
+    # ---- the large box: four walls fixed to the floor (its bottom is the floor), open at the top
+    if bin_box:
+        x0, y0, x1, y1, bh, bt = bin_box
+        walls = [_box(x0 - bt, y0 - bt, floor_z, x1 + bt, y0, floor_z + bh, skip=('-Z',)),   # front
+                 _box(x0 - bt, y1, floor_z, x1 + bt, y1 + bt, floor_z + bh, skip=('-Z',)),   # back
+                 _box(x0 - bt, y0, floor_z, x0, y1, floor_z + bh, skip=('-Z', '-Y', '+Y')),  # left
+                 _box(x1, y0, floor_z, x1 + bt, y1, floor_z + bh, skip=('-Z', '-Y', '+Y'))]  # right
+        wall_pts, wall_tris = _merge(walls)
+        bin_node = rootNode.addChild('bin')
+        bin_node.addObject('MeshTopology', name='topo', position=wall_pts, triangles=wall_tris)
+        bin_node.addObject('MechanicalObject', name='dofs', template='Vec3', position=wall_pts)
+        for model in ('TriangleCollisionModel', 'LineCollisionModel', 'PointCollisionModel'):
+            # (in BIN_GROUP: the fingers' guards pass through it)
+            bin_node.addObject(model, moving=False, simulated=False, group=[BIN_GROUP])
+        alpha = float(P['bin_alpha'])
+        for name, (vp, vt), colour in (
+                ('visu', _flat_shaded(wall_pts, wall_tris), [0.74, 0.56, 0.36]),
+                ('bottom', _flat_shaded(*_box(x0, y0, floor_z - 1e-4, x1, y1, floor_z + 0.3 * MM, skip=('-Z',))),
+                 [0.62, 0.45, 0.28])):
+            v = bin_node.addChild(name)
+            v.addObject('MeshTopology', name='topo', position=vp, triangles=vt)
+            v.addObject('OglModel', name='visual', src='@topo', color=colour + [alpha])
 
     # Axes: purely visual.
     arrow_ref = 0.6 * max(finger_len, W, H)
@@ -800,7 +841,7 @@ def createScene(rootNode):
             node.addObject('MeshTopology', name='topo', position=corners, triangles=tris)
             node.addObject('MechanicalObject', name='dofs', template='Vec3', position=corners)
             node.addObject('TriangleCollisionModel', group=[j + 1 for j in range(F) if j != fr.k]
-                           + [ITEMS_GROUP + i for i in range(len(ITEMS))])
+                           + [ITEMS_GROUP + i for i in range(len(ITEMS))] + [BIN_GROUP])
             node.addObject('RigidMapping', name='mapping', globalToLocalCoords=True, rigidIndexPerPoint=[0] * 4)
 
     pad, stem = 0.1 * H, 0.3 * H
@@ -869,7 +910,7 @@ def createScene(rootNode):
     BUILD.update({'segments': N, 'fingers': F, 'items': [], 'body_of': dict(body_of), 'flange_rest0': list(flange_pos),
                   'flange_rest': [(min(p[q] for p in mount_pts) + max(p[q] for p in mount_pts)) / 2 for q in range(3)],
                   'cavity_mid': cavity_mid, 'cavity_area': cavity_area, 'torque_per_pa': torque_per_pa,
-                  'close_limit': close_lim, 'seg_mass': seg_mass, 'plate_radius': plate_r, 'stem': stem})
+                  'close_limit': close_lim, 'bin': list(bin_box) if bin_box else None, 'seg_mass': seg_mass, 'plate_radius': plate_r, 'stem': stem})
 
     # ---- the grocery items: free rigid bodies on the floor
     items = world.addChild('items')

@@ -91,10 +91,11 @@ def _gauge(root, module):
     cz = z_palm + thick + 1.12 * R + 0.6 * H
     casing = cz - 1.12 * R
     cavity_x = P["finger_gap"] * mm / 2 + module.BUILD["cavity_mid"]  # the cavity's mid height across the finger
-    # both fingers always get the same pressure: one gauge, in the middle
+    # both fingers always get the same pressure: one gauge, on the +x side (clear of the arm up the middle, 0.3 H
+    # either side of the axis; the casing is 1.12 R)
     gauges = []
     for k, side in zip(FINGERS[:1], (1.0,)):
-        x = 0.0
+        x = max(cavity_x, 0.3 * H + 1.25 * R)
         gauges.append({
             "key": f"applied_{k}", "min": 0.0, "max": 100.0, "unit": "kPa", "major": 20.0, "minor": 5.0,
             "center": [x, 0.0, cz], "radius": R, "right": [1.0, 0.0, 0.0], "up": [0.0, 0.0, 1.0],
@@ -131,7 +132,7 @@ _DEFAULT = {
     "floor_size": 320.0, "finger_gap": 28.0,
     "cylinder_radii": [12.0, 9.0, 6.0], "cylinder_x": [-60.0, 0.0, 60.0], "cylinder_length": 30.0,
     "cylinder_density": 600.0, "cylinder_damping": 0.2, "contact_stiffness": 1.0e3, "contact_whole_skin": False,
-    "flange_acceleration": 0.06, "flange_speed": 0.15,
+    "flange_acceleration": 0.5, "flange_speed": 0.25,
 }
 
 PRESETS = {
@@ -316,7 +317,7 @@ CONFIG = SceneConfig(
         "Everything is planar (x, z and the rotation about y), so a step takes only a few milliseconds: it runs faster than "
         "real time, where Gripper 2 needs 0.2 s. The solver is implicit with a small stiffness-proportional damping ('joint "
         "damping'); the joints' own velocity damping is explicit, which is unstable for bodies this light. The flange "
-        "accelerates gently (0.06 m/s2, up to 150 mm/s; live parameters under 'Flange motion').",
+        "accelerates at up to 0.5 m/s2, up to 250 mm/s (live parameters under 'Flange motion').",
     ],
     origin="Scene script: scenes/gripper-3/original/Gripper3.py (a rigid-segment version of scenes/gripper-2).",
 )

@@ -44,8 +44,8 @@ _DEFAULTS = {
     'joint_open_limit': 90.0,    # [deg] largest bend of a hinge (a hard stop beyond it)
     'joint_stop_stiffness': 5.0, # [N m/rad] the hard stops
     'pressure_torque_gain': 1.0, # 1: the torque of the pressure on the cavity's cross-section (see the docstring)
-    'flange_acceleration': 0.06,      # [m/s2] largest acceleration of the end-effector
-    'flange_speed': 0.15,             # [m/s] its largest speed
+    'flange_acceleration': 0.5,       # [m/s2] largest acceleration of the end-effector
+    'flange_speed': 0.25,             # [m/s] its largest speed
     'flange_mass': 0.5,               # [kg] the end-effector (it follows the target on the wrist spring)
     'wrist_stiffness': 3000.0,        # [N/m] the spring between the target and the end-effector (critically damped)
     # -- the items on the floor, and the contacts --
@@ -58,6 +58,13 @@ _DEFAULTS = {
     'contact_distance': 0.5,     # [mm] contacts are kept this far apart
     'alarm_distance': 5.0,       # [mm] pairs closer than this are watched for contact
     'item_alpha': 1.0,
+    'bin_enabled': True,
+    'bin_x': 0.0, 'bin_y': 290.0,
+    'bin_length': 220.0,
+    'bin_width': 130.0,
+    'bin_height': 70.0,
+    'bin_wall': 8.0,
+    'bin_alpha': 1.0,
     # -- material --
     'density': 1000.0,           # [kg/m^3] of the silicone (the segment's mass: the walls' volume)
     'gravity_enabled': True,
@@ -145,6 +152,13 @@ _FIELDS = [
     ('Contact distance',                       'contact_distance',    1, 2, 'mm'),
     ('Contact watch distance',                 'alarm_distance',      1, 2, 'mm'),
     ('Item opacity',                           'item_alpha',          1, 2, ''),
+    ('Large box: centre x',                    'bin_x',               1, 1, 'mm'),
+    ('Large box: centre y',                    'bin_y',               1, 1, 'mm'),
+    ('Large box: inside length (x)',           'bin_length',          1, 1, 'mm'),
+    ('Large box: inside width (y)',            'bin_width',           1, 1, 'mm'),
+    ('Large box: wall height',                 'bin_height',          1, 1, 'mm'),
+    ('Large box: wall thickness',              'bin_wall',            1, 1, 'mm'),
+    ('Large box opacity',                      'bin_alpha',           1, 2, ''),
     ('Silicone density',                       'density',             1, 1, 'kg/m3'),
     ('Pressure ramp start',                    'ramp_start',          1, 2, 's'),
     ('Pressure ramp time',                     'ramp_time',           1, 2, 's'),
@@ -163,6 +177,7 @@ _BOOL_FIELDS = [
     ('Yogurt cup (150 g)', 'item_yogurt', True),
     ('Tea box (90 g)', 'item_tea', True),
     ('Butter (250 g)', 'item_butter', True),
+    ('A large open box on the floor', 'bin_enabled', True),
     ('Apply pressure instantly (not gradual)', 'instant', False),
     ('Enable gravity', 'gravity_enabled', True),
     ('Show the hinges as orange marks', 'show_joint_marks', True),

@@ -133,10 +133,11 @@ def _gauge(root, module):
     cz = z_palm + thick + 1.12 * R + 0.6 * H
     casing = cz - 1.12 * R
     cavity_x = P["finger_gap"] * mm / 2 + 0.5 * (g.wb + g.H - g.wt) * mm  # the cavity's mid height across the finger
-    # both fingers always get the same pressure: one gauge, in the middle
+    # both fingers always get the same pressure: one gauge, on the +x side (clear of the arm up the middle, 0.3 H
+    # either side of the axis; the casing is 1.12 R)
     gauges = []
     for k, side in zip(FINGERS[:1], (1.0,)):
-        x = 0.0
+        x = max(cavity_x, 0.3 * H + 1.25 * R)
         gauges.append({
             "key": f"applied_{k}", "min": 0.0, "max": 100.0, "unit": "kPa", "major": 20.0, "minor": 5.0,
             "center": [x, 0.0, cz], "radius": R, "right": [1.0, 0.0, 0.0], "up": [0.0, 0.0, 1.0],

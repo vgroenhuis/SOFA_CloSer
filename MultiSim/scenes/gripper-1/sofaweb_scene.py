@@ -146,13 +146,15 @@ def _gauge(root, module):
     pressures = P["pressures"] if isinstance(P["pressures"], (list, tuple)) and P["pressures"] else [P["pressures"]]
     target = max(abs(float(v)) for v in pressures)
     top = next((v for v in (10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000) if v >= 1.25 * target), 2000)
-    # one gauge (in the middle) while both fingers get the same pressure, else one per finger
+    # one gauge (on the +x side, clear of the arm up the middle) while both fingers get the same pressure, else one
+    # per finger
     same = len({round(abs(float(v)), 9) for v in pressures}) <= 1
+    side_x = max(cavity_x, 0.3 * H + 1.25 * R)  # (the arm is 0.3 H either side of the axis; the casing 1.12 R)
     gauges = []
     for k, side in zip(FINGERS, (1.0, -1.0)):
         if same and k != FINGERS[0]:
             break
-        x = 0.0 if same else side * cavity_x
+        x = side_x if same else side * cavity_x
         gauges.append({
             "key": f"applied_{k}", "min": 0.0, "max": float(top), "unit": "kPa", "major": top / 5.0, "minor": top / 20.0,
             "center": [x, 0.0, cz], "radius": R, "right": [1.0, 0.0, 0.0], "up": [0.0, 0.0, 1.0],
