@@ -36,6 +36,18 @@ run-docker.bat      # Docker (or ./run-docker.sh)
 
 See [MultiSim/README.md](MultiSim/README.md) for details.
 
+## License
+
+MIT (see [LICENSE](LICENSE)), for the code and scenes in this repository.
+
+The simulations run on software that is not part of this repository and keeps its own license:
+[SOFA](https://www.sofa-framework.org/) (LGPL-2.1) with the
+[SoftRobots](https://github.com/SofaDefrost/SoftRobots) plugin (LGPL-3.0), and
+[MuJoCo](https://github.com/google-deepmind/mujoco) (Apache-2.0); the Dockerfiles download SOFA, they don't contain it.
+The pages load [three.js](https://threejs.org/) and [Chart.js](https://www.chartjs.org/) (both MIT) from a CDN.
+A Docker image built from this repository contains SOFA and SoftRobots, so sharing such an image means passing on
+their licenses (LGPL) as well.
+
 ## AI disclaimer
 
 Claude Code was used to generate the whole simulation and most documentation.
