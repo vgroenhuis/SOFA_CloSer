@@ -251,6 +251,7 @@ const GROUP_OPTIONS = [
 	["finger", "Finger"],
 	["gripper", "Gripper"],
 	["pneumatics", "Pneumatics"],
+	["stocking", "Stocking shelves"],
 	["playground", "Playground"],
 	["archive", "Archive"],
 	["other", "Other"],

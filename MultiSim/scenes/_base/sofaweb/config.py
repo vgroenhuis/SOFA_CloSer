@@ -52,6 +52,8 @@ class SceneConfig:
     #    "unit", "digits", "apply": fn(root, value)}
     #       -- "wide": True gives the slider a row of its own, the panel's full width
     #          (e.g. a position, finer to set on a touchscreen);
+    #       -- "deadman": True: away from its default it must be sent again every second or
+    #          so (as a hold), else it goes back to its default (e.g. a drive speed);
     #   {"key", "label", "type": "toggle", "default", "apply": fn(root, on)}
     #   {"key", "label", "type": "hold", "apply": fn(root, pressed)}
     #       -- on while the button is held down (released automatically if

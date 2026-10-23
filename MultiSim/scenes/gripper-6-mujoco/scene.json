@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 6: Mobile manipulator (MuJoCo)",
+	"group": "stocking",
+	"description": "Gripper 5's soft gripper on a six-axis robot arm, on an omniwheel platform that carries a crate of groceries: drive the robot to the shelves with the joystick or the arrow keys, then steer the gripper as in Gripper 5 while the arm follows by inverse kinematics, and stock the empty places.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

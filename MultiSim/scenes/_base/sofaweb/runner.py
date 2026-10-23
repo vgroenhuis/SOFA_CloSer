@@ -894,6 +894,9 @@ class Runner:
             return bool(value)
         return None  # button
 
+    def _control_default(self, control: dict) -> Any:
+        return self._control_value(control, control.get("default", control.get("min", 0.0)))
+
     def _init_controls(self) -> None:
         """Every build starts the controls at their defaults."""
         self.control_values = {}
@@ -915,7 +918,7 @@ class Runner:
             raise RuntimeError("the scene isn't running")
         value = self._control_value(control, value)
         kind = control["type"]
-        if kind == "hold" and value:
+        if (kind == "hold" and value) or (control.get("deadman") and value != self._control_default(control)):
             self._hold_deadlines[key] = time.monotonic() + HOLD_TIMEOUT_SECONDS
         else:
             self._hold_deadlines.pop(key, None)
@@ -946,8 +949,9 @@ class Runner:
         for key, deadline in list(self._hold_deadlines.items()):
             if now >= deadline:
                 self.console.note(f"control: {key} released (no word from the browser)")
+                control = self._control(key)
                 try:
-                    self._apply_control(key, False)
+                    self._apply_control(key, self._control_default(control) if control and control.get("deadman") else False)
                 except Exception:
                     self._hold_deadlines.pop(key, None)
 

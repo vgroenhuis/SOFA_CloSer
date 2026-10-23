@@ -1041,7 +1041,10 @@ function updateTelemetry(t, scalars, full) {
 	if (!replay.active) showReadouts(scalars);
 }
 
+let shownScalars = {}; // what the readouts show (live, or the recording's frame)
+
 function showReadouts(scalars) {
+	shownScalars = scalars;
 	updateGauge(scalars);
 	for (const [key, { el, def }] of readoutEls) {
 		const v = scalars[key];
@@ -1291,8 +1294,21 @@ function buildControlsPanel(controls) {
 			const reset = document.createElement("button");
 			Object.assign(reset, { type: "button", className: "secondary mini-btn owner-only", textContent: "↺", title: `Back to ${fmtControl(c, c.default ?? c.min)}` });
 			let grabbed = false;
-			input.addEventListener("pointerdown", () => (grabbed = true));
-			window.addEventListener("pointerup", () => (grabbed = false));
+			let keepAlive = null;
+			input.addEventListener("pointerdown", () => {
+				grabbed = true;
+				// "deadman": the server lets it go back unless told again; it springs back when let go.
+				if (c.deadman) keepAlive = setInterval(() => postControl(c.key, Number(input.value)), 800);
+			});
+			window.addEventListener("pointerup", () => {
+				if (grabbed && c.deadman) {
+					clearInterval(keepAlive);
+					input.value = c.default ?? 0;
+					value.textContent = fmtControl(c, input.value);
+					sendControl(c.key, Number(input.value));
+				}
+				grabbed = false;
+			});
 			input.addEventListener("input", () => {
 				value.textContent = fmtControl(c, input.value);
 				sendControl(c.key, Number(input.value));
@@ -1398,9 +1414,10 @@ function buildManipulator(spec, controlSpecs) {
 			body: JSON.stringify({ values }),
 		}).catch(() => {}),
 		show: (key, value) => controlRows.get(key)?.show(value),
+		scalars: () => shownScalars,
 		mount: (row, side) => {
-			$("bottom").prepend(row);
-			document.body.appendChild(side);
+			if (row) $("bottom").prepend(row);
+			if (side) document.body.appendChild(side);
 		},
 	}, spec, controlSpecs);
 }

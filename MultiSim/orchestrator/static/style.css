@@ -130,12 +130,14 @@ h3 .badge { margin-left: 8px; vertical-align: middle; }
 .badge.group-finger { background: rgba(58, 120, 214, 0.18); color: #8fb8ef; }
 .badge.group-gripper { background: rgba(214, 130, 40, 0.18); color: #f0b46e; }
 .badge.group-pneumatics { background: rgba(46, 158, 79, 0.18); color: #8fd19e; }
+.badge.group-stocking { background: rgba(214, 64, 42, 0.18); color: #f19a8c; }
 .badge.group-playground { background: rgba(170, 120, 220, 0.18); color: #c9a6f0; }
 .badge.group-archive { background: rgba(150, 150, 150, 0.18); color: #b5b9c0; }
 select.group.group-closer { color: #7fd3d3; }
 select.group.group-finger { color: #8fb8ef; }
 select.group.group-gripper { color: #f0b46e; }
 select.group.group-pneumatics { color: #8fd19e; }
+select.group.group-stocking { color: #f19a8c; }
 select.group.group-playground { color: #c9a6f0; }
 select.group.group-archive { color: #b5b9c0; }
 

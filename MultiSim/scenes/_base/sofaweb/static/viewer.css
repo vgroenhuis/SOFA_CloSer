@@ -536,3 +536,26 @@ body.viewer .param-note { display: none; }
 	border: 7px solid transparent; border-top: 0; border-bottom-color: #2e9e4f;
 }
 #play-hint .close-btn { color: #fff; padding: 0 6px; }
+/* The manipulator's drive joystick (a mobile robot), at the right, and its out-of-reach note. */
+#manip-drive {
+	position: absolute; right: 12px; top: 58%; transform: translateY(-50%); z-index: 9;
+	display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px;
+	font-size: 11px; color: #cfd3da;
+}
+#manip-drive.disabled { opacity: 0.45; pointer-events: none; }
+.manip-pad {
+	position: relative; width: 120px; height: 120px; border-radius: 50%; touch-action: none; cursor: grab;
+	background: radial-gradient(circle, #2c3038 0 30%, #22252c 31% 100%); border: 2px solid #4a4f5b;
+}
+.manip-knob {
+	position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+	background: #3a5bd9; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); pointer-events: none;
+}
+#manip-bar .manip-reach { align-self: center; padding: 4px 9px; border-radius: 6px; background: #c9423f; color: #fff; font-size: 12px; }
+@media (max-width: 700px), (max-height: 520px) {
+	#manip-drive { right: 6px; padding: 6px; }
+	.manip-pad { width: 104px; height: 104px; }
+}
+.manip-turns { display: flex; gap: 6px; }
+.manip-turns .manip-turn { padding: 6px 14px; font-size: 16px; touch-action: none; }
+.manip-turns .manip-turn.active { background: #3a5bd9; }

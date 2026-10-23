@@ -14,6 +14,14 @@
 //    down" (no roll or pitch) and the keyboard: arrows / WASD move over the
 //    floor (as seen from the camera), R / F up and down, Q / E turn about
 //    the vertical, Space grips or lets go.
+//  - `frame`: the target is relative to a moving frame (e.g. a mobile
+//    robot's platform), whose x, y and yaw come from the scene's scalars.
+//  - `drive`: a joystick (and the arrow keys) for a vehicle's forward and
+//    sideways speeds (omniwheels; without `sideways` the joystick turns it),
+//    and turn buttons (keys , and .): deadman sliders, sent again while held,
+//    zero when let go.
+//  - `reach`: a scalar that is 0 while the target can't be reached (the
+//    marker turns red).
 //
 // The target is a set of the scene's slider controls (positions in control
 // units, x `scale` = scene units; roll, pitch, yaw in degrees, R = Rz Ry Rx);
@@ -45,8 +53,14 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	let heightDrag = false; // the Height button: dragging the end-effector moves it up and down
 
 	// -- the target and the gizmo ---------------------------------------------
+	// The frame the target is given in (the world, or a moving platform), and the target in it.
+	const frameObj = new THREE.Object3D();
+	ctx.scene.add(frameObj);
 	const proxy = new THREE.Object3D();
-	ctx.scene.add(proxy);
+	frameObj.add(proxy);
+	const frameSpec = spec.frame || null;
+	const driveSpec = spec.drive && byKey.has(spec.drive.forward) && byKey.has(spec.drive.turn) ? spec.drive : null;
+	const sideways = driveSpec && byKey.has(driveSpec.sideways) ? driveSpec.sideways : null;
 	const gizmo = new TransformControls(ctx.camera(), ctx.renderer.domElement);
 	gizmo.setSize(coarse ? 1.35 : 0.9);
 	gizmo.setSpace("world");
@@ -56,6 +70,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	const marker = new THREE.Mesh(
 		new THREE.SphereGeometry(1, 16, 12),
 		new THREE.MeshBasicMaterial({ color: 0xff8a1f, depthTest: false, transparent: true, opacity: 0.85 }),
+		// (red while the target is out of reach: `reach`)
 	);
 	marker.renderOrder = 999;
 	marker.scale.setScalar(spec.markerRadius ?? 0.008);
@@ -79,6 +94,18 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		const c = byKey.get(key);
 		if (!c) return value;
 		return Math.min(Math.max(value, Number(c.min)), Number(c.max));
+	}
+
+	// The moving frame's pose, from the scene's scalars (positions x `frame.scale`, yaw in degrees).
+	function placeFrame() {
+		if (!frameSpec) return;
+		const sc = ctx.scalars() || {};
+		const x = Number(sc[frameSpec.x]), y = Number(sc[frameSpec.y]), yaw = Number(sc[frameSpec.yaw]);
+		if (![x, y, yaw].every(Number.isFinite)) return;
+		const k = frameSpec.scale ?? scale;
+		frameObj.position.set(x * k, y * k, 0);
+		frameObj.rotation.set(0, 0, yaw * DEG);
+		frameObj.updateMatrixWorld(true);
 	}
 
 	function placeProxy() {
@@ -160,6 +187,11 @@ export function createManipulator(ctx, spec, controlSpecs) {
 			setTimeout(() => el.classList.remove("active"), 200);
 		});
 	}
+	const reachNote = document.createElement("span");
+	reachNote.className = "manip-reach hidden";
+	reachNote.textContent = "Out of reach";
+	reachNote.title = "The arm can't reach the target: the gripper waits where it got to (the red dot is the target)";
+	bar.appendChild(reachNote);
 	const helpBtn = button("?", "How to steer the gripper", () => hint.classList.toggle("hidden"));
 	helpBtn.classList.add("manip-help");
 	const hint = document.createElement("div");
@@ -178,10 +210,81 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	const heightLabel = document.createElement("span");
 	heightInput.addEventListener("input", () => setValues({ [posKeys[2]]: Number(heightInput.value) }));
 	height.append(heightLabel, heightInput);
+	if (driveSpec) {
+		const how = sideways ? "up / down forward and back, left / right sideways; ⟲ ⟳ turn it" : "up / down forward and back, left / right turn";
+		hint.innerHTML += coarse
+			? ` <b>Drive</b> the robot with the joystick on the right: ${how}.`
+			: ` <b>Drive</b> the robot with the joystick on the right (${how}), or the <b>arrow keys</b>${sideways ? " and <b>, .</b> to turn" : ""} (then WASD moves the gripper).`;
+	}
 	const row = document.createElement("div");
 	row.id = "manip-row";
 	row.append(bar, hint);
 	ctx.mount(row, height);
+	// The drive joystick: a pad with a knob; its offset is the forward speed (up) and the turn rate (left).
+	let pad = null;
+	let padKnob = null;
+	let padOffset = null; // [x, y] in -1..1 while held
+	let turnHeld = 0; // the turn buttons: +1 left, -1 right
+	if (driveSpec) {
+		pad = document.createElement("div");
+		pad.id = "manip-drive";
+		pad.className = "panel owner-only hidden";
+		pad.title = sideways
+			? "Drive the robot: up / down forward and back, left / right sideways (keyboard: the arrow keys)"
+			: "Drive the robot: up / down forward and back, left / right turn (keyboard: the arrow keys)";
+		const base = document.createElement("div");
+		base.className = "manip-pad";
+		padKnob = document.createElement("div");
+		padKnob.className = "manip-knob";
+		base.appendChild(padKnob);
+		const label = document.createElement("span");
+		label.textContent = "Drive";
+		pad.append(label, base);
+		if (sideways) {
+			const turns = document.createElement("div");
+			turns.className = "manip-turns";
+			for (const [text, dir, title] of [["⟲", 1, "Turn left (keyboard: ,)"], ["⟳", -1, "Turn right (keyboard: .)"]]) {
+				const b = document.createElement("button");
+				Object.assign(b, { type: "button", className: "secondary manip-turn", textContent: text, title });
+				b.addEventListener("pointerdown", (event) => {
+					b.setPointerCapture(event.pointerId);
+					turnHeld = dir;
+					b.classList.add("active");
+				});
+				for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+					b.addEventListener(type, () => {
+						if (turnHeld === dir) turnHeld = 0;
+						b.classList.remove("active");
+					});
+				}
+				b.addEventListener("contextmenu", (event) => event.preventDefault());
+				turns.appendChild(b);
+			}
+			pad.appendChild(turns);
+		}
+		const moveKnob = (event) => {
+			const r = base.getBoundingClientRect();
+			let x = (event.clientX - (r.left + r.width / 2)) / (r.width / 2);
+			let y = (event.clientY - (r.top + r.height / 2)) / (r.height / 2);
+			const n = Math.hypot(x, y);
+			if (n > 1) [x, y] = [x / n, y / n];
+			padOffset = [x, y];
+			padKnob.style.transform = `translate(${x * r.width * 0.36}px, ${y * r.height * 0.36}px)`;
+		};
+		const release = () => {
+			padOffset = null;
+			padKnob.style.transform = "";
+		};
+		base.addEventListener("pointerdown", (event) => {
+			if (!usable) return;
+			base.setPointerCapture(event.pointerId);
+			moveKnob(event);
+			event.preventDefault();
+		});
+		base.addEventListener("pointermove", (event) => base.hasPointerCapture(event.pointerId) && moveKnob(event));
+		for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) base.addEventListener(type, release);
+		ctx.mount(null, pad);
+	}
 
 	function setMode(m) {
 		mode = m;
@@ -252,7 +355,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		if (!usable || drag || (event.pointerType === "mouse" && event.button !== 0)) return;
 		toNdc(event);
 		if (overGizmo()) return; // the gizmo's own drag
-		const target = new THREE.Vector3().copy(proxy.position);
+		const target = proxy.getWorldPosition(new THREE.Vector3());
 		const found = raycaster.intersectObjects(meshes(true), false)[0];
 		if (!found) return;
 		event.stopPropagation(); // not a camera move
@@ -278,7 +381,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		if (drag && event.pointerId === drag.pointerId) {
 			toNdc(event);
 			if (!raycaster.ray.intersectPlane(drag.plane, hit)) return;
-			const p = hit.add(drag.offset);
+			const p = frameObj.worldToLocal(hit.add(drag.offset));
 			if (drag.vertical) setValues({ [posKeys[2]]: p.z / scale });
 			else setValues({ [posKeys[0]]: p.x / scale, [posKeys[1]]: p.y / scale });
 			return;
@@ -314,7 +417,8 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		toNdc(event);
 		const found = raycaster.intersectObjects(meshes(false), false)[0];
 		if (!found) return;
-		setValues({ [posKeys[0]]: found.point.x / scale, [posKeys[1]]: found.point.y / scale });
+		const p = frameObj.worldToLocal(found.point.clone());
+		setValues({ [posKeys[0]]: p.x / scale, [posKeys[1]]: p.y / scale });
 	}
 	dom.addEventListener("dblclick", (event) => {
 		if (usable && event.pointerType !== "touch") goTo(event);
@@ -341,12 +445,14 @@ export function createManipulator(ctx, spec, controlSpecs) {
 
 	// -- the keyboard -----------------------------------------------------------
 	const held = new Set();
-	const JOG_KEYS = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", "r", "f", "q", "e", "pageup", "pagedown"]);
+	// With a drive, the arrow keys drive and WASD moves the gripper.
+	const DRIVE_KEYS = new Set(driveSpec ? ["arrowup", "arrowdown", "arrowleft", "arrowright", ...(sideways ? [",", "."] : [])] : []);
+	const JOG_KEYS = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", "r", "f", "q", "e", "pageup", "pagedown"].filter((k) => !DRIVE_KEYS.has(k)));
 	const typing = (el) => el && (el.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(el.tagName));
 	window.addEventListener("keydown", (event) => {
 		if (!usable || typing(event.target) || event.ctrlKey || event.metaKey || event.altKey) return;
 		const key = event.key.toLowerCase();
-		if (JOG_KEYS.has(key)) {
+		if (JOG_KEYS.has(key) || DRIVE_KEYS.has(key)) {
 			held.add(key);
 			event.preventDefault();
 		} else if (key === " " && grip && !event.repeat) {
@@ -367,14 +473,20 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		const now = performance.now();
 		const dt = Math.min((now - lastTick) / 1000, 0.1);
 		lastTick = now;
-		if (!usable || !held.size || posKeys.length !== 3) return;
-		const has = (...keys) => keys.some((k) => held.has(k));
+		drive(now);
+		if (!usable || ![...held].some((k) => JOG_KEYS.has(k)) || posKeys.length !== 3) return;
+		const has = (...keys) => keys.some((k) => held.has(k) && JOG_KEYS.has(k));
 		const speed = spec.jogSpeed ?? 150; // control units per second
 		const camera = ctx.camera();
 		camera.getWorldDirection(forward).setZ(0);
 		if (forward.lengthSq() < 1e-8) forward.set(0, 1, 0).applyQuaternion(camera.quaternion).setZ(0);
 		forward.normalize();
 		right.set(forward.y, -forward.x, 0);
+		if (frameSpec) { // camera directions, in the moving frame
+			const inv = frameObj.quaternion.clone().invert();
+			forward.applyQuaternion(inv);
+			right.applyQuaternion(inv);
+		}
 		const f = (has("arrowup", "w") ? 1 : 0) - (has("arrowdown", "s") ? 1 : 0);
 		const r = (has("arrowright", "d") ? 1 : 0) - (has("arrowleft", "a") ? 1 : 0);
 		const u = (has("r", "pageup") ? 1 : 0) - (has("f", "pagedown") ? 1 : 0);
@@ -394,6 +506,41 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		setValues(changes);
 	}
 
+	// Driving: the joystick or the arrow keys give the forward speed and the turn rate, sent when they change and
+	// again every 0.4 s while not zero (the server stops the vehicle if they aren't).
+	let driveSent = { f: 0, s: 0, t: 0, at: 0 };
+	function drive(now) {
+		if (!driveSpec) return;
+		const fc = byKey.get(driveSpec.forward), tc = byKey.get(driveSpec.turn), sc = sideways && byKey.get(sideways);
+		let f = 0, sv = 0, t = 0;
+		const key = (k) => (held.has(k) ? 1 : 0);
+		if (usable) {
+			if (padOffset) {
+				f = -padOffset[1];
+				if (sideways) sv = -padOffset[0];
+				else t = -padOffset[0];
+			} else {
+				f = key("arrowup") - key("arrowdown");
+				if (sideways) sv = key("arrowleft") - key("arrowright");
+				else t = key("arrowleft") - key("arrowright");
+			}
+			if (sideways) t = turnHeld || key(",") - key(".");
+		}
+		// A little dead zone, so a thumb on the joystick doesn't creep.
+		const dz = (v) => (Math.abs(v) < 0.08 ? 0 : v);
+		const fv = Math.round(dz(f) * Number(fc.max) * 1000) / 1000;
+		const svv = sc ? Math.round(dz(sv) * Number(sc.max) * 1000) / 1000 : 0;
+		const tv = Math.round(dz(t) * Number(tc.max) * 10) / 10;
+		const changed = fv !== driveSent.f || svv !== driveSent.s || tv !== driveSent.t;
+		if (!changed && ((fv === 0 && svv === 0 && tv === 0) || now - driveSent.at < 400)) return;
+		if (changed && now - driveSent.at < 60) return; // at most ~16 a second
+		driveSent = { f: fv, s: svv, t: tv, at: now };
+		const out = { [driveSpec.forward]: fv, [driveSpec.turn]: tv };
+		if (sideways) out[sideways] = svv;
+		ctx.post(out);
+		for (const [k, v] of Object.entries(out)) ctx.show(k, v);
+	}
+
 	// -- state from the server ----------------------------------------------------
 	function update(status) {
 		usable = !ctx.isViewer && status.status === "running" && !status.recording?.cached;
@@ -410,12 +557,23 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		for (const el of [bar, hint, height]) el.classList.toggle("disabled", !usable);
 		bar.classList.toggle("hidden", ctx.isViewer);
 		height.classList.toggle("hidden", ctx.isViewer || !zControl);
+		if (pad) {
+			pad.classList.toggle("hidden", ctx.isViewer);
+			pad.classList.toggle("disabled", !usable);
+		}
 		if (!usable) host.classList.remove("manip-grab");
 		updateBar();
 	}
 
 	function frame() {
 		gizmo.camera = ctx.camera();
+		placeFrame();
+		if (spec.reach) {
+			const r = Number((ctx.scalars() || {})[spec.reach]);
+			const out = Number.isFinite(r) && r < 0.5;
+			marker.material.color.setHex(out ? 0xe02424 : 0xff8a1f);
+			reachNote.classList.toggle("hidden", !out);
+		}
 		tick();
 	}
 

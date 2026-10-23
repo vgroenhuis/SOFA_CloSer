@@ -193,7 +193,7 @@ function sceneCard(scene) {
 
 // Groups open or closed as this browser last left them; Playground and
 // Archive start closed (not part of the current CloSer work).
-const GROUP_ORDER = ["closer", "finger", "gripper", "pneumatics", "playground", "archive", "other"];
+const GROUP_ORDER = ["closer", "finger", "gripper", "pneumatics", "stocking", "playground", "archive", "other"];
 const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
 const GROUPS_KEY = "msd_lobby_groups_open";
 
