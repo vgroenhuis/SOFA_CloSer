@@ -494,3 +494,45 @@ body.viewer .param-note { display: none; }
 #import-result li { margin: 3px 0; }
 #import-result .import-ok { color: #8fd19e; margin: 0 0 4px; }
 .dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+/* The manipulator (manipulator.js): a toolbar above the charts, a hint, and a tall height slider at the left. */
+#manip-row { flex: 1 1 100%; order: -1; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+#manip-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 6px 8px; }
+#manip-bar .manip-btn { padding: 7px 12px; font-size: 13px; touch-action: manipulation; white-space: nowrap; }
+#manip-bar .manip-btn.active { background: #3a5bd9; }
+#manip-bar .manip-btn:not(.secondary) { background: #b86b16; min-width: 78px; }
+#manip-bar .manip-btn.gripping { background: #2e9e4f; }
+#manip-bar .manip-help { padding: 7px 11px; }
+#manip-hint { max-width: 660px; padding: 8px 12px; font-size: 12px; line-height: 1.45; color: #cfd3da; box-sizing: border-box; }
+#manip-hint b { color: #fff; font-weight: 600; }
+#manip-height {
+	position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 9;
+	display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px;
+	font-size: 11px; color: #cfd3da; font-variant-numeric: tabular-nums;
+}
+#manip-height input { writing-mode: vertical-lr; direction: rtl; width: 30px; height: 34vh; margin: 0; accent-color: #3a5bd9; touch-action: none; }
+#manip-bar.disabled, #manip-height.disabled { opacity: 0.45; }
+#manip-bar.disabled button, #manip-height.disabled input { pointer-events: none; }
+#viewer.manip-grab canvas { cursor: grab; }
+#viewer.manip-grabbing canvas { cursor: grabbing; }
+@media (max-width: 700px), (max-height: 520px) {
+	#manip-bar { padding: 4px 6px; gap: 4px; }
+	#manip-bar .manip-btn { padding: 6px 9px; font-size: 12px; }
+	#manip-bar .manip-btn:not(.secondary) { min-width: 64px; }
+	#manip-hint { font-size: 11px; padding: 6px 9px; }
+	#manip-height { left: 6px; padding: 6px 4px; }
+	#manip-height input { height: 26vh; width: 34px; }
+}
+
+/* First visit: a callout under the play button (the simulation opens paused). */
+#play-hint {
+	position: absolute; z-index: 30; display: flex; align-items: flex-start; gap: 6px;
+	max-width: min(320px, calc(100% - 16px)); box-sizing: border-box; padding: 9px 6px 9px 12px;
+	background: #2e9e4f; color: #fff; border-radius: 8px; font-size: 13px; line-height: 1.4;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+#play-hint::before {
+	content: ""; position: absolute; top: -7px; left: calc(var(--arrow-x, 24px) - 7px);
+	border: 7px solid transparent; border-top: 0; border-bottom-color: #2e9e4f;
+}
+#play-hint .close-btn { color: #fff; padding: 0 6px; }

@@ -44,13 +44,22 @@ class MjVisual:
         self.triangles = Value(np.asarray(triangles, dtype=np.int64).reshape(-1, 3))
         self.quads = Value(np.zeros((0, 4), dtype=np.int64))
         self.edges = Value(np.zeros((0, 2), dtype=np.int64))
+        # The last positions and the poses of its bodies they came from: a mesh on bodies that haven't moved (the
+        # world, a sleeping item) isn't computed again.
+        self._bodies = np.unique(self.body)
+        self._pose: Optional[np.ndarray] = None
+        self._cached: Optional[Value] = None
 
     @property
     def position(self) -> Value:
         data = self._scene.data
+        pose = np.concatenate([data.xpos[self._bodies].ravel(), data.xmat[self._bodies].ravel()])
+        if self._cached is not None and np.array_equal(pose, self._pose):
+            return self._cached
         pos = data.xpos[self.body]
         rot = data.xmat[self.body].reshape(-1, 3, 3)
-        return Value(pos + np.einsum("nij,nj->ni", rot, self.local))
+        self._pose, self._cached = pose, Value(pos + np.einsum("nij,nj->ni", rot, self.local))
+        return self._cached
 
     def getPathName(self) -> str:
         return self._path

@@ -1227,6 +1227,9 @@ class Runner:
                 future.set_result(True)
             elif command == "control":
                 future.set_result(self._apply_control(kwargs["key"], kwargs.get("value")))
+            elif command == "controls":
+                future.set_result({key: self._apply_control(key, value)["value"]
+                                   for key, value in dict(kwargs["values"]).items()})
             elif command == "auto_restart":
                 self.auto_restart = bool(kwargs["enabled"])
                 self._emit_status()

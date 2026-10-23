@@ -6,6 +6,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Chart from "chart.js/auto";
+import { createManipulator } from "./manipulator.js";
 
 const isViewer = new URLSearchParams(location.search).get("role") === "viewer";
 if (isViewer) document.body.classList.add("viewer");
@@ -1379,7 +1380,33 @@ function buildControlsPanel(controls) {
 	}
 }
 
+// The scene's manipulator (SceneConfig.manipulator), if it has one: see manipulator.js.
+let manipulator = null;
+
+function buildManipulator(spec, controlSpecs) {
+	if (!spec || manipulator) return;
+	manipulator = createManipulator({
+		scene,
+		renderer,
+		models,
+		isViewer,
+		camera: () => camera,
+		orbit: () => controls,
+		post: (values) => fetch("api/control", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ values }),
+		}).catch(() => {}),
+		show: (key, value) => controlRows.get(key)?.show(value),
+		mount: (row, side) => {
+			$("bottom").prepend(row);
+			document.body.appendChild(side);
+		},
+	}, spec, controlSpecs);
+}
+
 function updateControls(s) {
+	manipulator?.update(s);
 	const usable = s.status === "running";
 	for (const [key, { row, show }] of controlRows) {
 		row.classList.toggle("disabled", !usable);
@@ -2870,7 +2897,59 @@ function updateTransport() {
 	if (cached) showPlayState($("play-btn"), replay.playing, "Play the recorded run");
 	else if (s) showPlayState($("play-btn"), !(s.paused || s.finished), s.finished ? "Continue the finished run" : "Play");
 	showPlayState($("replay-btn"), replay.playing, "Play the recording");
+	updatePlayHint(s, cached);
 }
+
+// First visit (per browser): the simulation opens paused, so a callout under ▶ says how to start it. It goes
+// once the simulation runs or is closed, and isn't shown again.
+const PLAY_HINT_KEY = "sofaweb:playHintSeen";
+let playHint = null;
+
+function playHintSeen() {
+	try {
+		return !!localStorage.getItem(PLAY_HINT_KEY);
+	} catch {
+		return false;
+	}
+}
+
+function dismissPlayHint() {
+	try {
+		localStorage.setItem(PLAY_HINT_KEY, "1");
+	} catch {}
+	playHint?.remove();
+	playHint = null;
+}
+
+function placePlayHint() {
+	if (!playHint) return;
+	const r = $("play-btn").getBoundingClientRect();
+	playHint.style.left = `${Math.max(8, Math.min(r.left + r.width / 2 - 24, window.innerWidth - playHint.offsetWidth - 8))}px`;
+	playHint.style.top = `${r.bottom + 10}px`;
+	playHint.style.setProperty("--arrow-x", `${r.left + r.width / 2 - parseFloat(playHint.style.left)}px`);
+}
+
+function updatePlayHint(s, cached) {
+	if (isViewer || !s || s.status !== "running" || cached) return;
+	if (!(s.paused || s.finished)) {
+		if (playHint) dismissPlayHint(); // they found it
+		return;
+	}
+	if (playHint || playHintSeen() || s.finished) return;
+	playHint = document.createElement("div");
+	playHint.id = "play-hint";
+	playHint.setAttribute("role", "status");
+	const text = document.createElement("span");
+	text.innerHTML = "The simulation is open, but <b>paused</b>: press <b>▶</b> to start it. ■ takes it back to the start.";
+	const close = document.createElement("button");
+	Object.assign(close, { type: "button", className: "close-btn", textContent: "×", title: "Close" });
+	close.setAttribute("aria-label", "Close");
+	close.addEventListener("click", dismissPlayHint);
+	playHint.append(text, close);
+	document.body.appendChild(playHint);
+	placePlayHint();
+}
+window.addEventListener("resize", placePlayHint);
 
 function updateTimeline() {
 	const available = timelineAvailable();
@@ -3143,6 +3222,7 @@ async function init() {
 	renderAllPresets();
 	initSidePanels();
 	buildControlsPanel(sceneInfo.controls || []);
+	buildManipulator(sceneInfo.manipulator, sceneInfo.controls || []);
 	buildParamsPanel(sceneInfo.spec);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
 	buildDisplayPanel(sceneInfo.display || []);
@@ -3548,6 +3628,7 @@ function animate() {
 		chartsDirty = false;
 	}
 	if (controls) controls.update();
+	manipulator?.frame();
 	updateRuler();
 	gaugeRoot.visible = gauges.length > 0 && displayState.showGauge !== false;
 	if (gaugeFollow) {

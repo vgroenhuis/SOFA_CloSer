@@ -37,8 +37,10 @@ class ImportBody(BaseModel):
 
 
 class ControlBody(BaseModel):
-    key: str
+    key: Optional[str] = None
     value: Any = None
+    # Several sliders at once (the manipulator): {key: value}.
+    values: Optional[dict[str, Any]] = None
 
 
 class Client:
@@ -138,6 +140,7 @@ def create_app(config_path: Path) -> FastAPI:
             "imports": runner.import_sources(),
             "hasGauge": config.gauge is not None,
             "controls": [{k: v for k, v in c.items() if k != "apply"} for c in config.controls],
+            "manipulator": config.manipulator,
         }
 
     @app.post("/api/defaults")
@@ -195,6 +198,8 @@ def create_app(config_path: Path) -> FastAPI:
         # A slider moved, a button pressed or let go (owner only: the
         # orchestrator's proxy passes POSTs from the owner alone).
         try:
+            if body.values is not None:
+                return await command("controls", values=body.values)
             return await command("control", key=body.key, value=body.value)
         except (ValueError, RuntimeError) as exc:
             return JSONResponse({"detail": {"message": str(exc)}}, status_code=409)

@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 5: Stocking shelves (MuJoCo)",
+	"group": "gripper",
+	"description": "Gripper 4's soft fingers, now with pointy tips, on a 6-DOF end-effector in front of two grocery shelf units: take groceries out of the crates on the floor and stock the empty places on the shelves. Steer it by dragging the gripper with the mouse or a finger, with its gizmo, the keyboard or the sliders. MuJoCo, faster than real time.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

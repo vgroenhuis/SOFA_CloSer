@@ -151,6 +151,18 @@ class SceneConfig:
     # recorded playback too.
     gauge: Optional[Callable[[Any, Any], Optional[dict]]] = None
 
+    # Steering an end-effector in the 3D view (the viewer's manipulator.js): a gizmo at the target pose, dragging
+    # the end-effector itself, double-click / double-tap to go somewhere, a height slider, a grip button and the
+    # keyboard, all acting on slider controls (and in step with them):
+    #   {"position": [x, y, z control keys],  "scale": control units -> scene units (e.g. 1e-3 for mm in m),
+    #    "rotation": [roll, pitch, yaw control keys] (degrees, R = Rz(yaw) Ry(pitch) Rx(roll); optional),
+    #    "grip": {"key": a slider control, "on": value, "off": value, "label", "releaseLabel"} (optional),
+    #    "models": regex of the visual models that can be grabbed and dragged (the end-effector),
+    #    "jogSpeed": keyboard speed (control units/s), "jogTurn": keyboard yaw speed (deg/s),
+    #    "markerRadius": the target marker's radius (scene units, default 0.008),
+    #    "buttons": [{"key": a button control, "label", "title"}] -- extra toolbar buttons (e.g. a repair)}
+    manipulator: Optional[dict] = None
+
     # Vector parameters that may be given fewer values than their default has (at least one),
     # e.g. {"pressures"}: one pressure for every finger, or one each. The scene reads the list.
     short_vectors: set[str] = field(default_factory=set)
