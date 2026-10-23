@@ -12,6 +12,7 @@ Frames are binary WebSocket messages:
 
 from __future__ import annotations
 
+import atexit
 import contextlib
 import importlib.util
 import io
@@ -41,7 +42,34 @@ from .recording import Recording, RecordingCache, code_hash
 
 log = logging.getLogger(__name__)
 
-WORK_ROOT = Path("/tmp/sofaweb")
+# Each simulation process builds in its own folder: native simulations share /tmp, and with one shared folder two
+# simulations starting together removed each other's build-1 ("FileNotFoundError: .../__pycache__").
+WORK_BASE = Path("/tmp/sofaweb")
+WORK_ROOT = WORK_BASE / str(os.getpid())
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _clean_work_dirs() -> None:
+    """Remove this process's folder at exit, and folders left by processes that are gone."""
+    atexit.register(shutil.rmtree, WORK_ROOT, True)
+    try:
+        for d in WORK_BASE.iterdir():
+            if d.is_dir() and d.name.isdigit() and int(d.name) != os.getpid() and not _pid_alive(int(d.name)):
+                shutil.rmtree(d, ignore_errors=True)
+    except OSError:
+        pass
+
+
+_clean_work_dirs()
 CSV_MAX_ROWS = 20000
 HISTORY_MAX_ROWS = 1500  # chart history sent to a client that connects mid-run
 RESTART_PAUSE_SECONDS = 1.5
