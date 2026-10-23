@@ -1,6 +1,6 @@
 {
 	"title": "Gripper 4",
-	"group": "closer",
+	"group": "gripper",
 	"description": "Gripper 3's rigid-segment fingers on a gripper that moves in X, Y and Z over grocery items and boxes: choose the number of fingers, steer the flange over an apple, an egg, a can or a tea box, close the fingers and lift it. Contacts with friction; runs in real time.",
 	"thumbnail": "docs/thumbnail.jpg",
 	"port": 8000,

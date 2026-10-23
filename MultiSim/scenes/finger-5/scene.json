@@ -1,6 +1,6 @@
 {
 	"title": "Finger 5: Full finger",
-	"group": "closer",
+	"group": "finger",
 	"description": "A human-scale PneuNet index finger: 7 chambers (68 mm), inflated together, with a collision plane between each pair of neighbouring chambers. Only the Y midplane is a symmetry plane.",
 	"thumbnail": "docs/thumbnail.jpg",
 	"port": 8000,

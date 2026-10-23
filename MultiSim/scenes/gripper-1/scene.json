@@ -1,6 +1,6 @@
 {
 	"title": "Gripper 1",
-	"group": "closer",
+	"group": "gripper",
 	"description": "Two human-scale PneuNet fingers hanging from a fixed end-effector, facing each other with a rod between them. Each finger has its own pressure (one value or a comma-separated pair) and its own gauge, in kPa and bar.",
 	"thumbnail": "docs/thumbnail.jpg",
 	"port": 8000,

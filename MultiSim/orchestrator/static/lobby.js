@@ -186,14 +186,14 @@ function sceneCard(scene) {
 			{ class: "scene-body" },
 			el("h3", {}, scene.title, visibilityBadge(scene.visibility)),
 			el("p", {}, scene.description),
-			el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Start simulation"))
+			el("div", { class: "actions" }, el("button", { "data-scene": scene.id, onclick: () => startScene(scene) }, "Open simulation"))
 		)
 	);
 }
 
 // Groups open or closed as this browser last left them; Playground and
 // Archive start closed (not part of the current CloSer work).
-const GROUP_ORDER = ["closer", "playground", "archive", "other"];
+const GROUP_ORDER = ["closer", "finger", "gripper", "pneumatics", "playground", "archive", "other"];
 const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
 const GROUPS_KEY = "msd_lobby_groups_open";
 

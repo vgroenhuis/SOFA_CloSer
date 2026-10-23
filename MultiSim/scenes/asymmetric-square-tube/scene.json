@@ -1,6 +1,6 @@
 {
 	"title": "Asymmetric square tube",
-	"group": "closer",
+	"group": "pneumatics",
 	"description": "FEM simulation of a silicone tube with an off-center cavity, squeezed by a tilting platen and then inflated. See how the unequal walls deform, and change geometry, material and loads.",
 	"thumbnail": "docs/thumbnail.jpg",
 	"port": 8000,

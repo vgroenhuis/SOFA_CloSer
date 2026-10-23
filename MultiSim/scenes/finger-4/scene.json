@@ -1,6 +1,6 @@
 {
 	"title": "Finger 4 with strain-limiting layer",
-	"group": "closer",
+	"group": "finger",
 	"description": "One chamber of a PneuNet the size of a human index finger (20 x 16 mm section, 8 mm long, 50 kPa), with a strain-limiting layer (paper, 0.1 mm) under the base, as in real PneuNets.",
 	"thumbnail": "docs/thumbnail.jpg",
 	"port": 8000,
