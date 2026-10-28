@@ -1058,10 +1058,52 @@ let shownScalars = {}; // what the readouts show (live, or the recording's frame
 function showReadouts(scalars) {
 	shownScalars = scalars;
 	updateGauge(scalars);
+	updateHeat(scalars);
 	for (const [key, { el, def }] of readoutEls) {
 		const v = scalars[key];
 		if (v === undefined || !Number.isFinite(v)) continue;
 		el.textContent = `${v.toFixed(def.digits ?? 3)}${def.unit ? " " + def.unit : ""}`;
+	}
+}
+
+// Heat maps (the scene's `heat`): models coloured by a probe, e.g. a tactile
+// skin by the force on each pad: their own colour at 0, then blue, yellow,
+// red at `max`. Switched in the Display panel.
+const HEAT_STOPS = [[0.1, 0.35, 1.0], [1.0, 0.85, 0.1], [1.0, 0.12, 0.05]];
+
+function heatColor(v) {
+	const x = Math.max(0, Math.min(1, v)) * (HEAT_STOPS.length - 1);
+	const i = Math.min(Math.floor(x), HEAT_STOPS.length - 2);
+	const f = x - i;
+	return HEAT_STOPS[i].map((c, k) => c + (HEAT_STOPS[i + 1][k] - c) * f);
+}
+
+function updateHeat(scalars) {
+	const specs = sceneInfo?.heat || [];
+	if (!specs.length || !setup) return;
+	const on = displayState.heat !== false;
+	for (const entry of models.values()) {
+		if (entry.heat === undefined) { // which probe colours it (once per model)
+			entry.heat = null;
+			for (const h of specs) {
+				h.re ||= new RegExp(h.models);
+				const m = h.re.exec(entry.info.name || "");
+				if (m) {
+					entry.heat = { key: h.key.replace("{}", m[1] ?? ""), max: h.max || 1 };
+					break;
+				}
+			}
+		}
+		if (!entry.heat || !entry.object.material?.color) continue;
+		const v = on ? Number(scalars[entry.heat.key]) / entry.heat.max : 0;
+		const [r, g, b] = entry.info.color;
+		if (!(v > 0.01)) {
+			entry.object.material.color.setRGB(r, g, b);
+			continue;
+		}
+		const hot = heatColor(v);
+		const k = Math.min(1, v * 5); // a light touch already shows
+		entry.object.material.color.setRGB(r + (hot[0] - r) * k, g + (hot[1] - g) * k, b + (hot[2] - b) * k);
 	}
 }
 
@@ -1721,6 +1763,7 @@ function applyDisplay() {
 		}
 	}
 	updateStrainReadout();
+	updateHeat(shownScalars); // (the colours above are the models' own: the heat map on top)
 }
 
 // Mirrored copies across symmetry planes, drawn here rather than simulated
@@ -2609,6 +2652,10 @@ function buildDisplayPanel(spec, useSaved = true, overrides = null) {
 		// Surface textures, where the scene has them (shown once the setup
 		// says so, see updateTextureRow); off draws plain colours, faster.
 		displayState.textures = "textures" in saved ? !!saved.textures : true;
+		if ((sceneInfo.heat || []).length) {
+			displayState.heat = "heat" in saved ? !!saved.heat : true;
+			form.appendChild(checkboxRow("heat", sceneInfo.heat[0].label || "Heat map"));
+		}
 		const row = checkboxRow("textures", "Textures (surfaces; off is faster)");
 		row.id = "display-textures-row";
 		form.appendChild(row);
@@ -3284,7 +3331,7 @@ async function init() {
 init();
 
 // For debugging from the browser console.
-window.sofaweb = { scene, models, renderer, replay, get camera() { return camera; }, get setup() { return setup; } };
+window.sofaweb = { scene, models, renderer, replay, get camera() { return camera; }, get setup() { return setup; }, get scalars() { return shownScalars; } };
 
 // Transparent models must be drawn back to front. three.js sorts by each
 // object's origin, but every SOFA model sits at the world origin (its

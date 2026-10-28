@@ -173,6 +173,11 @@ class SceneConfig:
     # browsers, so the sliders and the manipulator follow. None: the controls change only from the browser.
     control_sync: Optional[Callable[[Any, Any], dict]] = None
 
+    # Heat maps: visual models coloured live by a probe (e.g. a tactile skin by its contact force), from their own
+    # colour (0) through blue and yellow to red (`max`): [{"models": regex with one group, "key": the probe, "{}"
+    # replaced by the group, "max": value for red, "label": the Display panel's switch}].
+    heat: list[dict] = field(default_factory=list)
+
     # Vector parameters that may be given fewer values than their default has (at least one),
     # e.g. {"pressures"}: one pressure for every finger, or one each. The scene reads the list.
     short_vectors: set[str] = field(default_factory=set)

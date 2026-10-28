@@ -89,7 +89,16 @@ _DEFAULT_PARAMS = {
     'jaw_length': 70.0,          # [mm] below the palm
     'jaw_width': 22.0,           # [mm]
     'jaw_force': 40.0,           # [N] each jaw's grip at 100 kPa (the grip control; the Grip button: 80)
-    'suction_force': 30.0,       # [N] the cup's pull at full suction (80 kPa and more)
+    'suction_force': 30.0,       # [N] the simple cup's pull at full suction (80 kPa and more)
+    'finray_length': 80.0,       # [mm] Festo Fin Ray finger (DHAS-GF-80 size): below the jaw
+    'finray_base': 30.0,         # [mm] its depth at the jaw (the triangle's base)
+    'finray_stiffness': 0.12,    # [N m/rad] each flank hinge (the flanks' bending)
+    'mia_torque': 1.0,           # [N m] Mia hand: each motor's largest torque at its finger's base joint
+    'tactile_skin': True,        # sensing pads on the fingers' gripping faces (Touchlab / TG0 style e-skin)
+    'cup_vacuum': 30.0,          # [kPa] a vacuum cup's (GripWiq, SoftGripping) vacuum at full grip (80 kPa)
+    'cup_lip_stiffness': 150.0,  # [N/m] each segment of a vacuum cup's silicone lip
+    'sg_spacing': 45.0,          # [mm] SoftGripping parallel base: between the two fingers on each side
+    'sg_open_vacuum': 20.0,      # [kPa] SoftGripping: the negative pressure that opens the fingers wide
     'steer_limit': 35.0,         # [deg] the car's largest steering angle
     # -- the fingers --
     'fingers': 4,                # how many, evenly spaced around the end-effector's axis
@@ -451,13 +460,14 @@ class FingerFrame:
     roof (outwards, away from the axis), the base (the side it curls towards) at z = 0, y across the finger
     (tangential). Its hinges turn about y; a positive angle curls it towards the axis."""
 
-    def __init__(self, k, n, radius, azimuth_deg, z_palm):
+    def __init__(self, k, n, radius, azimuth_deg, z_palm, shift=0.0):
+        """Evenly round the axis (k of n, from `azimuth_deg`), `shift` [m] sideways (a parallel base's rows)."""
         self.k = k
         phi = math.radians(azimuth_deg + 360.0 * k / n)
         self.radial = np.array([math.cos(phi), math.sin(phi), 0.0])
         self.tangent = np.array([-math.sin(phi), math.cos(phi), 0.0])  # z x radial: curls the tip inwards
         self.down = np.array([0.0, 0.0, -1.0])
-        self.origin = radius * self.radial + np.array([0.0, 0.0, z_palm])
+        self.origin = radius * self.radial + shift * self.tangent + np.array([0.0, 0.0, z_palm])
 
     def to_world(self, p):
         w = self.origin + p[0] * self.down + p[1] * self.tangent + p[2] * self.radial
@@ -1053,9 +1063,14 @@ class PressureRamp:
         self.dofs, self.torque_per_pa = np.asarray(dofs, dtype=np.int64), torque_per_pa
         self.targetPressure, self.rampTime, self.instant, self.rampStart = target_pressure, ramp_time, instant, ramp_start
         self.current_pressure = 0.0
+        self.idle = 0.0  # [Pa] the pressure while not gripping (negative: a vacuum opens the fingers wide)
+
+    def goal(self):
+        """The pressure it's heading for: the target, or the resting pressure when the target is 0."""
+        return self.targetPressure if self.targetPressure > 0 else self.idle
 
     def __call__(self, scene, h):
-        target = self.targetPressure if scene.data.time >= self.rampStart - 1e-9 else 0.0
+        target = self.goal() if scene.data.time >= self.rampStart - 1e-9 else 0.0
         if self.instant:
             self.current_pressure = target
         else:
@@ -1075,8 +1090,19 @@ class PressureRamp:
 # ----------------------------------------------------------------------
 ARM_CHOICES = [('ur', 'UR-like, 6 axes'), ('kuka', 'KUKA LBR iiwa 14, 7 axes'),
                ('franka', 'Franka Emika Panda, 7 axes')]
-GRIPPER_CHOICES = [('pneunet', 'Soft PneuNet fingers (Gripper 5)'), ('parallel', 'Rigid parallel jaws'),
-                   ('three_jaw', 'Rigid three-jaw chuck'), ('suction', 'Suction cup')]
+GRIPPER_CHOICES = [('pneunet', 'Soft PneuNet fingers (Gripper 5)'),
+                   ('softgripping_centric', 'SoftGripping SoftGripper, centric base'),
+                   ('softgripping_parallel', 'SoftGripping SoftGripper, parallel base'),
+                   ('softgripping_suction', 'SoftGripping SoftGripper, centric with suction cup'),
+                   ('gripwiq_st', 'GripWiq SofTouch suction cup, ST'),
+                   ('gripwiq_cs', 'GripWiq SofTouch suction cup, CS (larger)'),
+                   ('festo_finray', 'Festo Fin Ray fingers (DHAS) on parallel jaws'),
+                   ('mia', 'Prensilia Mia hand'),
+                   ('parallel', 'Rigid parallel jaws'), ('three_jaw', 'Rigid three-jaw chuck'),
+                   ('suction', 'Simple suction cup (adhesion)')]
+JAW_KINDS = ('parallel', 'three_jaw', 'festo_finray')
+SOFT_FINGERS = ('pneunet', 'softgripping_centric', 'softgripping_parallel', 'softgripping_suction')
+VACUUM_CUPS = {'gripwiq_st': (0.020, 12), 'gripwiq_cs': (0.030, 16), 'softgripping_suction': (0.016, 10)}  # (r, lips)
 CART_CHOICES = [('omni', 'Omniwheels (any direction)'), ('diff', 'Two-wheel differential drive'),
                 ('tank', 'Tank tracks (skid steering)'), ('car', 'Car-like (front-wheel steering)')]
 
@@ -1294,6 +1320,78 @@ class SuctionController:
         scene.data.ctrl[self.actuator] = max(0.0, min(1.0, self.ramp.current_pressure / 80e3))
 
 
+class VacuumCup:
+    """A vacuum suction cup (GripWiq SofTouch, SoftGripping's): its flexible silicone lip is a ring of segments, each
+    on a sprung slide joint so the ring follows a curved or uneven surface. Under vacuum (the grip control: full at
+    80 kPa) it pulls the item it touches with the vacuum times the area inside the lip, along the cup's axis (and the
+    cup the other way), as far as the lip seals: the share of the lip's segments touching that one item (a tilted or
+    small surface leaks)."""
+
+    def __init__(self, ramp, cup_body, lip_geoms, area, vacuum):
+        self.ramp, self.cup_body, self.area, self.vacuum = ramp, cup_body, area, vacuum
+        self.lip_geoms = set(int(g) for g in lip_geoms)
+        self.n = max(len(self.lip_geoms), 1)
+        self.seal = 0.0
+        self.held = -1
+        self.force = 0.0
+
+    def __call__(self, scene, h):
+        self._tick = getattr(self, '_tick', -1) + 1
+        if self._tick % 4:  # (every 4 ms: the force stays applied in between)
+            return
+        d, m = scene.data, scene.model
+        if self.held >= 0:
+            d.xfrc_applied[self.held] = 0.0
+        d.xfrc_applied[self.cup_body] = 0.0
+        self.held, self.force = -1, 0.0
+        if not hasattr(self, '_lips'):
+            self._lips = np.array(sorted(self.lip_geoms))
+        g1, g2 = d.contact.geom1[:d.ncon], d.contact.geom2[:d.ncon]
+        on1, on2 = np.isin(g1, self._lips), np.isin(g2, self._lips)
+        lip = np.concatenate([g1[on1 & ~on2], g2[on2 & ~on1]])
+        other = np.concatenate([g2[on1 & ~on2], g1[on2 & ~on1]])
+        if not len(lip):
+            self.seal = 0.0
+            return
+        bodies = m.geom_bodyid[other]
+        best, count = 0, 0
+        for b_ in np.unique(bodies):
+            n_ = len(np.unique(lip[bodies == b_]))
+            if n_ > count:
+                best, count = int(b_), n_
+        body = best
+        self.seal = count / self.n
+        dp = self.vacuum * max(0.0, min(1.0, self.ramp.current_pressure / 80e3))
+        if dp <= 0 or body == 0:
+            return
+        sealed = max(0.0, min(1.0, (self.seal - 0.55) / 0.35))
+        f = dp * self.area * sealed * sealed * (3 - 2 * sealed)
+        if f <= 0:
+            return
+        axis = d.xmat[self.cup_body].reshape(3, 3)[:, 2]  # the cup's +z: back into the gripper
+        point = d.xpos[self.cup_body]
+        F = f * axis
+        d.xfrc_applied[body, :3] = F
+        d.xfrc_applied[body, 3:] = np.cross(point - d.xipos[body], F)
+        d.xfrc_applied[self.cup_body, :3] = -F
+        d.xfrc_applied[self.cup_body, 3:] = np.cross(point - d.xipos[self.cup_body], -F)
+        self.held, self.force = body, f
+
+
+class HandController:
+    """The Mia hand's three motors from the grip control (0: open, a little past straight; 80 kPa and more:
+    closed): position servos whose torque is limited, so a finger stops on the item and the others close on."""
+
+    OPEN, CLOSED = -0.45, 1.45  # [rad] at the fingers' base joints
+
+    def __init__(self, ramp, actuators):
+        self.ramp, self.actuators = ramp, list(actuators)
+
+    def __call__(self, scene, h):
+        f = max(0.0, min(1.0, self.ramp.current_pressure / 80e3))
+        scene.data.ctrl[self.actuators] = self.OPEN + f * (self.CLOSED - self.OPEN)
+
+
 class _Abort(Exception):
     pass
 
@@ -1388,7 +1486,7 @@ class Stocker:
             name = _item_name(self.plan['items'][self.current]) if self.current is not None else 'item'
             tries = self.tries.get(self.current, 0) + 1
             self.tries[self.current] = tries
-            if tries < 2 and self.current is not None:
+            if tries < 2 and self.current is not None and 'seal' not in str(e) and 'too big' not in str(e):
                 print(f'[auto] the {name}: {e}; trying again later')
                 self.queue.append(self.current)
             else:
@@ -1503,7 +1601,7 @@ class Stocker:
             self.jaws.open_to = open_to
         self.ramp.targetPressure = self.GRIP if on else 0.0
         target = self.ramp.targetPressure
-        if self.plan['gripper'] == 'suction':  # an item on a suction cup swings: gentler while holding one
+        if self.plan['vacuum']:  # an item on a suction cup swings: gentler while holding one
             m = self.motion
             if on and self._speeds is None:
                 self._speeds = (m.speed, m.acceleration, m.angular_speed, m.angular_acceleration)
@@ -1513,7 +1611,7 @@ class Stocker:
                 m.speed, m.acceleration, m.angular_speed, m.angular_acceleration = self._speeds
                 self._speeds = None
         start = self._now()
-        while abs(self.ramp.current_pressure - target) > 500.0 and self._now() - start < 3.0:
+        while abs(self.ramp.current_pressure - self.ramp.goal()) > 500.0 and self._now() - start < 3.0:
             yield
         yield from self._wait(self.plan['settle'])
         self.holding = on
@@ -1653,16 +1751,16 @@ class Stocker:
         else:
             dx = dy = 2 * dims[0]
         g = plan['gripper']
-        if g == 'parallel':
+        if g in ('parallel', 'festo_finray', 'mia', 'softgripping_parallel'):  # (they squeeze along x)
             yaw, period = (yaw_item if dx <= dy else yaw_item + math.pi / 2), math.pi
             width = min(dx, dy)
-            open_to = width / 2 + 0.014
+            open_to = width / 2 + 0.014 if g in JAW_KINDS else None
         elif g == 'three_jaw':
             yaw, period = yaw_item, 2 * math.pi / 3
             # (round its middle: a box's corners, an egg's long axis; a banana across its middle)
             open_to = (dims[1] if shape == 'banana' else 0.5 * math.hypot(dx, dy) if shape in ('box', 'egg')
                        else dx / 2) + 0.012
-        elif g == 'suction':
+        elif self.plan['vacuum'] and g not in SOFT_FINGERS:
             yaw, period, open_to = self._tcp_yaw_world(), 2 * math.pi, None
         else:
             yaw, period, open_to = yaw_item, 2 * math.pi / max(plan['fingers'], 1), None
@@ -1676,10 +1774,25 @@ class Stocker:
         if open_to is not None and open_to > plan['stroke'] - 0.002:
             raise _Abort(f'too big for the jaws ({2 * open_to * 1000:.0f} mm)')
         self._open_to = open_to
-        if g == 'suction':
-            z = top - 0.003
+        if self.plan['vacuum']:
+            # The cup on its top, pressed in until the whole lip touches: as deep as the top curves away under the
+            # lip (its radius of curvature there), within the lip's travel. Too small or curved: it can't seal.
+            cup_r = self.plan['cup_r']
+            curv = {'sphere': lambda: dims[0], 'apple': lambda: dims[0] ** 2 / dims[1], 'egg': lambda: dims[1],
+                    'banana': lambda: dims[1], 'pear': lambda: 0.25 * dims[0]}.get(shape, lambda: None)()
+            sag = 0.0
+            flat = {'cylinder': lambda: dims[0], 'cup': lambda: dims[1],
+                    'box': lambda: 0.5 * min(dx, dy)}.get(shape, lambda: None)()
+            if flat is not None and cup_r > 0 and flat < 0.95 * cup_r:  # the lip would hang over the edge
+                raise _Abort(f'its top ({2 * flat * 1000:.0f} mm) is smaller than the cup ({2 * cup_r * 1000:.0f} mm): '
+                             f'it can\'t seal')
+            if curv is not None and cup_r > 0:
+                if curv <= cup_r:
+                    raise _Abort(f'too small or round for the cup to seal on ({2 * curv * 1000:.0f} mm across)')
+                sag = curv - math.sqrt(curv * curv - cup_r * cup_r)
+            z = top - min(sag + 0.003, 0.0145)  # (the lip gives 15 mm)
         else:
-            low = {'pear': 0.08, 'banana': 0.1, 'egg': 0.12}.get(shape, 0.3 if g == 'pneunet' else 0.25)
+            low = {'pear': 0.08, 'banana': 0.1, 'egg': 0.12}.get(shape, 0.3 if g in SOFT_FINGERS else 0.25)
             z = max(bottom + low * H + plan['reach_below_tcp'], top - plan['palm_above_tcp'] + 0.005)
         return {'point': point, 'z': z, 'yaw': yaw, 'open_to': open_to, 'top': top, 'bottom': bottom, 'H': H,
                 'yaw_item': yaw_item}
@@ -1969,8 +2082,17 @@ def createScene():
     thick = 0.6 * H
     gkind = P['gripper'] if P['gripper'] in dict(GRIPPER_CHOICES) else 'pneunet'
     cart = P['cart'] if P['cart'] in dict(CART_CHOICES) else 'omni'
-    frames = ([FingerFrame(k, F, radius, float(P['finger_azimuth']), z_palm) for k in range(F)]
-              if gkind == 'pneunet' else [])
+    if gkind == 'softgripping_parallel':  # two fingers on each side, facing each other
+        spacing = max(float(P['sg_spacing']), 0.0) * MM
+        F = 4
+        frames = [FingerFrame(k, F, radius, 0.0, z_palm) for k in range(F)]
+        for k, (side, shift) in enumerate(((0, -1), (0, 1), (1, -1), (1, 1))):
+            frames[k] = FingerFrame(k, 2, radius, 0.0 if side == 0 else 180.0, z_palm, shift * spacing / 2)
+            frames[k].k = k
+    elif gkind in SOFT_FINGERS:
+        frames = [FingerFrame(k, F, radius, float(P['finger_azimuth']), z_palm) for k in range(F)]
+    else:
+        frames = []
     flange_pos = np.zeros(3)  # the gripper's frame: at the tool point
     grip_top = z_palm + thick + 0.058  # the top of its wrist adapter (it sits on the arm's flange)
     open_lim = math.radians(float(P['joint_open_limit']))
@@ -2003,7 +2125,7 @@ def createScene():
 
     crate = layout['platform_crate']
     gripper_text = (f"{F} soft fingers of {N} segments" + (f", pointy tips {tip_l / MM:.0f} mm" if tips else "")
-                    if gkind == 'pneunet' else dict(GRIPPER_CHOICES)[gkind].lower())
+                    if gkind == 'pneunet' else dict(GRIPPER_CHOICES)[gkind])
     print(f"[model] a {PL / MM:.0f} x {PW / MM:.0f} mm cart ({dict(CART_CHOICES)[cart].lower()}) with a "
           f"{spec['label']} arm; {gripper_text}; {sum(1 for p in layout['places'] if p['filled'])} items on the "
           f"shelves, {len(crate['items'])} in the platform's crate")
@@ -2095,8 +2217,9 @@ def createScene():
     stroke = max(float(P['jaw_stroke']), 5.0) * MM
     jaw_l, jaw_w, jaw_t = max(float(P['jaw_length']), 10.0) * MM, max(float(P['jaw_width']), 4.0) * MM, 10 * MM
     jaw_names, jaw_dirs = [], []
-    if gkind in ('parallel', 'three_jaw'):
-        n_jaws = 2 if gkind == 'parallel' else 3
+    equalities, finray = [], {}  # (Fin Ray: per jaw, its bodies' names, points and front-flank geoms)
+    if gkind in JAW_KINDS:
+        n_jaws = 3 if gkind == 'three_jaw' else 2
         gripper.append(f'<geom name="jaw_rail" type="box" size="{_v([stroke + jaw_t, 0.016, 0.01])}" '
                        f'pos="0 0 {z_palm - 0.01:.9g}" mass="0.3" class="finger"/>' if n_jaws == 2 else
                        f'<geom name="jaw_rail" type="cylinder" size="{stroke + jaw_t:.9g} 0.01" '
@@ -2111,16 +2234,129 @@ def createScene():
             centre = e * (stroke + jaw_t / 2) + np.array([0.0, 0.0, z_palm - 0.02 - jaw_l / 2])
             gripper += [f'<body name="{name}">',
                         f'<joint name="{name}" type="slide" axis="{_v(-e)}" range="0 {stroke - 0.004:.9g}" '
-                        f'damping="150" armature="0.02"/>',
-                        f'<geom name="{name}" type="box" size="{_v([jaw_t / 2, jaw_w / 2, jaw_l / 2])}" '
-                        f'pos="{_v(centre)}" xyaxes="{_v(e)} {_v(t)}" mass="0.06" friction="1.2 0.01 0.0001" '
-                        f'class="finger"/>', '</body>']
+                        f'damping="150" armature="0.02"/>']
+            if gkind != 'festo_finray':
+                gripper.append(f'<geom name="{name}" type="box" size="{_v([jaw_t / 2, jaw_w / 2, jaw_l / 2])}" '
+                               f'pos="{_v(centre)}" xyaxes="{_v(e)} {_v(t)}" mass="0.06" '
+                               f'friction="1.2 0.01 0.0001" class="finger"/>')
+            else:
+                # A Fin Ray finger hanging from the jaw: the front flank (its gripping face) and the back flank, each
+                # a chain of n hinged segments, meeting at the tip; ribs across, pivoted on the front flank and
+                # pinned to the back flank. Pressed anywhere on its front, the tip curls round the item.
+                n_fr = 6
+                Lf = max(float(P['finray_length']), 20.0) * MM
+                wb = max(float(P['finray_base']), 5.0) * MM
+                k_fr = max(float(P['finray_stiffness']), 1e-4)
+                z0 = z_palm - 0.02
+                Pf = [e * stroke + np.array([0, 0, z0 - i * Lf / n_fr]) for i in range(n_fr + 1)]
+                Qb = [e * (stroke + wb * (1 - i / n_fr)) + np.array([0, 0, z0 - i * Lf / n_fr]) for i in range(n_fr + 1)]
+                gripper.append(f'<geom name="{name}" type="box" size="{_v([wb / 2 + 0.004, jaw_w / 2, 0.006])}" '
+                               f'pos="{_v(e * (stroke + wb / 2) + np.array([0, 0, z0 + 0.006]))}" '
+                               f'xyaxes="{_v(e)} {_v(t)}" mass="0.05" class="finger"/>')
+                hinge = (f'type="hinge" axis="{_v(t)}" stiffness="{k_fr:.9g}" damping="{0.02 * k_fr:.9g}" '
+                         f'armature="1e-5" range="-1.2 1.2"')
+                front_geoms = []
+                for chain, pts, tag in (('F', Pf, 'front'), ('B', Qb, 'back')):
+                    closing = []
+                    for i in range(1, n_fr + 1):
+                        rel = pts[i - 1] - (pts[i - 2] if i > 1 else np.zeros(3))
+                        seg = pts[i] - pts[i - 1]
+                        gname = f'{name}{chain}{i}'
+                        gripper.append(f'<body name="{gname}" pos="{_v(rel)}">')
+                        gripper.append(f'<joint name="{gname}" {hinge}/>')
+                        if tag == 'front':  # the gripping face: 2.5 mm thick, inside the flank line
+                            c = 0.5 * seg - e * 0.00125
+                            gripper.append(f'<geom name="{gname}" type="box" '
+                                           f'size="{_v([0.00125, jaw_w / 2, np.linalg.norm(seg) / 2])}" '
+                                           f'pos="{_v(c)}" xyaxes="{_v(e)} {_v(t)}" mass="0.003" '
+                                           f'friction="1.3 0.01 0.0001" class="finger"/>')
+                            front_geoms.append(gname)
+                            if i < n_fr:  # the rib from this segment's end (pivoted) to the back flank
+                                rib = Qb[i] - Pf[i]
+                                gripper += [f'<body name="{name}R{i}" pos="{_v(seg)}">',
+                                            f'<joint name="{name}R{i}" type="hinge" axis="{_v(t)}" damping="0.0005" '
+                                            f'armature="1e-6"/>',
+                                            f'<geom type="capsule" fromto="0 0 0 {_v(rib)}" size="0.001" mass="0.001" '
+                                            f'contype="0" conaffinity="0"/>', '</body>']
+                                equalities.append(f'<connect body1="{name}R{i}" body2="{name}B{i + 1}" '
+                                                  f'anchor="{_v(rib)}" solref="0.004 1"/>')
+                        else:
+                            gripper.append(f'<geom type="capsule" fromto="0 0 0 {_v(seg)}" size="0.0012" '
+                                           f'mass="0.003" contype="0" conaffinity="0"/>')
+                        closing.append('</body>')
+                    gripper += closing
+                # the tip: the flanks' ends together
+                equalities.append(f'<connect body1="{name}F{n_fr}" body2="{name}B{n_fr}" '
+                                  f'anchor="{_v(Pf[n_fr] - Pf[n_fr - 1])}" solref="0.004 1"/>')
+                finray[name] = {'P': Pf, 'Q': Qb, 'n': n_fr, 'front': front_geoms, 'e': e, 't': t}
+            gripper.append('</body>')
     elif gkind == 'suction':
         gripper += ['<body name="cup">',
                     f'<geom name="cup_stem" type="cylinder" size="0.009 {(z_palm - 0.012) / 2:.9g}" '
                     f'pos="0 0 {0.012 + (z_palm - 0.012) / 2:.9g}" mass="0.05" class="finger"/>',
                     '<geom name="cup" type="cylinder" size="0.019 0.006" pos="0 0 0.006" mass="0.02" '
                     'margin="0.004" gap="0.004" friction="1.2 0.01 0.0001" class="finger"/>', '</body>']
+
+    lip_names, cup_r = [], 0.0
+    if gkind in VACUUM_CUPS:
+        cup_r, n_lip = VACUUM_CUPS[gkind]
+        lip_h, lip_t = 0.006, 0.0028
+        k_lip = max(float(P['cup_lip_stiffness']), 1.0)
+        gripper += ['<body name="vcup">',
+                    f'<geom name="vcup_hub" type="cylinder" size="{0.55 * cup_r:.9g} {(z_palm - lip_h) / 2:.9g}" '
+                    f'pos="0 0 {lip_h + (z_palm - lip_h) / 2:.9g}" mass="0.04" class="finger"/>']
+        seg = 2 * math.pi * cup_r / n_lip
+        for i in range(n_lip):
+            a = 2 * math.pi * i / n_lip
+            c = np.array([cup_r * math.cos(a), cup_r * math.sin(a), lip_t])
+            t = np.array([-math.sin(a), math.cos(a), 0.0])
+            name = f'lip{i + 1}'
+            lip_names.append(name)
+            gripper += [f'<body name="{name}" pos="{_v(c)}">',
+                        f'<joint name="{name}" type="slide" axis="0 0 1" range="0 0.015" stiffness="{k_lip:.9g}" '
+                        f'damping="1.5" armature="0.002"/>',
+                        # (the segments never touch each other: contype 2 meets only the items and the store)
+                        f'<geom name="{name}" type="capsule" '
+                        f'fromto="{_v(-(0.5 * seg - lip_t) * t)} {_v((0.5 * seg - lip_t) * t)}" size="{lip_t:.9g}" '
+                        f'mass="0.002" friction="1.0 0.01 0.0001" contype="2" conaffinity="1"/>', '</body>']
+        gripper.append('</body>')
+
+    # ---- the Prensilia Mia hand, fingers down: the palm upright above the finger roots (its palmar side to -x),
+    # index to little finger along y, the thumb opposite them (at -x), fixed in opposition. Three motors (servos
+    # with a torque limit): the thumb, the index, and the middle finger with the ring and little fingers coupled to
+    # it; in each finger the distal joint follows the proximal one.
+    MIA_FINGERS = [('index', 0.03, 0.045, 0.040, 0.0085), ('middle', 0.01, 0.048, 0.043, 0.0085),
+                   ('ring', -0.01, 0.045, 0.040, 0.0082), ('little', -0.03, 0.037, 0.032, 0.0075)]
+    MIA_THUMB = ('thumb', 0.0, 0.048, 0.040, 0.0095)  # (opposite the middle of the fingers, as long)
+    mia = {}
+    if gkind == 'mia':
+        gripper = [g_ for g_ in gripper if 'name="plate"' not in g_]
+        zr = z_palm
+        grip_top = zr + 0.09 + 0.025
+        gripper += [f'<geom name="mia_palm" type="box" size="0.016 0.043 0.045" pos="0.026 0 {zr + 0.045:.9g}" '
+                    f'mass="0.35" class="finger"/>',
+                    f'<geom name="mia_wrist" type="cylinder" size="0.024 {0.0125:.9g}" pos="0.026 0 {zr + 0.1025:.9g}" '
+                    f'mass="0.1" class="finger"/>']
+        for name, y, l1, l2, r in MIA_FINGERS + [MIA_THUMB]:
+            thumb = name == 'thumb'
+            root = np.array([-0.03, y, zr]) if thumb else np.array([0.025, y, zr])
+            axis = '0 -1 0' if thumb else '0 1 0'  # (positive: curl towards the other side)
+            mia[name] = {'root': root, 'l': (l1, l2), 'r': r, 'thumb': thumb}
+            gripper += [f'<body name="mia_{name}1" pos="{_v(root)}">',
+                        f'<joint name="mia_{name}_mcp" type="hinge" axis="{axis}" range="-0.6 1.6" damping="0.02" '
+                        f'armature="1e-4"/>',
+                        f'<geom name="mia_{name}1" type="capsule" fromto="0 0 0 0 0 {-l1:.9g}" size="{r:.9g}" '
+                        f'mass="0.015" friction="1.2 0.01 0.0001" class="finger"/>',
+                        f'<body name="mia_{name}2" pos="0 0 {-l1:.9g}">',
+                        f'<joint name="mia_{name}_pip" type="hinge" axis="{axis}" range="-0.2 1.7" damping="0.01" '
+                        f'armature="5e-5"/>',
+                        f'<geom name="mia_{name}2" type="capsule" fromto="0 0 0 0 0 {-l2:.9g}" size="{0.92 * r:.9g}" '
+                        f'mass="0.01" friction="1.2 0.01 0.0001" class="finger"/>', '</body>', '</body>']
+            equalities.append(f'<joint joint1="mia_{name}_pip" joint2="mia_{name}_mcp" polycoef="0 1 0 0 0" '
+                              f'solref="0.005 1"/>')
+        for name in ('ring', 'little'):
+            equalities.append(f'<joint joint1="mia_{name}_mcp" joint2="mia_middle_mcp" polycoef="0 1 0 0 0" '
+                              f'solref="0.005 1"/>')
 
     # ---- the arm: at zero every link is aligned with the platform, the links pointing up and the tool along +y
     # (the shoulder axis); the gripper sits on the flange, turned so its frame's +z points back into the flange.
@@ -2254,6 +2490,13 @@ def createScene():
         for a in range(len(chain)):
             for b in range(a + 2, len(chain)):  # (a body and its parent never touch in MuJoCo anyway)
                 excludes.append(f'<exclude body1="{chain[a]}" body2="{chain[b]}"/>')
+    for name, fr_ in finray.items():
+        parts = [name] + [f'{name}F{i}' for i in range(1, fr_['n'] + 1)]
+        for a in range(len(parts)):
+            for b in range(a + 1, len(parts)):
+                excludes.append(f'<exclude body1="{parts[a]}" body2="{parts[b]}"/>')
+        for part in parts[1:]:
+            excludes.append(f'<exclude body1="flange" body2="{part}"/>')
     for link in ('arm_l1', 'arm_l2', 'arm_l3'):  # (and the jaws never touch the flange's own rail)
         excludes.append(f'<exclude body1="platform" body2="{link}"/>')
         excludes.append(f'<exclude body1="arm_base" body2="{link}"/>')
@@ -2271,6 +2514,10 @@ def createScene():
                          f'kv="{2 * math.sqrt(gains[i] * inertia[i]):.9g}"/>')
     if cart == 'car':
         actuators += [f'<position name="{n}" joint="{n}" kp="60" kv="4"/>' for n in ('steer_l', 'steer_r')]
+    if gkind == 'mia':
+        t_max = max(float(P['mia_torque']), 0.01)
+        actuators += [f'<position name="mia_{n}" joint="mia_{n}_mcp" kp="3" kv="0.06" '
+                      f'forcerange="{-t_max:.9g} {t_max:.9g}"/>' for n in ('thumb', 'index', 'middle')]
     if gkind == 'suction':
         actuators.append(f'<adhesion name="suction" body="cup" ctrlrange="0 1" '
                          f'gain="{max(float(P["suction_force"]), 0.0):.9g}"/>')
@@ -2294,6 +2541,7 @@ def createScene():
     {chr(10).join(world)}
   </worldbody>
   <contact>{''.join(excludes)}</contact>
+  <equality>{''.join(equalities)}</equality>
   <actuator>{''.join(actuators)}</actuator>
 </mujoco>"""
     model = mujoco.MjModel.from_xml_string(xml)
@@ -2521,18 +2769,33 @@ def createScene():
             tp, tt = _hexahedron(tip_corners(fr))
             tip_parts.append((tp, tt, body_of(fr.k, N - 1), origin_of(fr.k, N - 1)))
     pts, tris, bodies = carried(seg_parts)
-    scene.add_visual('/world/angles/bodies/visu/visual', pts, tris, bodies, [0.15, 0.45, 0.95, float(P['wall_alpha'])],
+    soft_rgb = [0.93, 0.93, 0.9] if gkind.startswith('softgripping') else [0.15, 0.45, 0.95]
+    scene.add_visual('/world/angles/bodies/visu/visual', pts, tris, bodies, soft_rgb + [float(P['wall_alpha'])],
                      texture='silicone')
     pts, tris, bodies = carried(sheet_parts)
     scene.add_visual('/world/angles/bodies/base_layer/visual', pts, tris, bodies,
                      [0.96, 0.94, 0.86, float(P['wall_alpha'])], texture='fabric')
+    # A tactile skin (Touchlab / TG0 style): a thin sensing pad on each finger segment's gripping face (its base
+    # layer), its own model so the viewer can colour it by the force on that segment (the probes touch_<pad>).
+    skin_pads, skin_names = [], {}
+    if P['tactile_skin']:
+        for fr in frames:
+            for j in range(N):
+                xs = j * pitch
+                pp, pt = _box(xs + 0.08 * L, -0.4 * W, -1.0 * MM, xs + 0.92 * L, 0.4 * W, -0.45 * MM)
+                o = origin_of(fr.k, j)
+                pad = f'f{fr.k + 1}s{j + 1}'
+                local = [list(np.array(fr.to_world(q)) - o) for q in pp]
+                skin_pads.append((pad, local, pt, body_of(fr.k, j)))
+                skin_names[pad] = [f'f{fr.k + 1}s{j}'] + ([f'f{fr.k + 1}tip'] if tips and j == N - 1 else [])
     if tip_parts:
         fp = []
         for tp, tt, b, o in tip_parts:  # flat-shaded: unshared vertices per face
             p2, t2 = _flat_shaded(tp, tt)
             fp.append((p2, t2, b, o))
         pts, tris, bodies = carried(fp)
-        scene.add_visual('/world/angles/bodies/tips/visual', pts, tris, bodies, [0.1, 0.25, 0.6, float(P['wall_alpha'])],
+        tip_rgb = [0.8, 0.8, 0.77] if gkind.startswith('softgripping') else [0.1, 0.25, 0.6]
+        scene.add_visual('/world/angles/bodies/tips/visual', pts, tris, bodies, tip_rgb + [float(P['wall_alpha'])],
                          texture='silicone')
     if P['show_joint_marks'] and mark_parts:
         pts, tris, bodies = carried(mark_parts)
@@ -2546,15 +2809,44 @@ def createScene():
                                    0.55 * plate_r, n=32)
     mount_pts, mount_tris = _smooth_shaded(*_merge([(plate_pts, plate_tris), (wrist_pts, wrist_tris),
                                                   (cap_pts, cap_tris)]))
-    scene.add_visual('/world/angles/bodies/trunk/visual', mount_pts, mount_tris, flange_id, [0.4, 0.26, 0.13, 1.0],
-                     texture='printed')
+    if not mia:
+        scene.add_visual('/world/angles/bodies/trunk/visual', mount_pts, mount_tris, flange_id, [0.4, 0.26, 0.13, 1.0],
+                         texture='printed')
+    else:  # the hand: palm and wrist, rounded phalanges, a skin pad on each phalanx's palmar side
+        zr = z_palm
+        palm_v = _merge([_box(0.010, -0.043, zr, 0.042, 0.043, zr + 0.09),
+                         _cylinder_along([0.026, 0, zr + 0.09], [0.026, 0, zr + 0.115], 0.024, n=28)])
+        scene.add_visual('/world/angles/bodies/trunk/visual', *_smooth_shaded(*palm_v), flange_id,
+                         [0.86, 0.87, 0.89, 1.0], texture='plastic')
+        shells, knuckles = [], []
+        for name, f_ in mia.items():
+            r = f_['r']
+            for seg, l in ((1, f_['l'][0]), (2, f_['l'][1])):
+                rr = r if seg == 1 else 0.92 * r
+                b_ = body(f'mia_{name}{seg}')
+                shells.append((*_smooth_shaded(*_cylinder_along([0, 0, 0], [0, 0, -l], rr, n=20)), b_, np.zeros(3)))
+                knuckles.append((*_smooth_shaded(*_ellipsoid((0, 0, 0), (1.05 * rr, 1.05 * rr, 1.05 * rr), 6, 14)), b_,
+                                 np.zeros(3)))
+                if seg == 2:
+                    knuckles.append((*_smooth_shaded(*_ellipsoid((0, 0, -l), (rr, rr, rr), 6, 14)), b_, np.zeros(3)))
+                if P['tactile_skin']:
+                    side = 1.0 if f_['thumb'] else -1.0  # the palmar side faces the other side's fingers
+                    pad_x0, pad_x1 = sorted((side * (rr - 0.0012), side * (rr + 0.0006)))
+                    pp, tt = _box(pad_x0, -0.75 * rr, -0.88 * l, pad_x1, 0.75 * rr, -0.12 * l)
+                    skin_pads.append((f'{name}{seg}', pp, tt, b_))
+                    skin_names[f'{name}{seg}'] = [f'mia_{name}{seg}']
+        for vname, parts, rgba in (('mia_fingers', shells, [0.86, 0.87, 0.89]),
+                                   ('mia_joints', knuckles, [0.25, 0.26, 0.28])):
+            pts, tris, bodies = carried(parts)
+            scene.add_visual(f'/world/angles/bodies/{vname}/visual', pts, tris, bodies,
+                             rgba + [float(P['wall_alpha'])], texture='plastic')
     if jaw_names:
         n_jaws = len(jaw_names)
         rail = (_box(-(stroke + jaw_t), -0.016, z_palm - 0.02, stroke + jaw_t, 0.016, z_palm) if n_jaws == 2 else
                 _frustum_z(0, 0, z_palm - 0.02, z_palm, stroke + jaw_t, stroke + jaw_t, n=36))
         scene.add_visual('/world/angles/bodies/rail/visual', *_smooth_shaded(*rail), flange_id,
                          [0.3, 0.32, 0.36, float(P['wall_alpha'])], texture='brushed')
-        jaw_parts, pad_parts = [], []
+        jaw_parts, pad_parts, finray_parts = [], [], []
         for name, e in zip(jaw_names, jaw_dirs):
             t = np.array([-e[1], e[0], 0.0])
             def block(r0, r1, w, z0, z1, e=e, t=t):
@@ -2562,15 +2854,90 @@ def createScene():
                 return [list(p[0] * e + p[1] * t + np.array([0, 0, p[2]])) for p in pts], tris
             jb = body(name)
             z1 = z_palm - 0.02
-            jaw_parts.append((*block(stroke, stroke + jaw_t, jaw_w, z1 - jaw_l, z1), jb, np.zeros(3)))
-            pad_parts.append((*block(stroke - 0.5 * MM, stroke, 0.9 * jaw_w, z1 - jaw_l + 0.004, z1 - 0.012), jb,
-                              np.zeros(3)))
+            if name in finray:
+                f_ = finray[name]
+                wb = max(float(P['finray_base']), 5.0) * MM
+                jaw_parts.append((*block(stroke - 0.004, stroke + wb + 0.004, jaw_w, z1, z1 + 0.012), jb, np.zeros(3)))
+                for i in range(1, f_['n'] + 1):
+                    for chain, pts, thick_ in (('F', f_['P'], 0.0025), ('B', f_['Q'], 0.002)):
+                        a, b_ = pts[i - 1], pts[i]
+                        r0 = float(np.dot(a, e)) - (thick_ if chain == 'F' else 0.0)
+                        pp, tt = _box(0, -jaw_w / 2, 0, 1, jaw_w / 2, 1)
+                        # a slab from a to b, `thick_` deep (along e), jaw_w wide
+                        quad = [a - (thick_ if chain == 'F' else 0) * e, b_ - (thick_ if chain == 'F' else 0) * e,
+                                b_ + (0 if chain == 'F' else thick_) * e, a + (0 if chain == 'F' else thick_) * e]
+                        pts8 = []
+                        for q in pp:
+                            base_ = quad[0] if q[0] == 0 and q[2] == 0 else quad[1] if q[0] == 0 else \
+                                quad[3] if q[2] == 0 else quad[2]
+                            pts8.append(list(base_ + q[1] * t - pts[i - 1]))
+                        finray_parts.append((pts8, tt, body(f'{name}{chain}{i}'), np.zeros(3), chain))
+                    if i < f_['n']:
+                        rib_a, rib_b = np.zeros(3), f_['Q'][i] - f_['P'][i]
+                        rp, rt = _box(0, -0.42 * jaw_w, -0.0008, 1, 0.42 * jaw_w, 0.0008)
+                        pts8 = [list(rib_a + q[0] * rib_b + q[1] * t + np.array([0, 0, q[2]])) for q in rp]
+                        finray_parts.append((pts8, rt, body(f'{name}R{i}'), np.zeros(3), 'R'))
+                for i in range(1, f_['n'] + 1):  # a pad on each front segment
+                    a, b_ = f_['P'][i - 1], f_['P'][i]
+                    quad_pts = []
+                    for q in _box(0, -0.4 * jaw_w, 0, 1, 0.4 * jaw_w, 1)[0]:
+                        z_ = a + (0.1 + 0.8 * q[0]) * (b_ - a)
+                        quad_pts.append(list(z_ - (0.0025 + (0.0006 if q[2] == 0 else 0.0001)) * e + q[1] * t - a))
+                    pad_parts.append((quad_pts, _box(0, 0, 0, 1, 1, 1)[1], body(f'{name}F{i}'), np.zeros(3)))
+            else:
+                jaw_parts.append((*block(stroke, stroke + jaw_t, jaw_w, z1 - jaw_l, z1), jb, np.zeros(3)))
+                pad_parts.append((*block(stroke - 0.5 * MM, stroke, 0.9 * jaw_w, z1 - jaw_l + 0.004, z1 - 0.012), jb,
+                                  np.zeros(3)))
+        if P['tactile_skin']:  # each jaw's pad (a Fin Ray finger's: each front segment's) is a skin of its own
+            if finray:
+                for (pp, tt, b, o), k in zip(pad_parts, range(len(pad_parts))):
+                    name, i = jaw_names[k // 6], k % 6 + 1
+                    skin_pads.append((f'{name}s{i}', pp, tt, b))
+                    skin_names[f'{name}s{i}'] = [f'{name}F{i}']
+            else:
+                for (pp, tt, b, o), name in zip(pad_parts, jaw_names):
+                    skin_pads.append((name, pp, tt, b))
+                    skin_names[name] = [name]
+            pad_parts = []
+        for chain, rgba in (('F', [0.12, 0.42, 0.8]), ('B', [0.12, 0.42, 0.8]), ('R', [0.55, 0.72, 0.92])):
+            parts = [(*_flat_shaded(pp, tt), b, o) for pp, tt, b, o, c in finray_parts if c == chain]
+            if parts:
+                pts, tris, bodies = carried(parts)
+                scene.add_visual(f'/world/angles/bodies/finray_{chain}/visual', pts, tris, bodies,
+                                 rgba + [float(P['wall_alpha'])], texture='plastic')
         for vname, parts, rgba, tex in (('jaws', jaw_parts, [0.72, 0.74, 0.78], 'brushed'),
                                         ('jaw_pads', pad_parts, [0.1, 0.1, 0.11], 'rubber')):
+            if not parts:
+                continue
             fp = [(*_flat_shaded(pp, tt), b, o) for pp, tt, b, o in parts]
             pts, tris, bodies = carried(fp)
             scene.add_visual(f'/world/angles/bodies/{vname}/visual', pts, tris, bodies,
                              rgba + [float(P['wall_alpha'])], texture=tex)
+    for pad, pp, tt, b in skin_pads:
+        scene.add_visual(f'/world/angles/bodies/skin/{pad}/visual', *_flat_shaded(pp, tt), b,
+                         [0.22, 0.24, 0.27, float(P['wall_alpha'])], texture='plastic')
+    if lip_names:
+        hub = _frustum_z(0, 0, 0.006, z_palm, 0.75 * cup_r, 0.4 * cup_r, n=32)
+        scene.add_visual('/world/angles/bodies/cup_stem/visual', *_smooth_shaded(*hub), body('vcup'),
+                         [0.94, 0.94, 0.9, float(P['wall_alpha'])], texture='silicone')
+        petals = []
+        n_lip = len(lip_names)
+        for i, name in enumerate(lip_names):
+            a0, a1 = 2 * math.pi * (i - 0.5) / n_lip, 2 * math.pi * (i + 0.5) / n_lip
+            pts, tris = [], []
+            for kk in range(5):  # a curved strip of the lip: flared out at the bottom
+                a = a0 + (a1 - a0) * kk / 4
+                for r_, z_ in ((cup_r + 0.003, -0.0026), (cup_r - 0.001, 0.0), (0.8 * cup_r, 0.006)):
+                    pts.append([r_ * math.cos(a), r_ * math.sin(a), z_])
+            for kk in range(4):
+                for j in range(2):
+                    q0, q1 = 3 * kk + j, 3 * (kk + 1) + j
+                    tris += [[q0, q1, q1 + 1], [q0, q1 + 1, q0 + 1]]
+            c = np.array([cup_r * math.cos(2 * math.pi * i / n_lip), cup_r * math.sin(2 * math.pi * i / n_lip), 0.0028])
+            petals.append(([list(np.array(p_) - c) for p_ in pts], tris, body(name), np.zeros(3)))
+        pts, tris, bodies = carried([(*_smooth_shaded(pp, tt), b, o) for pp, tt, b, o in petals])
+        scene.add_visual('/world/angles/bodies/cup/visual', pts, tris, bodies, [0.9, 0.93, 0.96, float(P['wall_alpha'])],
+                         texture='silicone')
     if gkind == 'suction':
         cup_id = body('cup')
         stem_m = _cylinder_along([0, 0, 0.016], [0, 0, z_palm], 0.009, n=16)
@@ -2634,6 +3001,20 @@ def createScene():
         scene.controllers.append(jaws)
     if gkind == 'suction':
         scene.controllers.append(SuctionController(pressure, act('suction')))
+    if mia:
+        hand = HandController(pressure, [act(f'mia_{n}') for n in ('thumb', 'index', 'middle')])
+        scene.controllers.append(hand)
+        data_ctrl = scene.data.ctrl
+        data_ctrl[hand.actuators] = HandController.OPEN
+    vacuum = None
+    if lip_names:
+        lip_geoms = [int(mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, n)) for n in lip_names]
+        vacuum = VacuumCup(pressure, body('vcup'), lip_geoms, math.pi * (cup_r - 0.002) ** 2,
+                           max(float(P['cup_vacuum']), 0.0) * 1e3)
+        scene.controllers.append(vacuum)
+        scene.objects['Vacuum'] = vacuum
+    if gkind.startswith('softgripping'):
+        pressure.idle = -max(float(P['sg_open_vacuum']), 0.0) * 1e3
     all_hinges = hinge_names + side_names
     repair = Repair([int(model.jnt_qposadr[jnt(n)]) for n in all_hinges],
                     [int(model.jnt_dofadr[jnt(n)]) for n in all_hinges], arm, arm_qpos, arm_dofs)
@@ -2650,9 +3031,13 @@ def createScene():
 
     # ---- the automatic stocking
     half_w = PW / 2 + (track_w + 0.005 if cart == 'tank' else 0.0)
-    if gkind == 'pneunet':
+    if gkind in SOFT_FINGERS:
         below = max(finger_len + (tip_l if tips else 0.0) - tcp_depth, 0.0)  # the fingertips, hanging straight
         palm = tcp_depth
+    elif finray:
+        below, palm = max(float(P['finray_length']), 20.0) * MM + 0.02 - tcp_depth, tcp_depth - 0.02
+    elif mia:
+        below, palm = 0.085 - tcp_depth + 0.004, tcp_depth
     elif jaw_names:
         below, palm = jaw_l + 0.02 - tcp_depth, tcp_depth - 0.02
     else:
@@ -2666,7 +3051,8 @@ def createScene():
         'y_out': layout['front'] - max(plate_r, stroke + jaw_t if jaw_names else 0.0, 0.035) - 0.03,
         'half_diagonal': math.hypot(PL / 2, half_w), 'floor_x': half_floor - PL / 2 - 0.2,
         'carry': tuple(float(c) for c in tcp_start), 'lip': lip_h, 'reach_below_tcp': below,
-        'palm_above_tcp': palm, 'above_tcp': grip_top + 0.2, 'settle': 0.6 if gkind == 'pneunet' else 0.35,
+        'palm_above_tcp': palm, 'above_tcp': grip_top + 0.2, 'settle': 0.6 if gkind in SOFT_FINGERS else 0.35,
+        'vacuum': gkind == 'suction' or gkind in VACUUM_CUPS, 'cup_r': cup_r,
     }
     stocker = Stocker(motion, arm, drive, pressure, jaws, stocker_plan)
     scene.controllers.append(stocker)
@@ -2683,6 +3069,10 @@ def createScene():
         'torque_per_pa': torque_per_pa, 'seg_mass': seg_mass, 'plate_radius': plate_r,
         'finger_length': finger_len + (tip_l if tips else 0.0),
         'gripper': gkind, 'arm': P['arm'], 'cart': cart, 'arm_joints': n_arm,
+        # the tactile skin: geom id -> its pad, and the pads
+        'skin_geoms': {int(mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, g)): pad
+                       for pad, geoms in skin_names.items() for g in geoms},
+        'skin_pads': list(skin_names),
     })
     return scene
 

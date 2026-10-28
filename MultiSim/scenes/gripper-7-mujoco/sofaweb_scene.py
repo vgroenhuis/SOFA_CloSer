@@ -5,6 +5,9 @@ stock everything in its crate (original/Gripper7Mj.py, run through sofaweb's MuJ
 
 import math
 
+import mujoco
+import numpy as np
+
 from sofaweb.config import SceneConfig
 
 TCP_START = (-150.0, 0.0, 620.0)  # Gripper7Mj.TCP_START (in the platform's frame)
@@ -68,6 +71,27 @@ class _Probes:
         values["displaced"] = float(displaced)
         values["on_floor"] = float(floor)
         values["contacts"] = float(data.ncon)
+        # The tactile skin: the contact force on each pad (its finger segment or jaw), all and the most on one.
+        skin = build.get("skin_geoms") or {}
+        if skin:
+            per = dict.fromkeys(build["skin_pads"], 0.0)
+            f6 = np.zeros(6)
+            for i in range(data.ncon):
+                c = data.contact[i]
+                g1, g2 = int(c.geom1), int(c.geom2)
+                pad = skin.get(g1) if g2 not in skin else (skin.get(g2) if g1 not in skin else None)
+                if pad is None:
+                    continue
+                mujoco.mj_contactForce(root.model, data, i, f6)
+                per[pad] += abs(float(f6[0]))
+            for key, v in per.items():
+                values[f"touch_{key}"] = v
+            values["touch_total"] = sum(per.values())
+            values["touch_max"] = max(per.values())
+        vacuum = root.getObject("Vacuum")
+        if vacuum is not None:
+            values["seal"] = 100.0 * vacuum.seal
+            values["cup_force"] = vacuum.force
         return values
 
 
@@ -184,15 +208,17 @@ LIVE = {
 # The default setup, also kept as a preset (every parameter that matters listed) so it can be restored.
 _DEFAULT = {
     "gripper": "pneunet", "arm": "ur", "cart": "omni", "jaw_stroke": 55.0, "jaw_length": 70.0, "jaw_width": 22.0,
-    "jaw_force": 40.0, "suction_force": 30.0, "steer_limit": 35.0, "fingers": 4, "finger_radius": 45.0,
-    "finger_azimuth": 0.0, "segments": 6, "length": 8.0, "width": 20.0, "height": 16.0, "wall_end": 1.5,
-    "wall_side": 1.5, "wall_bottom": 3.0, "wall_top": 1.5, "channel_separation": 2.0, "tips_enabled": True,
-    "tip_length": 14.0, "tip_width": 3.0, "tip_thickness": 2.0, "joint_stiffness": 0.34, "joint_damping": 0.01,
-    "joint_open_limit": 90.0, "side_stiffness": 5.0, "side_limit": 20.0, "joint_armature": 2e-06, "limit_timeconst":
-    0.002, "pressure_torque_gain": 1.0, "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0,
-    "arm_base_height": 160.0, "arm_shoulder_offset": 135.0, "arm_upper": 450.0, "arm_elbow_offset": 120.0,
-    "arm_fore": 400.0, "arm_wrist1": 100.0, "arm_wrist2": 100.0, "arm_wrist3": 100.0, "arm_gain": 3000.0, "ik_rate":
-    100.0, "ik_max_jump": 30.0, "platform_length": 1000.0, "platform_width": 700.0, "platform_height": 250.0,
+    "jaw_force": 40.0, "suction_force": 30.0, "finray_length": 80.0, "finray_base": 30.0, "finray_stiffness": 0.12,
+    "mia_torque": 1.0, "tactile_skin": True, "cup_vacuum": 30.0, "cup_lip_stiffness": 150.0, "sg_spacing": 45.0,
+    "sg_open_vacuum": 20.0, "steer_limit": 35.0, "fingers": 4, "finger_radius": 45.0, "finger_azimuth": 0.0,
+    "segments": 6, "length": 8.0, "width": 20.0, "height": 16.0, "wall_end": 1.5, "wall_side": 1.5, "wall_bottom":
+    3.0, "wall_top": 1.5, "channel_separation": 2.0, "tips_enabled": True, "tip_length": 14.0, "tip_width": 3.0,
+    "tip_thickness": 2.0, "joint_stiffness": 0.34, "joint_damping": 0.01, "joint_open_limit": 90.0,
+    "side_stiffness": 5.0, "side_limit": 20.0, "joint_armature": 2e-06, "limit_timeconst": 0.002,
+    "pressure_torque_gain": 1.0, "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0, "arm_base_height":
+    160.0, "arm_shoulder_offset": 135.0, "arm_upper": 450.0, "arm_elbow_offset": 120.0, "arm_fore": 400.0,
+    "arm_wrist1": 100.0, "arm_wrist2": 100.0, "arm_wrist3": 100.0, "arm_gain": 3000.0, "ik_rate": 100.0,
+    "ik_max_jump": 30.0, "platform_length": 1000.0, "platform_width": 700.0, "platform_height": 250.0,
     "platform_mass": 60.0, "start_x": -600.0, "start_y": -400.0, "drive_speed": 0.5, "drive_acceleration": 0.6,
     "turn_speed": 60.0, "turn_acceleration": 180.0, "flange_acceleration": 1.5, "flange_speed": 0.4,
     "angular_acceleration": 360.0, "angular_speed": 90.0, "flange_mass": 0.5, "shelf_distance": 300.0,
@@ -217,6 +243,20 @@ PRESETS = {
         {"name": "KUKA LBR iiwa, suction cup, tracks",
          "description": "A KUKA LBR iiwa 14 with a suction cup on a tracked cart (skid steering).",
          "values": {**_DEFAULT, "arm": "kuka", "gripper": "suction", "cart": "tank"}},
+        {"name": "Ocado-style grocery picking",
+         "description": "A suction-assisted soft gripper (SoftGripping's centric SoftGripper with a suction cup) on the "
+                        "UR-like arm: the cup lifts, the soft fingers steady the item, as in automated grocery "
+                        "picking.",
+         "values": {**_DEFAULT, "gripper": "softgripping_suction"}},
+        {"name": "Prensilia Mia hand, Franka",
+         "description": "Prensilia's Mia hand on a Franka Emika Panda.",
+         "values": {**_DEFAULT, "gripper": "mia", "arm": "franka"}},
+        {"name": "Festo Fin Ray fingers, KUKA",
+         "description": "Festo's Fin Ray fingers (DHAS) on a parallel gripper, on a KUKA LBR iiwa.",
+         "values": {**_DEFAULT, "gripper": "festo_finray", "arm": "kuka"}},
+        {"name": "GripWiq SofTouch cup, two-wheel drive",
+         "description": "A GripWiq SofTouch suction cup (ST) on the UR-like arm, on a differential-drive cart.",
+         "values": {**_DEFAULT, "gripper": "gripwiq_st", "cart": "diff"}},
         {"name": "Three-jaw chuck, car-like cart",
          "description": "The UR-like arm with a rigid three-jaw chuck, on a cart that steers its front wheels like a "
                         "car (it turns only while moving).",
@@ -293,6 +333,9 @@ _LIMITS = {
     "dt": (0.002, 0.03), "item_alpha": (0.0, 1.0), "wall_alpha": (0.0, 1.0), "joint_alpha": (0.0, 1.0),
     "spot_alpha": (0.0, 1.0), "jaw_stroke": (10.0, 120.0), "jaw_length": (20.0, 200.0), "jaw_width": (5.0, 80.0),
     "jaw_force": (0.0, 500.0), "suction_force": (0.0, 500.0), "steer_limit": (5.0, 60.0),
+    "cup_vacuum": (0.0, 95.0), "cup_lip_stiffness": (5.0, 5000.0), "sg_spacing": (0.0, 200.0),
+    "sg_open_vacuum": (0.0, 80.0), "finray_length": (30.0, 200.0), "finray_base": (10.0, 80.0),
+    "finray_stiffness": (0.005, 5.0), "mia_torque": (0.05, 5.0),
 }
 
 CONFIG = SceneConfig(
@@ -305,9 +348,16 @@ CONFIG = SceneConfig(
     hidden_params={"theme"},
     param_limits=_LIMITS,
     control_sync=_sync,
+    heat=[{"models": r"/bodies/skin/([^/]+)/visual$", "key": "touch_{}", "max": 4.0,
+           "label": "Tactile skin heat map (Touchlab / TG0 style)"}],
     sections=[
         ("Robot", ["gripper", "arm", "cart"]),
-        ("Rigid jaws, suction cup", ["jaw_stroke", "jaw_length", "jaw_width", "jaw_force", "suction_force"]),
+        ("Rigid jaws, suction cups", ["jaw_stroke", "jaw_length", "jaw_width", "jaw_force", "suction_force",
+                                      "cup_vacuum", "cup_lip_stiffness"]),
+        ("SoftGripping", ["sg_spacing", "sg_open_vacuum"]),
+        ("Festo Fin Ray fingers", ["finray_length", "finray_base", "finray_stiffness"]),
+        ("Prensilia Mia hand", ["mia_torque"]),
+        ("Tactile skin", ["tactile_skin"]),
         ("Grip ramp", ["ramp_start", "ramp_time", "instant"]),
         ("Cart", ["platform_length", "platform_width", "platform_height", "platform_mass", "start_x", "start_y",
                   "drive_speed", "drive_acceleration", "turn_speed", "turn_acceleration", "steer_limit"]),
@@ -400,7 +450,7 @@ CONFIG = SceneConfig(
                                            "all</b>: everything in its crate)."},
         "reach": "ik_ok",
         "grip": {"key": "pressure", "on": 80, "off": 0, "label": "Grip", "releaseLabel": "Let go"},
-        "models": r"(^|/)bodies/(visu|base_layer|tips|joint_marks|trunk|rail|jaws|jaw_pads|cup|cup_stem)/visual$",
+        "models": r"(^|/)bodies/(visu|base_layer|tips|joint_marks|trunk|rail|jaws|jaw_pads|cup|cup_stem|finray_[FBR]|mia_fingers|mia_joints|skin/[^/]+)/visual$",
         "jogSpeed": 150, "jogTurn": 60,
         "buttons": [{"key": "stock_all", "label": "Stock all", "title": "The robot stocks everything in its crate by "
                      "itself (click an item: just that one)"},
@@ -410,7 +460,7 @@ CONFIG = SceneConfig(
     },
     display=[
         {"key": "wall_alpha", "label": "Gripper opacity", "type": "opacity",
-         "models": r"(^|/)bodies/(visu|base_layer|tips|rail|jaws|jaw_pads|cup|cup_stem)/visual$"},
+         "models": r"(^|/)bodies/(visu|base_layer|tips|rail|jaws|jaw_pads|cup|cup_stem|finray_[FBR]|mia_fingers|mia_joints|skin/[^/]+)/visual$"},
         {"key": "joint_alpha", "label": "Hinge mark opacity", "type": "opacity", "models": r"(^|/)bodies/joint_marks/visual$"},
         {"key": "item_alpha", "label": "Item opacity", "type": "opacity",
          "models": r"(^|/)items/[^/]+/(visu|detail\d+)/visual$"},
@@ -445,6 +495,9 @@ CONFIG = SceneConfig(
                     ((1, "base", "#d6402a"), (2, "shoulder", "#e0912f"), (3, "elbow", "#1baf7a"),
                      (4, "joint 4", "#2a78d6"), (5, "joint 5", "#7a4fd6"), (6, "joint 6", "#8f97a3"),
                      (7, "joint 7", "#c0398f"))]},
+        {"title": "Tactile skin", "unit": "N",
+         "series": [{"key": "touch_total", "label": "all pads", "color": "#e0912f"},
+                    {"key": "touch_max", "label": "the most on one pad", "color": "#d6402a"}]},
         {"title": "Grip", "unit": "kPa",
          "series": [{"key": "target", "label": "target", "color": "#8f97a3"},
                     {"key": "applied", "label": "applied", "color": "#2a78d6"}]},
@@ -467,6 +520,9 @@ CONFIG = SceneConfig(
         {"key": "tcp_z", "label": "tool z", "digits": 0, "unit": "mm"},
         {"key": "applied", "label": "grip", "digits": 1, "unit": "kPa"},
         {"key": "opening", "label": "jaw opening", "digits": 0, "unit": "mm"},
+        {"key": "touch_total", "label": "tactile skin: force", "digits": 1, "unit": "N"},
+        {"key": "seal", "label": "vacuum cup: lip sealed", "digits": 0, "unit": "%"},
+        {"key": "cup_force", "label": "vacuum cup: pull", "digits": 1, "unit": "N"},
         {"key": "contacts", "label": "contacts", "digits": 0, "unit": ""},
     ],
     stop_at=None,  # interactive: it keeps running
@@ -478,6 +534,16 @@ CONFIG = SceneConfig(
         "in their real sizes) and the cart (omniwheels that move any way; two-wheel differential drive and tank "
         "tracks that turn on the spot but can't move sideways; a car that steers its front wheels and turns only while "
         "moving). The presets have a few combinations.",
+        "CloSer partners' hardware among the grippers: Prensilia's Mia hand (three motors: thumb, index, and the "
+        "middle, ring and little fingers together; the thumb's rotation fixed in opposition; the finger joints "
+        "approximated as two coupled phalanges), SoftGripping's SoftGripper (pneumatic silicone fingers on a centric "
+        "or parallel base, opened wide by vacuum, optionally with a suction cup), GripWiq's SofTouch silicone suction "
+        "cups (ST, and the larger CS: a flexible lip of sprung segments, and the vacuum times the area inside it "
+        "pulling as far as the lip seals) and Festo's Fin Ray fingers (DHAS: front and back flanks joined at the "
+        "tip, with ribs across, so the finger wraps round what presses it). The fingers carry a tactile skin "
+        "(Touchlab / TG0 style): each pad lights up by the force on it (Display: the heat map; the Tactile skin "
+        "chart). The Ocado-style preset picks groceries with a suction-assisted soft gripper. Sizes are typical ones: "
+        "the makers' pages don't give them all.",
         "Automatic stocking: click an item (in the crate, or one out of place on a shelf) and the robot puts it in "
         "an empty place for its product by itself: it drives along the shelves so the arm stands beside the place, "
         "takes the item from above (from a shelf, reaching in under the next one), and puts it down there. Stock "

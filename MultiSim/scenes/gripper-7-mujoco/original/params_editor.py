@@ -30,7 +30,16 @@ _DEFAULTS = {
     'jaw_length': 70.0,          # [mm] below the palm
     'jaw_width': 22.0,           # [mm]
     'jaw_force': 40.0,           # [N] each jaw's grip at 100 kPa (the grip control; the Grip button: 80)
-    'suction_force': 30.0,       # [N] the cup's pull at full suction (80 kPa and more)
+    'suction_force': 30.0,       # [N] the simple cup's pull at full suction (80 kPa and more)
+    'finray_length': 80.0,       # [mm] Festo Fin Ray finger (DHAS-GF-80 size): below the jaw
+    'finray_base': 30.0,         # [mm] its depth at the jaw (the triangle's base)
+    'finray_stiffness': 0.12,    # [N m/rad] each flank hinge (the flanks' bending)
+    'mia_torque': 1.0,           # [N m] Mia hand: each motor's largest torque at its finger's base joint
+    'tactile_skin': True,        # sensing pads on the fingers' gripping faces (Touchlab / TG0 style e-skin)
+    'cup_vacuum': 30.0,          # [kPa] a vacuum cup's (GripWiq, SoftGripping) vacuum at full grip (80 kPa)
+    'cup_lip_stiffness': 150.0,  # [N/m] each segment of a vacuum cup's silicone lip
+    'sg_spacing': 45.0,          # [mm] SoftGripping parallel base: between the two fingers on each side
+    'sg_open_vacuum': 20.0,      # [kPa] SoftGripping: the negative pressure that opens the fingers wide
     'steer_limit': 35.0,         # [deg] the car's largest steering angle
     # -- the fingers --
     'fingers': 4,                # how many, evenly spaced around the end-effector's axis
@@ -177,8 +186,16 @@ def _set_titlebar_dark(window, dark):
 
 # Drop-downs: (label, json_key, [(value, text), ...])
 _CHOICE_FIELDS = [
-    ('Gripper', 'gripper', [('pneunet', 'Soft PneuNet fingers (Gripper 5)'), ('parallel', 'Rigid parallel jaws'),
-                            ('three_jaw', 'Rigid three-jaw chuck'), ('suction', 'Suction cup')]),
+    ('Gripper', 'gripper', [('pneunet', 'Soft PneuNet fingers (Gripper 5)'),
+                            ('softgripping_centric', 'SoftGripping SoftGripper, centric base'),
+                            ('softgripping_parallel', 'SoftGripping SoftGripper, parallel base'),
+                            ('softgripping_suction', 'SoftGripping SoftGripper, centric with suction cup'),
+                            ('gripwiq_st', 'GripWiq SofTouch suction cup, ST'),
+                            ('gripwiq_cs', 'GripWiq SofTouch suction cup, CS (larger)'),
+                            ('festo_finray', 'Festo Fin Ray fingers (DHAS) on parallel jaws'),
+                            ('mia', 'Prensilia Mia hand'),
+                            ('parallel', 'Rigid parallel jaws'), ('three_jaw', 'Rigid three-jaw chuck'),
+                            ('suction', 'Simple suction cup (adhesion)')]),
     ('Robot arm', 'arm', [('ur', 'UR-like, 6 axes'), ('kuka', 'KUKA LBR iiwa 14, 7 axes'),
                           ('franka', 'Franka Emika Panda, 7 axes')]),
     ('Cart', 'cart', [('omni', 'Omniwheels (any direction)'), ('diff', 'Two-wheel differential drive'),
@@ -194,7 +211,15 @@ _FIELDS = [
     ('Jaws: length below the palm',            'jaw_length',          1, 1, 'mm'),
     ('Jaws: width',                            'jaw_width',           1, 1, 'mm'),
     ('Jaws: grip force at 100 kPa',            'jaw_force',           1, 1, 'N'),
-    ('Suction cup: pull at full suction',      'suction_force',       1, 1, 'N'),
+    ('Simple suction cup: pull at full suction', 'suction_force',     1, 1, 'N'),
+    ('Vacuum cups: vacuum at full grip',       'cup_vacuum',          1, 1, 'kPa'),
+    ('Vacuum cups: stiffness of a lip segment', 'cup_lip_stiffness',  1, 1, 'N/m'),
+    ('SoftGripping parallel: finger spacing',  'sg_spacing',          1, 1, 'mm'),
+    ('SoftGripping: opening vacuum',           'sg_open_vacuum',      1, 1, 'kPa'),
+    ('Fin Ray finger: length',                 'finray_length',       1, 1, 'mm'),
+    ('Fin Ray finger: depth at the jaw',       'finray_base',         1, 1, 'mm'),
+    ('Fin Ray finger: flank hinge stiffness',  'finray_stiffness',    1, 3, 'N m/rad'),
+    ('Mia hand: motor torque limit',           'mia_torque',          1, 2, 'N m'),
     ('Car: largest steering angle',            'steer_limit',         1, 1, 'deg'),
     ('Number of fingers',                      'fingers',             1, 0, ''),
     ('Fingers: distance of the inner faces from the axis', 'finger_radius', 1, 1, 'mm'),
@@ -279,6 +304,7 @@ _FIELDS = [
 ]
 
 _BOOL_FIELDS = [
+    ('Tactile skin on the fingers (Touchlab / TG0 style)', 'tactile_skin', True),
     ('Pointy fingertips', 'tips_enabled', True),
     ('A second shelf unit, beside the first', 'second_unit', True),
     ('Mark the empty places on the shelves', 'show_spots', True),

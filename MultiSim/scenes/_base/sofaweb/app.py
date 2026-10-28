@@ -141,6 +141,7 @@ def create_app(config_path: Path) -> FastAPI:
             "hasGauge": config.gauge is not None,
             "controls": [{k: v for k, v in c.items() if k != "apply"} for c in config.controls],
             "manipulator": config.manipulator,
+            "heat": config.heat,
         }
 
     @app.post("/api/defaults")
