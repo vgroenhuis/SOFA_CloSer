@@ -35,9 +35,17 @@ class MjVisual:
     """A mesh drawn in the browser, each vertex carried by a body (its
     position in that body's frame)."""
 
-    def __init__(self, scene: "MjScene", path: str, points, triangles, bodies) -> None:
+    def __init__(self, scene: "MjScene", path: str, points, triangles, bodies, texture: Optional[str] = None,
+                 texture_scale: Optional[float] = None, label: Optional[dict] = None) -> None:
         self._scene = scene
         self._path = path
+        # The browser's surface texture (a name from viewer.js' TEXTURES, mapped onto the mesh in its bodies' frames
+        # so it moves with them), and one repeat of it [m] (None: the texture's own).
+        self.texture, self.texture_scale = texture, texture_scale
+        # A printed label over it (the browser makes up the words): {'mode': 'plane' (on the mesh's flat face) or
+        # 'wrap' (around its local z axis), 'seed': the same seed, the same label, 'overlay': a part lying on another
+        # one, drawn in front of it}.
+        self.label = label
         self.local = np.asarray(points, dtype=np.float64).reshape(-1, 3)
         body = np.asarray(bodies, dtype=np.int64).reshape(-1)
         self.body = np.full(len(self.local), int(body[0])) if body.size == 1 else body
@@ -93,9 +101,13 @@ class MjScene:
     def body_id(self, name: str) -> int:
         return int(mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, name))
 
-    def add_visual(self, path: str, points, triangles, bodies=0, color=(1.0, 1.0, 1.0, 1.0)) -> MjVisual:
-        """A mesh carried by `bodies` (one body id, or one per point; 0 is the world), `points` in the body's frame."""
-        visual = MjVisual(self, path, points, triangles, bodies)
+    def add_visual(self, path: str, points, triangles, bodies=0, color=(1.0, 1.0, 1.0, 1.0),
+                   texture: Optional[str] = None, texture_scale: Optional[float] = None,
+                   label: Optional[dict] = None) -> MjVisual:
+        """A mesh carried by `bodies` (one body id, or one per point; 0 is the world), `points` in the body's frame;
+        `texture` a surface texture of the browser's (e.g. 'cardboard', 'brushed'; see MjVisual), `texture_scale`
+        the size of one repeat of it [m]; `label` a printed label on it (see MjVisual)."""
+        visual = MjVisual(self, path, points, triangles, bodies, texture, texture_scale, label)
         rgba = list(color) + [1.0] * (4 - len(color))
         self.visuals.append(VisualRecord(visual, [float(c) for c in rgba[:4]]))
         return visual

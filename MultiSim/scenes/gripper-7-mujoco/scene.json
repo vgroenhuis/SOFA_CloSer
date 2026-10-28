@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 7: Robot shop assistant (MuJoCo)",
+	"group": "stocking",
+	"description": "Gripper 6's mobile manipulator with a choice of gripper (soft fingers, rigid jaws, three-jaw chuck, suction cup), arm (UR-like, KUKA LBR iiwa, Franka Panda) and cart (omniwheels, two-wheel drive, tracks, car steering). Click an item and the robot stocks it by itself, or let it stock its whole crate.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

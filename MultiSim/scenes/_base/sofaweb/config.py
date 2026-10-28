@@ -162,8 +162,16 @@ class SceneConfig:
     #    "models": regex of the visual models that can be grabbed and dragged (the end-effector),
     #    "jogSpeed": keyboard speed (control units/s), "jogTurn": keyboard yaw speed (deg/s),
     #    "markerRadius": the target marker's radius (scene units, default 0.008),
-    #    "buttons": [{"key": a button control, "label", "title"}] -- extra toolbar buttons (e.g. a repair)}
+    #    "buttons": [{"key": a button control, "label", "title"}] -- extra toolbar buttons (e.g. a repair),
+    #    "pick": {"models": regex of models that can be clicked (e.g. the groceries), "x", "y", "z": slider controls
+    #             that receive the clicked point (control units, times "scale"), "go": a button control pressed right
+    #             after, "title": what a click does} -- one click (no drag) on such a model acts on it}
     manipulator: Optional[dict] = None
+
+    # Controls the scene moves by itself (e.g. an automatic task steering the end-effector): fn(root, module) ->
+    # {control key: value}, polled a few times a second while running; values that changed are sent to the
+    # browsers, so the sliders and the manipulator follow. None: the controls change only from the browser.
+    control_sync: Optional[Callable[[Any, Any], dict]] = None
 
     # Vector parameters that may be given fewer values than their default has (at least one),
     # e.g. {"pressures"}: one pressure for every finger, or one each. The scene reads the list.
@@ -195,7 +203,7 @@ def editor_fields(editor_path: Path) -> list[dict]:
             isinstance(node, ast.Assign)
             and len(node.targets) == 1
             and isinstance(node.targets[0], ast.Name)
-            and node.targets[0].id in ("_FIELDS", "_VECTOR_FIELDS", "_BOOL_FIELDS")
+            and node.targets[0].id in ("_FIELDS", "_VECTOR_FIELDS", "_BOOL_FIELDS", "_CHOICE_FIELDS")
         ):
             try:
                 tables[node.targets[0].id] = ast.literal_eval(node.value)
@@ -208,4 +216,7 @@ def editor_fields(editor_path: Path) -> list[dict]:
         specs.append({"key": key, "label": label, "type": "vector", "length": length, "decimals": decimals, "unit": unit})
     for label, key, _default in tables.get("_BOOL_FIELDS", []):
         specs.append({"key": key, "label": label, "type": "bool"})
+    # A drop-down: (label, key, [(value, text), ...]); the parameter is a string, one of the values.
+    for label, key, choices in tables.get("_CHOICE_FIELDS", []):
+        specs.append({"key": key, "label": label, "type": "choice", "choices": [[str(v), str(t)] for v, t in choices]})
     return specs

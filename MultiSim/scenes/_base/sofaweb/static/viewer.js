@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Chart from "chart.js/auto";
 import { createManipulator } from "./manipulator.js";
+import { texturedMaterial, setAnisotropy } from "./textures.js";
 
 const isViewer = new URLSearchParams(location.search).get("role") === "viewer";
 if (isViewer) document.body.classList.add("viewer");
@@ -28,6 +29,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.sortObjects = true;
 $("viewer").appendChild(renderer.domElement);
+setAnisotropy(Math.min(8, renderer.capabilities.getMaxAnisotropy()));
 
 const scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
@@ -44,7 +46,7 @@ function sofaColor(rgba) {
 }
 
 function disposeScene() {
-	for (const { object, geometry, mirrors, wire, edges, points } of models.values()) {
+	for (const { object, geometry, mirrors, wire, edges, points, plainMaterial, texMaterial } of models.values()) {
 		scene.remove(object);
 		if (wire) {
 			scene.remove(wire);
@@ -65,6 +67,7 @@ function disposeScene() {
 		}
 		geometry.dispose();
 		object.material.dispose();
+		for (const m of [plainMaterial, texMaterial]) if (m && m !== object.material) m.dispose();
 	}
 	models.clear();
 	for (const light of [ambientLight, ...directionalLights]) if (light) scene.remove(light);
@@ -676,7 +679,15 @@ function buildModel(info, order) {
 	}
 	scene.add(object);
 	const wire = info.kind === "mesh" && !is2d ? makeWire(geometry, info) : null;
-	models.set(info.id, { object, geometry, info, order, wire });
+	// A surface texture (see textures.js): the textured material and the
+	// plain one, switched by the Display panel's "Textures".
+	if (info.texture && info.texture.label && info.texture.label.overlay && !is2d) {
+		// A label part sits a fraction of a millimetre on its package:
+		// pulled forward in depth so it doesn't flicker through it.
+		Object.assign(object.material, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
+	}
+	const texMaterial = info.kind === "mesh" && !is2d ? texturedMaterial(object.material, geometry, info) : null;
+	models.set(info.id, { object, geometry, info, order, wire, plainMaterial: object.material, texMaterial });
 }
 
 function applyPositions(entry, packed) {
@@ -886,6 +897,7 @@ function applySetup(message) {
 	buildGauge(message.gauge);
 	buildMirrorCopies();
 	buildLightControls(message);
+	updateTextureRow();
 	applyDisplay(); // this viewer's display settings, onto the fresh models and lights
 	// Keep the visitor's own view across rebuilds unless the scene's
 	// camera itself changed (e.g. a geometry parameter moved it).
@@ -1282,6 +1294,7 @@ function buildControlsPanel(controls) {
 	for (const c of controls) {
 		const row = document.createElement("div");
 		row.className = `display-row control ${c.type}`;
+		row.hidden = !!c.hidden; // set by the manipulator only (e.g. a clicked point)
 		if (c.description) row.title = c.description;
 		const id = `c-${c.key}`;
 		let show = () => {};
@@ -1472,9 +1485,10 @@ function buildParamsPanel(spec) {
 				badge.textContent = "live";
 				label.appendChild(badge);
 			}
-			const input = document.createElement("input");
+			const input = document.createElement(field.type === "choice" ? "select" : "input");
 			input.id = `p-${field.key}`;
-			if (field.type === "bool") input.type = "checkbox";
+			if (field.type === "choice") for (const [value, text] of field.choices) input.add(new Option(text, value));
+			else if (field.type === "bool") input.type = "checkbox";
 			else if (field.type === "vector") input.type = "text";
 			else {
 				input.type = "number";
@@ -1483,7 +1497,7 @@ function buildParamsPanel(spec) {
 				if (field.max !== undefined) input.max = field.max / (field.scale || 1);
 			}
 			if (isViewer) input.disabled = true;
-			input.addEventListener(field.type === "bool" ? "change" : "input", () => {
+			input.addEventListener(field.type === "bool" || field.type === "choice" ? "change" : "input", () => {
 				// Switching on one of a pair that can't both be on switches the other off.
 				if (field.type === "bool" && input.checked) {
 					for (const other of field.excludes || []) {
@@ -1532,6 +1546,7 @@ function showParams(params) {
 		if (document.activeElement === input && !isViewer) continue;
 		const value = params[key];
 		if (field.type === "bool") input.checked = !!value;
+		else if (field.type === "choice") input.value = String(value);
 		else if (field.type === "vector") input.value = value.map((v) => +v.toFixed(4)).join(", ");
 		else input.value = fmtNumber(value, field);
 		input.classList.remove("dirty");
@@ -1543,6 +1558,7 @@ function showParams(params) {
 
 function readField({ field, input }) {
 	if (field.type === "bool") return input.checked;
+	if (field.type === "choice") return input.value;
 	if (field.type === "vector") return input.value.split(/[,\s]+/).filter(Boolean).map(Number);
 	const shown = parseFloat(input.value);
 	return Number.isFinite(shown) ? shown * (field.scale || 1) : undefined;
@@ -1673,6 +1689,7 @@ function applyDisplay() {
 			else if (d.type === "color") color = value;
 			else if (d.type === "visible") visible = visible && value;
 		}
+		if (entry.texMaterial) entry.object.material = displayState.textures !== false ? entry.texMaterial : entry.plainMaterial;
 		const material = entry.object.material;
 		material.color.setRGB(color[0], color[1], color[2]);
 		const transparent = alpha < 0.999;
@@ -1697,6 +1714,7 @@ function applyDisplay() {
 		for (const copy of entry.mirrors || []) {
 			const shown = visible && !copy.planeMissing && (!copy.chain || chainCopyShown(copy.chain)) &&
 				copy.specs.every((d) => displayState[d.key] && (!d.requires || currentParams[d.requires]));
+			copy.mesh.material = entry.object.material;
 			copy.mesh.renderOrder = entry.object.renderOrder;
 			copy.mesh.visible = shown && alpha > 0.001;
 			if (copy.wire) copy.wire.visible = showWire && shown;
@@ -2588,6 +2606,13 @@ function buildDisplayPanel(spec, useSaved = true, overrides = null) {
 		// The scale ruler (see updateRuler), for every 3D scene.
 		displayState.scaleTicks = "scaleTicks" in saved ? !!saved.scaleTicks : true;
 		form.appendChild(checkboxRow("scaleTicks", "Axis scale (ticks, labels)"));
+		// Surface textures, where the scene has them (shown once the setup
+		// says so, see updateTextureRow); off draws plain colours, faster.
+		displayState.textures = "textures" in saved ? !!saved.textures : true;
+		const row = checkboxRow("textures", "Textures (surfaces; off is faster)");
+		row.id = "display-textures-row";
+		form.appendChild(row);
+		updateTextureRow();
 	}
 	updateDisplayAvailability();
 }
@@ -2599,6 +2624,12 @@ $("display-reset-btn").addEventListener("click", () => {
 	storePresetSelection();
 	renderPresets("display");
 });
+
+// The Display panel's "Textures" only for a scene with textured models.
+function updateTextureRow() {
+	const row = $("display-textures-row");
+	if (row) row.hidden = !setup || !setup.models.some((m) => m.texture);
+}
 
 // Back to the scene's default display settings, with a preset's values on top.
 function resetDisplay(overrides = null) {

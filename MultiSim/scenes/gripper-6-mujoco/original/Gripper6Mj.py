@@ -40,8 +40,11 @@ PARAMS_FILE = os.path.join(_SCRIPT_DIR, 'params.json')
 # The grocery products: key -> (label, shape, dimensions [mm], mass [g]). Shapes:
 #   'sphere' (r), 'egg' (half-length along x, radius), 'cylinder' (r, height), 'cup' (bottom r, top r, height),
 #   'box' (x, y, z sizes).
+#   'apple' (r, half-height: a turned profile, dimpled at the stem and underneath; an ellipsoid to the physics),
+#   'pear' (r, height: a turned profile, upright; its convex hull to the physics), 'banana' (length, r, bend: a
+#   curved tube lying along x, bulging to +y; capsules along it to the physics)
 PRODUCTS = {
-    'apple':  ('Apple',      'sphere',   (36.0,),             170.0),
+    'apple':  ('Apple',      'apple',    (36.0, 31.0),        170.0),
     'tomato': ('Tomato',     'sphere',   (29.0,),             100.0),
     'egg':    ('Egg',        'egg',      (29.0, 22.0),         60.0),
     'can':    ('Soda can',   'cylinder', (33.0, 115.0),       380.0),
@@ -50,8 +53,10 @@ PRODUCTS = {
     'yogurt': ('Yogurt cup', 'cup',      (27.0, 36.0, 72.0),  150.0),
     'tea':    ('Tea box',    'box',      (65.0, 65.0, 75.0),   90.0),
     'butter': ('Butter',     'box',      (110.0, 62.0, 40.0), 250.0),
+    'pear':   ('Pear',       'pear',     (34.0, 100.0),       180.0),
+    'banana': ('Banana',     'banana',   (175.0, 18.0, 30.0), 120.0),
 }
-ROUND = {'apple', 'tomato', 'egg'}
+ROUND = {'apple', 'tomato', 'egg'}  # (rolling friction)
 EGG_YAW = 90.0  # [deg] eggs lie with their long axis across the shelf (front to back)
 
 # The shelves' stock plan: (gondola, bay, level) -> [(product, places, filled)], left to right as seen from the
@@ -65,7 +70,7 @@ SHELF_PLAN = {
     ('left', 1, 0): [('yogurt', 4, 2), ('egg', 3, 0)],
     ('left', 1, 1): [('butter', 3, 3), ('spice', 3, 3)],
     ('left', 1, 2): [('can', 4, 4), ('juice', 3, 0)],
-    ('right', 0, 0): [('tea', 4, 3), ('yogurt', 2, 2)],
+    ('right', 0, 0): [('pear', 2, 1), ('banana', 2, 1)],
     ('right', 0, 1): [('juice', 5, 3), ('can', 3, 2)],
     ('right', 0, 2): [('spice', 5, 4), ('egg', 3, 1)],
     ('right', 1, 0): [('butter', 2, 2), ('tomato', 3, 2)],
@@ -74,7 +79,8 @@ SHELF_PLAN = {
 }
 # No crates on the floor: the platform carries one (rows along the platform, front to back).
 CRATES = []
-PLATFORM_CRATE = [('apple', 2), ('tomato', 2), ('egg', 2), ('can', 2), ('spice', 1), ('yogurt', 2), ('juice', 1)]
+PLATFORM_CRATE = [('banana', 1), ('pear', 1), ('apple', 2), ('tomato', 1), ('egg', 2), ('can', 2), ('spice', 1),
+                  ('yogurt', 1), ('juice', 1)]
 
 _DEFAULT_PARAMS = {
     # -- the fingers --
@@ -301,6 +307,34 @@ def _flat_shaded(points, tris):
     return flat_points, flat_tris
 
 
+def _smooth_shaded(points, tris, crease_deg=50.0):
+    """Shared vertices where the surface is meant to be curved, so the browser shades it smoothly: the triangles
+    around a vertex share it while their normals are within `crease_deg` of each other (a cylinder's side, a
+    sphere); across a sharper edge (a cylinder's rim, a box's edges) each side gets its own copy, so those edges stay
+    crisp."""
+    P = np.asarray(points, dtype=np.float64).reshape(-1, 3)
+    T = np.asarray(tris, dtype=np.int64).reshape(-1, 3)
+    n = np.cross(P[T[:, 1]] - P[T[:, 0]], P[T[:, 2]] - P[T[:, 0]])
+    n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-30)
+    cos_crease = math.cos(math.radians(crease_deg))
+    groups = {}  # vertex -> [(summed normal, new index)]
+    out_pts, out_tris = [], []
+    for f, tri in enumerate(T):
+        new_tri = []
+        for v in tri:
+            for g in groups.setdefault(int(v), []):
+                if np.dot(g[0], n[f]) >= cos_crease * np.linalg.norm(g[0]):
+                    g[0] += n[f]
+                    new_tri.append(g[1])
+                    break
+            else:
+                groups[int(v)].append([n[f].copy(), len(out_pts)])
+                new_tri.append(len(out_pts))
+                out_pts.append([float(c) for c in P[v]])
+        out_tris.append(new_tri)
+    return out_pts, out_tris
+
+
 def _merge(parts):
     pts, tris = [], []
     for p, t in parts:
@@ -422,6 +456,135 @@ class FingerFrame:
         return [float(c) for c in w]
 
 
+def _spline(ctrl, k):
+    """Catmull-Rom through the points `ctrl` [(a, b)], `k` steps per span."""
+    c = [ctrl[0]] + list(ctrl) + [ctrl[-1]]
+    out = []
+    for i in range(1, len(c) - 2):
+        p0, p1, p2, p3 = (np.array(c[i + d], float) for d in (-1, 0, 1, 2))
+        for step in range(k):
+            t = step / k
+            out.append(0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t
+                              + (3 * p1 - p0 - 3 * p2 + p3) * t ** 3))
+    out.append(np.array(ctrl[-1], float))
+    return out
+
+
+def _revolve(ctrl, n, k, radius, height, z0=0.0, shape=None):
+    """A closed surface turned about z from the profile `ctrl` [(r, z)] (from the bottom pole to the top one, r = 0
+    there; r times `radius`, z times `height`, plus z0), `n` around, `k` rows per span; `shape(r, z, phi)` -> (r,
+    x shift) varies it around (lobes) and along (a lean)."""
+    prof = _spline(ctrl, k)
+    pts, tris = [], []
+    rings = []
+    for idx, (r, z) in enumerate(prof):
+        zz = z0 + z * height
+        if idx in (0, len(prof) - 1):
+            rr, dx = shape(0.0, z, 0.0) if shape else (0.0, 0.0)
+            rings.append([len(pts)])
+            pts.append([dx, 0.0, zz])
+            continue
+        ring = []
+        for kk in range(n):
+            phi = 2 * math.pi * kk / n
+            rr, dx = shape(r, z, phi) if shape else (r, 0.0)
+            ring.append(len(pts))
+            pts.append([dx + rr * radius * math.cos(phi), rr * radius * math.sin(phi), zz])
+        rings.append(ring)
+    for a, b in zip(rings[:-1], rings[1:]):
+        if len(a) == 1:
+            tris += [[a[0], b[(kk + 1) % n], b[kk]] for kk in range(n)]
+        elif len(b) == 1:
+            tris += [[a[kk], a[(kk + 1) % n], b[0]] for kk in range(n)]
+        else:
+            for kk in range(n):
+                k2 = (kk + 1) % n
+                tris += [[a[kk], a[k2], b[k2]], [a[kk], b[k2], b[kk]]]
+    return [[float(c) for c in q] for q in pts], tris
+
+
+# Profiles (r, z), bottom pole to top pole. An apple: widest a little above the middle, a shallow eye underneath and
+# a deep stem cavity on top. A pear: a round bottom and a long tapering neck.
+APPLE_PROFILE = [(0.0, -0.9), (0.18, -0.97), (0.38, -1.0), (0.6, -0.93), (0.8, -0.72), (0.95, -0.4), (1.0, -0.02),
+                 (0.98, 0.32), (0.9, 0.62), (0.74, 0.87), (0.52, 1.0), (0.32, 0.98), (0.16, 0.86), (0.0, 0.72)]
+PEAR_PROFILE = [(0.0, 0.03), (0.3, 0.0), (0.62, 0.03), (0.86, 0.11), (0.99, 0.25), (0.97, 0.38), (0.83, 0.5),
+                (0.64, 0.6), (0.5, 0.7), (0.43, 0.8), (0.37, 0.89), (0.25, 0.96), (0.0, 0.985)]
+PEAR_LEAN = 0.1  # the neck's lean to +x at the top, times the radius
+
+
+def _apple(r, hz, n=24, k=2):
+    """An apple centred on its origin: five faint lobes, strongest towards the bottom."""
+    def shape(rho, z, phi):
+        return rho * (1 + 0.035 * math.cos(5 * phi) * (max(0.0, -z) + 0.3)), 0.0
+    return _revolve(APPLE_PROFILE, n, k, r, hz, shape=shape)
+
+
+def _pear(r, h, n=24, k=2):
+    """A pear standing on its bottom, centred on its bounding box; the neck leans a little."""
+    def shape(rho, z, phi):
+        return rho, PEAR_LEAN * r * z * z
+    return _revolve(PEAR_PROFILE, n, k, r, h, z0=-h / 2, shape=shape)
+
+
+def _banana_axis(length, bend):
+    """The banana's centre line: t (0 stalk .. 1 tip) -> (point, unit tangent) in the xy plane; an arc of chord
+    `length` bulging by `bend` towards +y, centred on the origin."""
+    rc = (length * length / 4 + bend * bend) / (2 * bend)
+    half = math.asin(length / 2 / rc)
+
+    def at(t):
+        a = (t - 0.5) * 2 * half
+        return (np.array([rc * math.sin(a), rc * math.cos(a) - rc + bend / 2, 0.0]),
+                np.array([math.cos(a), -math.sin(a), 0.0]))
+    return at
+
+
+def _banana_radius(t):
+    """The banana's radius along it (1 in the middle): a thin stalk end, a blunt tip."""
+    smooth = lambda a, b, x: (lambda u: u * u * (3 - 2 * u))(min(1.0, max(0.0, (x - a) / (b - a))))
+    if t < 0.5:
+        return 0.3 + 0.7 * smooth(0.06, 0.32, t)
+    return 0.42 + 0.58 * (1 - smooth(0.72, 0.99, t))
+
+
+def _tube(axis, radius_at, t0, t1, rings, n, ridges=0):
+    """A closed tube along `axis` (t -> point, tangent in xy) from t0 to t1; radius_at(t), `ridges` faint ridges."""
+    pts, tris, ring_idx = [], [], []
+    up = np.array([0.0, 0.0, 1.0])
+    for i in range(rings):
+        t = t0 + (t1 - t0) * i / (rings - 1)
+        c, tan = axis(t)
+        side = np.cross(up, tan)
+        rr = radius_at(t)
+        ring = []
+        for kk in range(n):
+            th = 2 * math.pi * kk / n
+            rk = rr * (1 + 0.05 * math.cos(ridges * th)) if ridges else rr
+            ring.append(len(pts))
+            pts.append(list(c + rk * (math.cos(th) * side + math.sin(th) * up)))
+        ring_idx.append(ring)
+    for a, b in zip(ring_idx[:-1], ring_idx[1:]):
+        for kk in range(n):
+            k2 = (kk + 1) % n
+            tris += [[a[kk], b[kk], b[k2]], [a[kk], b[k2], a[k2]]]
+    for ring, t, flip in ((ring_idx[0], t0, True), (ring_idx[-1], t1, False)):
+        centre = len(pts)
+        pts.append(list(axis(t)[0]))
+        for kk in range(n):
+            k2 = (kk + 1) % n
+            tris.append([centre, ring[k2], ring[kk]] if flip else [centre, ring[kk], ring[k2]])
+    return [[float(v) for v in q] for q in pts], tris
+
+
+def _banana(length, r, bend, rings=26, n=15):
+    """A banana lying along x (its stalk at -x), its peel's five ridges; without the stalk and the tip."""
+    axis = _banana_axis(length, bend)
+    return _tube(axis, lambda t: r * _banana_radius(t), 0.07, 0.985, rings, n, ridges=5)
+
+
+BANANA_CAPSULES = [0.13, 0.33, 0.5, 0.67, 0.9]  # where along it the physics' capsules meet
+
+
 def _item_meshes(shape, dims, smooth):
     """An item's surface centred on its own origin (the centre of its bounding box), as [(points, triangles,
     colour key)], `smooth` for the picture, coarse for the collision model (or a list of spheres)."""
@@ -441,6 +604,14 @@ def _item_meshes(shape, dims, smooth):
     if shape == 'box':
         x, y, z = dims
         return [(*_box(-x / 2, -y / 2, -z / 2, x / 2, y / 2, z / 2), 'body')]
+    if shape == 'apple':
+        r, hz = dims
+        return [(*(_apple(r, hz) if smooth else _ellipsoid((0, 0, 0), (r, r, hz), 8, 12)), 'body')]
+    if shape == 'pear':
+        r, h = dims
+        return [(*(_pear(r, h) if smooth else _pear(r, h, n=12, k=1)), 'body')]
+    if shape == 'banana':
+        return [(*_banana(*dims), 'body')]
     raise ValueError(shape)
 
 
@@ -456,6 +627,15 @@ def _item_extent(shape, dims):
         r, h = (dims[0], dims[1]) if shape == 'cylinder' else (0.5 * (dims[0] + dims[1]), dims[2])
         side = (3 * r * r + h * h) / 12.0
         return h / 2, [side, side, 0.5 * r * r]
+    if shape == 'apple':
+        r, hz = dims
+        return hz, [0.2 * (r * r + hz * hz)] * 2 + [0.4 * r * r]
+    if shape == 'pear':
+        r, h = dims
+        return h / 2, [0.2 * (r * r + 0.3 * h * h)] * 2 + [0.3 * r * r]
+    if shape == 'banana':
+        length, r, bend = dims
+        return r, [0.5 * r * r + bend * bend / 8, length * length / 12, length * length / 12]
     x, y, z = dims
     return z / 2, [(y * y + z * z) / 12.0, (x * x + z * z) / 12.0, (x * x + y * y) / 12.0]
 
@@ -464,9 +644,21 @@ def _item_extent(shape, dims):
 def _item_details(key, dims):
     mm = MM
     if key == 'apple':
-        r = dims[0]
-        return [(*_cylinder_along([0, 0, r * 0.85], [0.02 * r, 0, r * 1.18], 1.6 * mm, n=10), [0.36, 0.22, 0.1]),
-                (*_ellipsoid((0.16 * r, 0, r * 1.06), (0.2 * r, 0.09 * r, 0.025 * r), 6, 12), [0.25, 0.6, 0.18])]
+        r, hz = dims
+        return [(*_cylinder_along([0, 0, hz * 0.7], [0.08 * r, 0, hz * 1.22], 1.6 * mm, n=10), [0.36, 0.22, 0.1]),
+                (*_ellipsoid((0.2 * r, 0, hz * 1.1), (0.2 * r, 0.09 * r, 0.025 * r), 6, 12), [0.25, 0.6, 0.18])]
+    if key == 'pear':
+        r, h = dims
+        top = np.array([PEAR_LEAN * r, 0, h * 0.485])
+        return [(*_cylinder_along(list(top - [0, 0, 3 * mm]), list(top + [0.25 * r, 0, 18 * mm]), 1.5 * mm, n=10),
+                 [0.36, 0.25, 0.1])]
+    if key == 'banana':
+        length, r, bend = dims
+        axis = _banana_axis(length, bend)
+        stalk = _tube(axis, lambda t: r * (0.3 if t > 0.0 else 0.36), -0.02, 0.09, 4, 8)
+        tip_c, tip_t = axis(0.985)
+        tip = _ellipsoid(list(tip_c + 1.5 * mm * tip_t), (0.3 * r, 0.3 * r, 0.3 * r), 6, 10)
+        return [(*stalk, [0.5, 0.45, 0.2]), (*tip, [0.22, 0.16, 0.1])]
     if key == 'tomato':
         r = dims[0]
         return [(*_frustum_z(0, 0, r * 0.93, r * 1.02, 0.42 * r, 0.12 * r, n=10), [0.2, 0.55, 0.15]),
@@ -475,33 +667,47 @@ def _item_details(key, dims):
         r, h = dims
         return [(*_frustum_z(0, 0, h / 2 - 0.1 * mm, h / 2 + 0.6 * mm, r * 0.96, r * 0.86, n=40), [0.78, 0.8, 0.82]),
                 (*_frustum_z(0, 0, -h / 2 - 0.1 * mm, -h / 2 + 4 * mm, r * 0.86, r * 1.005, n=40), [0.78, 0.8, 0.82]),
-                (*_frustum_z(0, 0, -h * 0.15, h * 0.15, r * 1.004, r * 1.004, n=40, caps=(False, False)), [0.95, 0.95, 0.95])]
+                (*_frustum_z(0, 0, -h * 0.15, h * 0.15, r * 1.012, r * 1.012, n=40, caps=(False, False)), [0.95, 0.95, 0.95])]
     if key == 'juice':
         x, y, z = dims
-        return [(*_cylinder_along([x * 0.25, y * 0.25, z / 2], [x * 0.25, y * 0.25, z / 2 + 30 * mm], 2.2 * mm, n=10),
+        # The straw in its wrapper, glued diagonally to the large face opposite the label (as sold).
+        sx = x / 2 + 2.3 * mm
+        return [(*_cylinder_along([sx, y * 0.3, -z * 0.4], [sx, -y * 0.2, z * 0.42], 2.2 * mm, n=10),
                  [0.95, 0.95, 0.95]),
-                (*_box(-x / 2 - 0.2 * mm, -y * 0.3, -z * 0.2, -x / 2, y * 0.3, z * 0.2), [0.98, 0.85, 0.2])]
+                (*_box(-x / 2 - 0.4 * mm, -y * 0.3, -z * 0.2, -x / 2, y * 0.3, z * 0.2), [0.98, 0.85, 0.2])]
     if key == 'spice':
         r, h = dims
         return [(*_frustum_z(0, 0, h / 2 - 18 * mm, h / 2 + 0.5 * mm, r * 1.04, r * 1.04, n=40), [0.75, 0.12, 0.1]),
-                (*_frustum_z(0, 0, -h * 0.25, h * 0.1, r * 1.004, r * 1.004, n=40, caps=(False, False)), [0.95, 0.92, 0.8])]
+                (*_frustum_z(0, 0, -h * 0.25, h * 0.1, r * 1.012, r * 1.012, n=40, caps=(False, False)), [0.95, 0.92, 0.8])]
     if key == 'yogurt':
         r0, r1, h = dims
         return [(*_frustum_z(0, 0, h / 2, h / 2 + 0.8 * mm, r1 * 1.04, r1 * 1.04, n=40), [0.2, 0.42, 0.85])]
     if key == 'tea':
         x, y, z = dims
-        return [(*_box(-x / 2 - 0.2 * mm, -y * 0.35, -z * 0.3, -x / 2, y * 0.35, z * 0.3), [0.95, 0.9, 0.7]),
-                (*_box(-x * 0.35, -y / 2 - 0.2 * mm, -z * 0.3, x * 0.35, -y / 2, z * 0.3), [0.95, 0.9, 0.7])]
+        return [(*_box(-x / 2 - 0.4 * mm, -y * 0.35, -z * 0.3, -x / 2, y * 0.35, z * 0.3), [0.95, 0.9, 0.7]),
+                (*_box(-x * 0.35, -y / 2 - 0.4 * mm, -z * 0.3, x * 0.35, -y / 2, z * 0.3), [0.95, 0.9, 0.7])]
     if key == 'butter':
         x, y, z = dims
-        return [(*_box(-x * 0.3, -y / 2 - 0.2 * mm, -z * 0.3, x * 0.3, -y / 2, z * 0.3), [0.2, 0.35, 0.75]),
-                (*_box(-x * 0.3, -y * 0.3, z / 2, x * 0.3, y * 0.3, z / 2 + 0.2 * mm), [0.2, 0.35, 0.75])]
+        return [(*_box(-x * 0.3, -y / 2 - 0.4 * mm, -z * 0.3, x * 0.3, -y / 2, z * 0.3), [0.2, 0.35, 0.75]),
+                (*_box(-x * 0.3, -y * 0.3, z / 2, x * 0.3, y * 0.3, z / 2 + 0.4 * mm), [0.2, 0.35, 0.75])]
     return []
 
 
-ITEM_COLOURS = {'apple': [0.8, 0.1, 0.1], 'tomato': [0.92, 0.25, 0.12], 'egg': [0.96, 0.9, 0.78],
+ITEM_COLOURS = {'pear': [0.72, 0.78, 0.24], 'banana': [0.97, 0.83, 0.2], 'apple': [0.8, 0.1, 0.1], 'tomato': [0.92, 0.25, 0.12], 'egg': [0.96, 0.9, 0.78],
                 'can': [0.8, 0.08, 0.12], 'juice': [0.98, 0.55, 0.1], 'spice': [0.5, 0.28, 0.12],
                 'yogurt': [0.97, 0.97, 0.95], 'tea': [0.2, 0.55, 0.32], 'butter': [0.98, 0.86, 0.35]}
+# The browser's surface textures (sofaweb's textures.js) of each product's parts: the item, then its details in
+# _item_details' order (the last one for any more).
+ITEM_TEXTURES = {'pear': ['skin', 'cardboard'], 'banana': ['peel', 'cardboard', 'cardboard'],
+                 'apple': ['skin', 'cardboard', 'skin'], 'tomato': ['skin'], 'egg': ['eggshell'],
+                 'can': ['painted', 'brushed', 'brushed', 'paper'], 'juice': ['paper', 'plastic', 'paper'],
+                 'spice': ['plastic', 'plastic', 'paper'], 'yogurt': ['plastic', 'foil'],
+                 'tea': ['cardboard', 'paper'], 'butter': ['foil', 'paper']}
+# The packages' printed labels (made-up words in the browser, one brand per product): part -> 'wrap' (around the
+# item's axis), 'plane' (on a flat face) or 'box' (on every face of a box: cartons are printed all over). A detail
+# part carrying a label is an overlay: drawn in front of the item.
+ITEM_LABELS = {'can': {3: 'wrap'}, 'juice': {0: 'box', 2: 'plane'}, 'spice': {2: 'wrap'}, 'yogurt': {0: 'wrap'},
+               'tea': {0: 'box', 1: 'plane', 2: 'plane'}, 'butter': {0: 'box', 1: 'plane', 2: 'plane'}}
 
 
 
@@ -519,6 +725,10 @@ def _item_footprint(shape, dims, yaw_deg=0.0):
         fx, fy = 2 * dims[0], 2 * dims[1]
     elif shape == 'cup':
         fx = fy = 2 * max(dims[0], dims[1])
+    elif shape in ('apple', 'pear'):
+        fx = fy = 2 * dims[0]
+    elif shape == 'banana':
+        fx, fy = dims[0] + 2 * dims[1] * 0.3, dims[2] + 2 * dims[1]
     else:
         fx, fy = dims[0], dims[1]
     return (fy, fx) if abs(yaw_deg) % 180 == 90 else (fx, fy)
@@ -1150,13 +1360,17 @@ def createScene():
         centre = [x, y, z_base + half_h + 0.2 * MM]
         if shape == 'sphere':
             geom = f'type="sphere" size="{dims[0]:.9g}"'
+        elif shape == 'apple':
+            geom = f'type="ellipsoid" size="{_v([dims[0], dims[0], dims[1]])}"'
         elif shape == 'egg':
             geom = f'type="ellipsoid" size="{_v([dims[0], dims[1], dims[1]])}"'
         elif shape == 'cylinder':
             geom = f'type="cylinder" size="{dims[0]:.9g} {dims[1] / 2:.9g}"'
         elif shape == 'box':
             geom = f'type="box" size="{_v([d / 2 for d in dims])}"'
-        else:  # the cup: a convex mesh
+        elif shape == 'banana':
+            geom = ''  # (capsules, below)
+        else:  # the cup and the pear: convex meshes
             if product not in mesh_done:
                 pts, _, _ = _item_meshes(shape, dims, smooth=False)[0]
                 assets.append(f'<mesh name="{product}_mesh" vertex="{_v(np.asarray(pts).ravel())}"/>')
@@ -1165,8 +1379,19 @@ def createScene():
         extra = (f' condim="6" friction="{mu:.9g} {float(P["torsional_friction"]):.9g} {rolling:.9g}"'
                  if product in ROUND else '')
         q = [math.cos(math.radians(yaw_deg) / 2), 0.0, 0.0, math.sin(math.radians(yaw_deg) / 2)]
+        mass = mass_g * 1e-3 * scale
+        if shape == 'banana':  # capsules along the curve, as thick as it is there
+            length, r, bend = dims
+            axis = _banana_axis(length, bend)
+            spans = list(zip(BANANA_CAPSULES[:-1], BANANA_CAPSULES[1:]))
+            geoms = ''.join(
+                f'<geom name="item_{key}_{i}" type="capsule" fromto="{_v(list(axis(a)[0]) + list(axis(b)[0]))}" '
+                f'size="{r * min(_banana_radius(a), _banana_radius(b)):.9g}" mass="{mass / len(spans):.9g}" '
+                f'class="item"/>' for i, (a, b) in enumerate(spans))
+        else:
+            geoms = f'<geom name="item_{key}" {geom} mass="{mass:.9g}" class="item"{extra}/>'
         world.append(f'<body name="item_{key}" pos="{_v(centre)}" quat="{_v(q)}"><freejoint name="item_{key}"/>'
-                     f'<geom name="item_{key}" {geom} mass="{mass_g * 1e-3 * scale:.9g}" class="item"{extra}/></body>')
+                     f'{geoms}</body>')
         items.append({'key': key, 'product': product, 'shape': shape, 'dims': dims, 'centre': centre,
                       'half_h': half_h, 'origin': origin})
 
@@ -1261,8 +1486,8 @@ def createScene():
             pts, tris = _box(i * tile, j * tile, floor_z - 2e-4, (i + 1) * tile, (j + 1) * tile, floor_z - 1e-4,
                              skip=('-Z', '-X', '+X', '-Y', '+Y'))
             tiles[(i + j) % 2].append((pts, tris))
-    scene.add_visual('/floor/visu/visual', *_merge(tiles[0]), 0, [0.82, 0.82, 0.8, 1.0])
-    scene.add_visual('/floor/tiles/visual', *_merge(tiles[1]), 0, [0.68, 0.69, 0.7, 1.0])
+    scene.add_visual('/floor/visu/visual', *_merge(tiles[0]), 0, [0.82, 0.82, 0.8, 1.0], texture='terrazzo')
+    scene.add_visual('/floor/tiles/visual', *_merge(tiles[1]), 0, [0.68, 0.69, 0.7, 1.0], texture='terrazzo')
 
     # The shelves: boards white, plinths and panels grey, lips a price strip.
     boards, panels, plinths, lips = [], [], [], []
@@ -1276,20 +1501,25 @@ def createScene():
             panels.append(part)
     store = '/world/store'
     if boards:
-        scene.add_visual(f'{store}/shelves/boards/visual', *_flat_shaded(*_merge(boards)), 0, [0.93, 0.93, 0.91, 1.0])
+        scene.add_visual(f'{store}/shelves/boards/visual', *_flat_shaded(*_merge(boards)), 0, [0.93, 0.93, 0.91, 1.0],
+                         texture='painted')
     if plinths:
-        scene.add_visual(f'{store}/shelves/plinths/visual', *_flat_shaded(*_merge(plinths)), 0, [0.36, 0.38, 0.42, 1.0])
+        scene.add_visual(f'{store}/shelves/plinths/visual', *_flat_shaded(*_merge(plinths)), 0, [0.36, 0.38, 0.42, 1.0],
+                         texture='brushed')
     if panels:
-        scene.add_visual(f'{store}/shelves/panels/visual', *_flat_shaded(*_merge(panels)), 0, [0.55, 0.62, 0.7, 1.0])
+        scene.add_visual(f'{store}/shelves/panels/visual', *_flat_shaded(*_merge(panels)), 0, [0.55, 0.62, 0.7, 1.0],
+                         texture='pegboard')
     if lips:
-        scene.add_visual(f'{store}/shelves/lips/visual', *_flat_shaded(*_merge(lips)), 0, [0.25, 0.27, 0.3, 1.0])
+        scene.add_visual(f'{store}/shelves/lips/visual', *_flat_shaded(*_merge(lips)), 0, [0.25, 0.27, 0.3, 1.0],
+                         texture='plastic')
     headers = []
     for sh in layout['shelves']:
         yb = sh['y_front'] + sh['into'] * sh['depth']
         y0h, y1h = sorted((yb, yb + sh['into'] * panel_t))
         headers.append(_box(sh['cx'] - sh['length'] / 2 - panel_t, y0h - 2e-3, sh['height'],
                             sh['cx'] + sh['length'] / 2 + panel_t, y1h + 2e-3, sh['height'] + 0.07))
-    scene.add_visual(f'{store}/shelves/headers/visual', *_flat_shaded(*_merge(headers)), 0, [0.85, 0.2, 0.15, 1.0])
+    scene.add_visual(f'{store}/shelves/headers/visual', *_flat_shaded(*_merge(headers)), 0, [0.85, 0.2, 0.15, 1.0],
+                     texture='plastic')
 
     # Price tags on the lips (one per place, in the product's colour) and the empty places' marks on the boards.
     tags, spots = {}, {}
@@ -1308,11 +1538,11 @@ def createScene():
                      skip=('-Z',)))
     for product, parts in tags.items():
         scene.add_visual(f'{store}/tags/{product}/visual', *_flat_shaded(*_merge(parts)), 0,
-                         list(ITEM_COLOURS[product]) + [1.0])
+                         list(ITEM_COLOURS[product]) + [1.0], texture='paper')
     if P['show_spots']:
         for product, parts in spots.items():
             scene.add_visual(f'{store}/spots/{product}/visual', *_flat_shaded(*_merge(parts)), 0,
-                             list(ITEM_COLOURS[product]) + [float(P['spot_alpha'])])
+                             list(ITEM_COLOURS[product]) + [float(P['spot_alpha'])], texture='paper')
 
     # Coordinate axes on the floor, at the origin.
     arrow_ref = 0.12
@@ -1320,7 +1550,8 @@ def createScene():
     az = 1e-4
     for name, axis, color in (('arrow_x', 0, [0.9, 0.1, 0.1, 1.0]), ('arrow_y', 1, [0.1, 0.8, 0.1, 1.0])):
         pts, tris = _axis_arrow(axis, arrow_ref - head_len, head_len, shaft_half, shaft_half * 3)
-        scene.add_visual(f'/{name}/visual', *_flat_shaded([[p[0], p[1], p[2] + az] for p in pts], tris), 0, color)
+        scene.add_visual(f'/{name}/visual', *_flat_shaded([[p[0], p[1], p[2] + az] for p in pts], tris), 0, color,
+                         texture='painted')
 
     # The platform (in its own frame): a grey deck with a yellow bumper, black wheels, an arrow on top pointing
     # forward, and the crate.
@@ -1336,11 +1567,13 @@ def createScene():
               [[0, 1, 2]])]
     crate_parts = [_box(a0, b0, PH, a1, b1, PH + ch, skip=('-Z',)) for _, (a0, b0), (a1, b1) in crate_walls]
     crate_bottom = [_box(x0, y0, PH, x1, y1, PH + 0.3 * MM, skip=('-Z',))]
-    for name, parts, colour in (('deck', deck, [0.3, 0.32, 0.36, 1.0]), ('bumper', bumper, [0.95, 0.75, 0.1, 1.0]),
-                                ('wheels', wheels, [0.08, 0.08, 0.09, 1.0]), ('arrow', arrow, [0.95, 0.75, 0.1, 1.0]),
-                                ('crate', crate_parts, [0.74, 0.56, 0.36, 1.0]),
-                                ('crate_bottom', crate_bottom, [0.6, 0.44, 0.28, 1.0])):
-        scene.add_visual(f'{robot}/platform/{name}/visual', *_flat_shaded(*_merge(parts)), platform_id, colour)
+    for name, parts, colour, texture in (
+            ('deck', deck, [0.3, 0.32, 0.36, 1.0], 'treadplate'), ('bumper', bumper, [0.95, 0.75, 0.1, 1.0], 'hazard'),
+            ('wheels', wheels, [0.08, 0.08, 0.09, 1.0], 'rubber'), ('arrow', arrow, [0.95, 0.75, 0.1, 1.0], 'painted'),
+            ('crate', crate_parts, [0.74, 0.56, 0.36, 1.0], 'cardboard'),
+            ('crate_bottom', crate_bottom, [0.6, 0.44, 0.28, 1.0], 'cardboard')):
+        scene.add_visual(f'{robot}/platform/{name}/visual', *_smooth_shaded(*_merge(parts)), platform_id, colour,
+                         texture=texture)
 
     # The arm (each link in its own frame, which at zero is the platform's turned by nothing): light grey links,
     # dark blue joint housings, as industrial arms often are.
@@ -1350,8 +1583,8 @@ def createScene():
         origin = origin + np.array(offset)
         link_origins.append(origin.copy())
     scene.add_visual(f'{robot}/arm/pedestal/visual',
-                     *_flat_shaded(*_frustum_z(mount[0], mount[1], PH, PH + pedestal, 0.075, 0.075, n=32)),
-                     platform_id, [0.2, 0.22, 0.26, 1.0])
+                     *_smooth_shaded(*_frustum_z(mount[0], mount[1], PH, PH + pedestal, 0.075, 0.075, n=32)),
+                     platform_id, [0.2, 0.22, 0.26, 1.0], texture='brushed')
     for i, (axis, offset, (p0, p1), r) in enumerate(links):
         o = link_origins[i]
         shell = _cylinder_along(list(np.array(p0)), list(np.array(p1)), r * 0.85, n=24)
@@ -1362,10 +1595,13 @@ def createScene():
         housing = _cylinder_along(list(housing_axis * (min(0.0, along) - r * 1.1)),
                                   list(housing_axis * (max(0.0, along) + r * 1.1)), r * 1.12, n=24)
         bid = body(f'arm_l{i + 1}')
-        scene.add_visual(f'{robot}/arm/link{i + 1}/visual', *_flat_shaded(*shell), bid, [0.82, 0.84, 0.86, 1.0])
-        scene.add_visual(f'{robot}/arm/joint{i + 1}/visual', *_flat_shaded(*housing), bid, [0.16, 0.3, 0.55, 1.0])
+        scene.add_visual(f'{robot}/arm/link{i + 1}/visual', *_smooth_shaded(*shell), bid, [0.82, 0.84, 0.86, 1.0],
+                         texture='painted')
+        scene.add_visual(f'{robot}/arm/joint{i + 1}/visual', *_smooth_shaded(*housing), bid, [0.16, 0.3, 0.55, 1.0],
+                         texture='painted')
     flange_disc = _cylinder_along([0, A['wrist3'] - 0.01, 0], [0, A['wrist3'] + 0.004, 0], 0.045, n=24)
-    scene.add_visual(f'{robot}/arm/flange/visual', *_flat_shaded(*flange_disc), body('arm_l6'), [0.25, 0.27, 0.3, 1.0])
+    scene.add_visual(f'{robot}/arm/flange/visual', *_smooth_shaded(*flange_disc), body('arm_l6'), [0.25, 0.27, 0.3, 1.0],
+                     texture='brushed')
 
     def carried(parts):  # [(points at rest, triangles, body id, body origin)] -> one mesh with a body per point
         pts, tris, bodies = [], [], []
@@ -1389,44 +1625,50 @@ def createScene():
                 pv = pivots[(fr.k, j)]
                 half_w = W / 2 + 0.6 * MM
                 mp, mt = _cylinder_along(list(pv - half_w * fr.tangent), list(pv + half_w * fr.tangent), 1.2 * MM, n=16)
-                mark_parts.append((mp, mt, body_of(fr.k, j), origin_of(fr.k, j)))
+                mark_parts.append((*_smooth_shaded(mp, mt), body_of(fr.k, j), origin_of(fr.k, j)))
         if tips:
             tp, tt = _hexahedron(tip_corners(fr))
             tip_parts.append((tp, tt, body_of(fr.k, N - 1), origin_of(fr.k, N - 1)))
     pts, tris, bodies = carried(seg_parts)
-    scene.add_visual('/world/angles/bodies/visu/visual', pts, tris, bodies, [0.15, 0.45, 0.95, float(P['wall_alpha'])])
+    scene.add_visual('/world/angles/bodies/visu/visual', pts, tris, bodies, [0.15, 0.45, 0.95, float(P['wall_alpha'])],
+                     texture='silicone')
     pts, tris, bodies = carried(sheet_parts)
     scene.add_visual('/world/angles/bodies/base_layer/visual', pts, tris, bodies,
-                     [0.96, 0.94, 0.86, float(P['wall_alpha'])])
+                     [0.96, 0.94, 0.86, float(P['wall_alpha'])], texture='fabric')
     if tip_parts:
         fp = []
         for tp, tt, b, o in tip_parts:  # flat-shaded: unshared vertices per face
             p2, t2 = _flat_shaded(tp, tt)
             fp.append((p2, t2, b, o))
         pts, tris, bodies = carried(fp)
-        scene.add_visual('/world/angles/bodies/tips/visual', pts, tris, bodies, [0.1, 0.25, 0.6, float(P['wall_alpha'])])
+        scene.add_visual('/world/angles/bodies/tips/visual', pts, tris, bodies, [0.1, 0.25, 0.6, float(P['wall_alpha'])],
+                         texture='silicone')
     if P['show_joint_marks'] and mark_parts:
         pts, tris, bodies = carried(mark_parts)
         scene.add_visual('/world/angles/bodies/joint_marks/visual', pts, tris, bodies,
-                         [0.95, 0.6, 0.1, float(P['joint_alpha'])])
+                         [0.95, 0.6, 0.1, float(P['joint_alpha'])], texture='plastic')
     # The gripper's plate and its wrist adapter, up to the arm's flange.
     plate_pts, plate_tris = _frustum_z(0.0, 0.0, z_palm, z_palm + thick, plate_r, plate_r, n=max(24, 4 * F))
     wrist_pts, wrist_tris = _frustum_z(0.0, 0.0, z_palm + thick, z_palm + thick + 0.05, 1.6 * stem + 4 * MM,
                                        1.6 * stem + 4 * MM, n=24)
     cap_pts, cap_tris = _frustum_z(0.0, 0.0, z_palm + thick + 0.05, z_palm + thick + 0.058, 0.55 * plate_r,
                                    0.55 * plate_r, n=32)
-    mount_pts, mount_tris = _flat_shaded(*_merge([(plate_pts, plate_tris), (wrist_pts, wrist_tris),
+    mount_pts, mount_tris = _smooth_shaded(*_merge([(plate_pts, plate_tris), (wrist_pts, wrist_tris),
                                                   (cap_pts, cap_tris)]))
-    scene.add_visual('/world/angles/bodies/trunk/visual', mount_pts, mount_tris, flange_id, [0.4, 0.26, 0.13, 1.0])
+    scene.add_visual('/world/angles/bodies/trunk/visual', mount_pts, mount_tris, flange_id, [0.4, 0.26, 0.13, 1.0], texture='printed')
 
     for item in items:
         key, product, shape, dims = item['key'], item['product'], item['shape'], item['dims']
         parts = [(p, t, ITEM_COLOURS[product]) for p, t, _ in _item_meshes(shape, dims, smooth=True)] + \
             _item_details(product, dims)
+        textures = ITEM_TEXTURES[product]
         for n_part, (vp, vt, colour) in enumerate(parts):
-            vp, vt = (vp, vt) if shape in ('sphere', 'egg', 'cylinder', 'cup') and n_part == 0 else _flat_shaded(vp, vt)
+            vp, vt = _smooth_shaded(vp, vt)
             scene.add_visual(f'/world/items/{key}/{"visu" if n_part == 0 else f"detail{n_part}"}/visual', vp, vt,
-                             body(f'item_{key}'), list(colour) + [float(P['item_alpha'])])
+                             body(f'item_{key}'), list(colour) + [float(P['item_alpha'])],
+                             texture=textures[min(n_part, len(textures) - 1)],
+                             label={'mode': ITEM_LABELS[product][n_part], 'seed': product, 'overlay': n_part > 0}
+                             if n_part in ITEM_LABELS.get(product, {}) else None)
 
     # ---- controllers
     jnt = lambda name: int(mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, name))

@@ -115,6 +115,7 @@ body:not(.admin) .admin-only { display: none !important; }
 }
 .side-panel[open] summary { margin-bottom: 6px; }
 .display-row { display: grid; grid-template-columns: 1fr 120px 34px; gap: 8px; align-items: center; margin-bottom: 5px; }
+.display-row[hidden] { display: none; }
 .display-row.color, .display-row.visible, .display-row.mirror, .display-row.select { grid-template-columns: 1fr auto; }
 .display-row select {
 	background: #1b1d22;
@@ -179,7 +180,7 @@ body:not(.admin) .admin-only { display: none !important; }
 .param-row.bool { grid-template-columns: 1fr auto; }
 .param-row label { font-size: 12px; color: #cfd3da; line-height: 1.25; }
 .param-row .unit { color: #8f97a3; }
-.param-row input[type="number"], .param-row input[type="text"] {
+.param-row input[type="number"], .param-row input[type="text"], .param-row select {
 	width: 100%;
 	box-sizing: border-box;
 	background: #1b1d22;
@@ -324,6 +325,9 @@ body.viewer .param-note { display: none; }
 .collapsible-title::before { content: "\25BE"; display: inline-block; width: 1em; }
 .collapsed .collapsible-title::before { content: "\25B8"; }
 .chart-panel.collapsed { height: auto !important; min-height: 0; resize: none; padding-bottom: 6px; }
+/* Collapsed, a panel is just its title, as narrow as that (even after a resize), so several fit in a row. */
+.chart-panel.collapsed, .readout-panel.collapsed { width: auto !important; min-width: 0; max-width: 240px; padding-left: 8px; padding-right: 10px; }
+.collapsed h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .collapsed .chart-canvas-wrap, .collapsed .resize-handle-tr, .collapsed .readout-grid { display: none; }
 .readout-panel.collapsed h2 { margin-bottom: 0; }
 .chart-panel.collapsed h2 { margin-bottom: 0; }
@@ -396,9 +400,9 @@ body.viewer .param-note { display: none; }
 	#bottom { left: 6px; right: 6px; bottom: 6px; gap: 6px; }
 	#charts { flex: 1 1 100%; gap: 6px; align-items: flex-end; }
 	.chart-panel { width: calc(100vw - 12px); height: 150px; min-width: 0; min-height: 0; padding: 6px 8px 3px; }
-	.chart-panel.collapsed { width: calc(50% - 3px); padding: 5px 8px; }
+	.chart-panel.collapsed { width: calc(50% - 3px) !important; max-width: none; padding: 5px 8px; }
 	.readout-panel { padding: 6px 8px; min-width: 0; width: calc(100vw - 12px); }
-	.readout-panel.collapsed { width: calc(50% - 3px); }
+	.readout-panel.collapsed { width: calc(50% - 3px) !important; max-width: none; }
 	.chart-panel h2, .readout-panel h2 { font-size: 11px; margin: 0 0 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	#timeline { padding: 4px 8px; gap: 6px; }
 	#banner { top: 56px; font-size: 12px; padding: 6px 30px 6px 10px; }
@@ -408,7 +412,7 @@ body.viewer .param-note { display: none; }
 	#status-line { flex: 0 1 auto; }
 	.side-panel { width: calc(25% - 5px); }
 	.side-panel[open] { width: 50%; max-height: 70vh; }
-	.chart-panel.collapsed, .readout-panel.collapsed { width: calc(20% - 5px); min-width: 0; }
+	.chart-panel.collapsed, .readout-panel.collapsed { width: calc(20% - 5px) !important; max-width: none; min-width: 0; }
 	.chart-panel { width: calc(50vw - 9px); height: 130px; }
 	.readout-panel { width: calc(50vw - 9px); }
 	#timeline { flex: 0 0 100%; }
@@ -515,6 +519,7 @@ body.viewer .param-note { display: none; }
 #manip-bar.disabled button, #manip-height.disabled input { pointer-events: none; }
 #viewer.manip-grab canvas { cursor: grab; }
 #viewer.manip-grabbing canvas { cursor: grabbing; }
+#viewer.manip-pick canvas { cursor: pointer; }
 @media (max-width: 700px), (max-height: 520px) {
 	#manip-bar { padding: 4px 6px; gap: 4px; }
 	#manip-bar .manip-btn { padding: 6px 9px; font-size: 12px; }
@@ -536,9 +541,10 @@ body.viewer .param-note { display: none; }
 	border: 7px solid transparent; border-top: 0; border-bottom-color: #2e9e4f;
 }
 #play-hint .close-btn { color: #fff; padding: 0 6px; }
-/* The manipulator's drive joystick (a mobile robot), at the right, and its out-of-reach note. */
+/* The manipulator's drive joystick (a mobile robot), at the left next to the height slider (the side panels
+   open on the right, over it), and its out-of-reach note. */
 #manip-drive {
-	position: absolute; right: 12px; top: 58%; transform: translateY(-50%); z-index: 9;
+	position: absolute; left: 84px; top: 50%; transform: translateY(-50%); z-index: 9;
 	display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px;
 	font-size: 11px; color: #cfd3da;
 }
@@ -553,7 +559,7 @@ body.viewer .param-note { display: none; }
 }
 #manip-bar .manip-reach { align-self: center; padding: 4px 9px; border-radius: 6px; background: #c9423f; color: #fff; font-size: 12px; }
 @media (max-width: 700px), (max-height: 520px) {
-	#manip-drive { right: 6px; padding: 6px; }
+	#manip-drive { left: 66px; padding: 6px; }
 	.manip-pad { width: 104px; height: 104px; }
 }
 .manip-turns { display: flex; gap: 6px; }

@@ -13,6 +13,7 @@ Frames are binary WebSocket messages:
 from __future__ import annotations
 
 import atexit
+import base64
 import contextlib
 import importlib.util
 import io
@@ -131,6 +132,9 @@ class Model:
     # FEM meshes only: rest positions, so the viewer can colour elements by
     # strain even when it connects mid-run.
     rest: Optional[np.ndarray] = None
+    # A surface texture (MuJoCo visuals): {"name", "scale"} and the vertices' positions in their bodies' frames.
+    texture: Optional[dict] = None
+    local: Optional[np.ndarray] = None
 
     def setup(self) -> dict:
         info = {
@@ -146,6 +150,10 @@ class Model:
         }
         if self.rest is not None:
             info["rest"] = [round(float(v), 9) for v in self.rest.reshape(-1)]
+        if self.texture is not None and self.local is not None:
+            # float32, base64: a scene's worth of vertices stays a fraction of the setup message.
+            info["texture"] = {**self.texture,
+                               "local": base64.b64encode(self.local.astype("<f4").tobytes()).decode("ascii")}
         return info
 
     def packed(self, positions: np.ndarray) -> np.ndarray:
@@ -180,6 +188,14 @@ def _build_model(model_id: int, record) -> Optional[Model]:
     if len(uniq) < 0.8 * len(positions):
         rep, inverse = first, inv.reshape(-1)
     extent = positions.max(axis=0) - positions.min(axis=0)
+    texture = local = None
+    if kind == "mesh" and getattr(obj, "texture", None) and getattr(obj, "local", None) is not None:
+        texture = {"name": str(obj.texture)}
+        if getattr(obj, "texture_scale", None):
+            texture["scale"] = float(obj.texture_scale)
+        if getattr(obj, "label", None):
+            texture["label"] = dict(obj.label)
+        local = np.asarray(obj.local, dtype=np.float64).reshape(-1, 3)
     return Model(
         id=model_id,
         obj=obj,
@@ -194,6 +210,8 @@ def _build_model(model_id: int, record) -> Optional[Model]:
         inverse=inverse,
         scale=float(max(extent.max(), 1e-9)),
         bound=1000.0 * float(np.abs(positions).max() + max(extent.max(), 1e-9)),
+        texture=texture,
+        local=local,
     )
 
 
@@ -320,6 +338,8 @@ def format_value(field: Optional[dict], value: Any) -> str:
         return f"{text} {field['unit']}" if field.get("unit") else text
     if isinstance(value, float):
         return f"{value:.6g}"
+    if isinstance(value, str) and field is not None and field.get("type") == "choice":
+        return next((t for v, t in field.get("choices", []) if v == value), value)
     return json.dumps(value)
 
 
@@ -619,6 +639,11 @@ class Runner:
                     value = int(round(float(value)))
                 elif isinstance(default, float):
                     value = float(value)
+                elif isinstance(default, str):  # a drop-down: one of its values
+                    value = str(value)
+                    choices = next((f.get("choices") for s in self.spec for f in s["fields"] if f["key"] == key), None)
+                    if choices and value not in [v for v, _ in choices]:
+                        continue
                 elif isinstance(default, list):
                     value = [float(v) for v in value][: len(default)]
                     if not all(math.isfinite(v) for v in value):
@@ -1146,6 +1171,34 @@ class Runner:
             if self._recording is not None:
                 self._recording.offer(self._sim_time, self._steps, changed, self._full_positions, scalars, lights)
         self._emit(pack_frame(header, arrays))
+        self._sync_controls()
+
+    def _sync_controls(self) -> None:
+        """Controls the scene moved by itself (SceneConfig.control_sync), every 5th frame: sent on to the browsers."""
+        if self.cfg.control_sync is None or self._root is None:
+            return
+        self._sync_count = getattr(self, "_sync_count", 0) + 1
+        if self._sync_count % 5:
+            return
+        try:
+            moved = self.cfg.control_sync(self._root, self._module) or {}
+        except Exception as exc:
+            self.console.note(f"control sync failed: {exc}")
+            return
+        changed = False
+        for key, value in moved.items():
+            control = self._control(key)
+            if control is None or control["type"] == "button":
+                continue
+            value = self._control_value(control, value)
+            old = self.control_values.get(key)
+            if isinstance(value, float) and isinstance(old, float) and abs(value - old) < 1e-6 * max(1.0, abs(old)):
+                continue
+            if value != old:
+                self.control_values[key] = value
+                changed = True
+        if changed:
+            self._emit_status()
 
     def _end_run(self, reason: str) -> None:
         self.finished = True

@@ -22,6 +22,10 @@
 //    zero when let go.
 //  - `reach`: a scalar that is 0 while the target can't be reached (the
 //    marker turns red).
+//  - `pick`: one click (or tap) on a model it names (e.g. a grocery item)
+//    sends the clicked point to its x, y, z controls and presses its `go`
+//    button (the scene acts on what's there, e.g. stocks the item); a
+//    double-click still means "go there".
 //
 // The target is a set of the scene's slider controls (positions in control
 // units, x `scale` = scene units; roll, pitch, yaw in degrees, R = Rz Ry Rx);
@@ -211,11 +215,13 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	heightInput.addEventListener("input", () => setValues({ [posKeys[2]]: Number(heightInput.value) }));
 	height.append(heightLabel, heightInput);
 	if (driveSpec) {
-		const how = sideways ? "up / down forward and back, left / right sideways; ⟲ ⟳ turn it" : "up / down forward and back, left / right turn";
+		const how = driveSpec.hint || (sideways ? "up / down forward and back, left / right sideways; ⟲ ⟳ turn it" : "up / down forward and back, left / right turn");
 		hint.innerHTML += coarse
-			? ` <b>Drive</b> the robot with the joystick on the right: ${how}.`
-			: ` <b>Drive</b> the robot with the joystick on the right (${how}), or the <b>arrow keys</b>${sideways ? " and <b>, .</b> to turn" : ""} (then WASD moves the gripper).`;
+			? ` <b>Drive</b> the robot with the joystick on the left: ${how}.`
+			: ` <b>Drive</b> the robot with the joystick on the left (${how}), or the <b>arrow keys</b>${sideways ? " and <b>, .</b> to turn" : ""} (then WASD moves the gripper).`;
 	}
+	const pickSpec = spec.pick && spec.pick.models && byKey.has(spec.pick.go) ? spec.pick : null;
+	if (pickSpec?.title) hint.innerHTML += ` ${pickSpec.title}`;
 	const row = document.createElement("div");
 	row.id = "manip-row";
 	row.append(bar, hint);
@@ -409,6 +415,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 			toNdc(e);
 			const over = !overGizmo() && raycaster.intersectObjects(meshes(true), false).length > 0;
 			host.classList.toggle("manip-grab", over);
+			host.classList.toggle("manip-pick", !over && !!pickable(e));
 		});
 		hoverEvent = event;
 	}
@@ -421,7 +428,43 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		setValues({ [posKeys[0]]: p.x / scale, [posKeys[1]]: p.y / scale });
 	}
 	dom.addEventListener("dblclick", (event) => {
+		cancelPick();
 		if (usable && event.pointerType !== "touch") goTo(event);
+	});
+
+	// One click on a model `pick` names (a short press that didn't move: not a
+	// drag of the view), sent unless a second click follows (a double-click).
+	const pickRe = pickSpec ? new RegExp(pickSpec.models) : null;
+	let press = null;
+	let pickTimer = null;
+	function pickable(event) {
+		if (!pickRe) return null;
+		toNdc(event);
+		const found = raycaster.intersectObjects(meshes(false), false)[0];
+		if (!found) return null;
+		const entry = [...ctx.models.values()].find((e) => e.object === found.object);
+		return entry && pickRe.test(entry.info.name) ? found.point.clone() : null;
+	}
+	function cancelPick() {
+		clearTimeout(pickTimer);
+		pickTimer = null;
+	}
+	host.addEventListener("pointerdown", (event) => {
+		if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+		if (pickTimer) cancelPick(); // a second click: a double-click, not a pick
+		press = { x: event.clientX, y: event.clientY, t: performance.now() };
+	}, true);
+	host.addEventListener("pointerup", (event) => {
+		if (!pickRe || !press || !usable || !event.isPrimary) return;
+		const short = performance.now() - press.t < 350 && Math.hypot(event.clientX - press.x, event.clientY - press.y) < 6;
+		press = null;
+		if (!short || drag) return;
+		const point = pickable(event);
+		if (!point) return;
+		pickTimer = setTimeout(() => {
+			pickTimer = null;
+			ctx.post({ [pickSpec.x]: point.x / scale, [pickSpec.y]: point.y / scale, [pickSpec.z]: point.z / scale, [pickSpec.go]: null });
+		}, 320);
 	});
 	// Double-tap: two short taps close together (touch browsers don't all send dblclick).
 	let tap = null;
