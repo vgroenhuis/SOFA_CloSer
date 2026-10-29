@@ -193,8 +193,17 @@ function sceneCard(scene) {
 
 // Groups open or closed as this browser last left them; Playground and
 // Archive start closed (not part of the current CloSer work).
-const GROUP_ORDER = ["closer", "finger", "gripper", "pneumatics", "stocking", "playground", "archive", "other"];
+// The most extensive simulations first.
+const GROUP_ORDER = ["stocking", "closer", "finger", "gripper", "pneumatics", "playground", "archive", "other"];
 const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
+// Within a group, the most extensive first: a series' latest version
+// (Gripper 7, 6, 5, ...; Finger 10 before Finger 9), the rest by title.
+function byExtent(a, b) {
+	const [ma, mb] = [a, b].map((s) => s.title.match(/^(\D*?)\s*(\d+)/));
+	if (ma && mb && ma[1] === mb[1] && ma[2] !== mb[2]) return Number(mb[2]) - Number(ma[2]);
+	return a.title.localeCompare(b.title, undefined, { numeric: true });
+}
+
 const GROUPS_KEY = "msd_lobby_groups_open";
 
 function groupOpenState() {
@@ -215,12 +224,7 @@ function renderScenes() {
 	const groups = [...new Set(scenes.map((s) => s.group))].sort((a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b));
 	sceneGroups.replaceChildren(
 		...groups.map((group) => {
-			// Public scenes first, then private, then admin-only ones (badged);
-			// by title within each (Finger 1, Finger 2, ..., Finger 10).
-			const rank = { public: 0, private: 1, admin: 2 };
-			const members = scenes
-				.filter((s) => s.group === group)
-				.sort((a, b) => (rank[a.visibility] ?? 0) - (rank[b.visibility] ?? 0) || a.title.localeCompare(b.title, undefined, { numeric: true }));
+			const members = scenes.filter((s) => s.group === group).sort(byExtent);
 			const details = el(
 				"details",
 				{ class: "scene-group", "data-group": group },
