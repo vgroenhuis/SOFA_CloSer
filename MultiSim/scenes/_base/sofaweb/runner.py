@@ -742,6 +742,8 @@ class Runner:
             "status": self.status,
             "error": self.error,
             "paused": self.paused,
+            # Not stepped since the scene was built or reset (stopped, with ■).
+            "atStart": self._steps == 0,
             "finished": self.finished,
             "endReason": self.end_reason,
             "autoRestart": self.auto_restart,

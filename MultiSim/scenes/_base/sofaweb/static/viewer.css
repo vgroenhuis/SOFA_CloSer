@@ -91,7 +91,9 @@ body:not(.admin) .admin-only { display: none !important; }
 	width: 330px;
 	/* The full window height (it may overlap the charts; #top-controls is
 	   stacked above #bottom for that). */
-	max-height: calc(100vh - 24px);
+	/* --side-max (viewer.js): the window height below the column's top,
+	   which moves down when it wraps under the HUD. */
+	max-height: var(--side-max, calc(100vh - 24px));
 	flex: 0 0 auto;
 	pointer-events: none;
 }
@@ -102,8 +104,11 @@ body:not(.admin) .admin-only { display: none !important; }
 	padding: 10px 14px 12px;
 	box-sizing: border-box;
 }
-#display-panel { flex: 0 0 auto; }
-#params-panel { flex: 0 1 auto; }
+/* Every open panel shrinks and scrolls when the column runs out of
+   height, Parameters the most; a closed one keeps its header. */
+.side-panel { flex: 0 1 auto; }
+#params-panel { flex: 0 4 auto; }
+.side-panel:not([open]) { flex-shrink: 0; }
 .side-panel summary {
 	cursor: pointer;
 	font-size: 11px;
@@ -157,15 +162,13 @@ body:not(.admin) .admin-only { display: none !important; }
 	font-variant-numeric: tabular-nums;
 }
 #display-overlays h3, #display-camera h3, #lighting-controls h3 { font-size: 11px; font-weight: 600; color: #8f97a3; margin: 8px 0 4px; }
-/* Full height while there's room; Parameters shrinks (scrolls) first. */
-#lighting-panel { flex: 0 0 auto; max-height: 45vh; }
+#lighting-panel { max-height: 45vh; }
 .display-row .toggle-label { display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
 .display-row .toggle-label input { margin: 0; }
 .display-row.strain { grid-template-columns: 1fr auto; padding-left: 20px; }
 .display-row.strain .display-value { text-align: left; }
 .mini-btn { padding: 0 8px; font-size: 11px; line-height: 18px; }
 .display-row.disabled { opacity: 0.4; }
-#controls-panel { flex: 0 0 auto; }
 .display-row.control.slider { grid-template-columns: 1fr 110px 62px auto; }
 .display-row.control.slider.wide { grid-template-columns: 1fr 62px auto; row-gap: 2px; }
 .display-row.control.slider.wide input[type="range"] { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 28px; margin: 0; }
@@ -209,6 +212,10 @@ body:not(.admin) .admin-only { display: none !important; }
 }
 .param-buttons { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
 .param-buttons button { padding: 5px 10px; font-size: 12px; }
+.param-buttons.top { margin: 0 0 8px; }
+.param-buttons .auto-apply { display: flex; align-items: center; gap: 4px; margin-right: auto; font-size: 12px; color: #cfd3da; cursor: pointer; user-select: none; }
+.param-buttons .auto-apply input { margin: 0; }
+.param-buttons .auto-apply.disabled { opacity: 0.4; cursor: default; }
 .param-note { font-size: 11px; color: #8f97a3; margin: 8px 0 0; line-height: 1.35; }
 body.viewer .param-note { display: none; }
 
@@ -393,7 +400,8 @@ body.viewer .param-note { display: none; }
 	#hud-more { display: none; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 	#hud.open #hud-more { display: flex; }
 	#status-line { flex: 1 1 100%; gap: 2px 8px; font-size: 11px; }
-	#side-panels { width: 100%; max-height: none; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
+	/* Panels in rows here, so the column itself scrolls when open ones don't fit. */
+	#side-panels { width: 100%; max-height: var(--side-max, none); overflow-y: auto; overscroll-behavior: contain; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
 	.side-panel { width: calc(50% - 3px); padding: 6px 10px; }
 	.side-panel[open] { width: 100%; max-height: 62vh; padding: 8px 10px 10px; }
 	.side-panel[open] summary { margin-bottom: 4px; }

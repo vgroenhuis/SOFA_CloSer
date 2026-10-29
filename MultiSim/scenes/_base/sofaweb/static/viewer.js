@@ -876,6 +876,17 @@ function onResize() {
 	camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", onResize);
+
+// The side panels may not reach below the window: their column gets the
+// height left under its top, which depends on the HUD (wrapped, "..." open).
+function fitSidePanels() {
+	const column = $("side-panels");
+	const room = window.innerHeight - column.getBoundingClientRect().top - 12;
+	column.style.setProperty("--side-max", `${Math.max(120, Math.floor(room))}px`);
+}
+window.addEventListener("resize", fitSidePanels);
+new ResizeObserver(fitSidePanels).observe($("hud"));
+fitSidePanels();
 $("view-btn").addEventListener("click", resetView);
 
 function applySetup(message) {
@@ -1161,6 +1172,7 @@ function renderStatus() {
 	$("auto-restart-checkbox").checked = !!s.autoRestart;
 	updateTimeline();
 	updateControls(s);
+	updateAutoApply(s);
 
 	let message = "";
 	banner.className = "";
@@ -1547,15 +1559,16 @@ function buildParamsPanel(spec) {
 						if (entry && entry.input.checked) {
 							entry.input.checked = false;
 							entry.input.classList.add("dirty");
-							$("apply-params-btn").disabled = false;
+							setApplyEnabled(true);
 						}
 					}
 				}
 				if (field.live) return;
 				input.classList.add("dirty");
-				$("apply-params-btn").disabled = false;
+				setApplyEnabled(true);
 			});
 			if (field.live) input.addEventListener("change", () => submitParams([field.key]));
+			else input.addEventListener("change", () => { if (autoApplying()) applyDirty(); });
 			row.append(label, input);
 			wrap.appendChild(row);
 			fieldInputs.set(field.key, { field, input });
@@ -1593,7 +1606,7 @@ function showParams(params) {
 		else input.value = fmtNumber(value, field);
 		input.classList.remove("dirty");
 	}
-	$("apply-params-btn").disabled = true;
+	setApplyEnabled(false);
 	applyDisplay(); // mirrored copies depend on the symmetry parameters
 	matchParamsPreset();
 }
@@ -1625,21 +1638,68 @@ async function submitParams(keys) {
 	}
 }
 
+// The Apply / Defaults / Auto apply row is at both ends of the (long) panel.
+function setApplyEnabled(enabled) {
+	for (const button of document.querySelectorAll(".apply-params-btn")) button.disabled = !enabled;
+}
+
+function applyDirty() {
+	const dirty = [...fieldInputs].filter(([, { input }]) => input.classList.contains("dirty")).map(([key]) => key);
+	if (dirty.length) submitParams(dirty);
+}
+
 $("params-form").addEventListener("submit", (event) => {
 	event.preventDefault();
-	const dirty = [...fieldInputs].filter(([, { input }]) => input.classList.contains("dirty")).map(([key]) => key);
 	document.activeElement?.blur();
-	if (dirty.length) submitParams(dirty);
+	applyDirty();
 });
 
-$("default-params-btn").addEventListener("click", async () => {
-	selectedPreset.params = "Default";
-	try {
-		showParams(await (await fetch("api/params/default", { method: "POST" })).json());
-	} catch (err) {
-		console.error("Failed to restore defaults", err);
+for (const button of document.querySelectorAll(".default-params-btn")) {
+	button.addEventListener("click", async () => {
+		selectedPreset.params = "Default";
+		try {
+			showParams(await (await fetch("api/params/default", { method: "POST" })).json());
+		} catch (err) {
+			console.error("Failed to restore defaults", err);
+		}
+	});
+}
+
+// Auto apply: a change rebuilds the scene at once (as Apply & restart), but
+// only while the simulation is stopped -- at its start, not running -- so a
+// run is never cut short. Remembered in this browser.
+const AUTO_APPLY_KEY = "sofaweb-auto-apply";
+let autoApply = false;
+try {
+	autoApply = localStorage.getItem(AUTO_APPLY_KEY) === "1";
+} catch {}
+const isStopped = (s) => !!s && s.status === "running" && s.paused && !!s.atStart;
+const autoApplying = () => autoApply && !isViewer && isStopped(lastStatus);
+
+function updateAutoApply(s) {
+	const usable = isStopped(s);
+	for (const box of document.querySelectorAll(".auto-apply-checkbox")) {
+		box.checked = autoApply;
+		box.disabled = !usable;
+		const label = box.closest(".auto-apply");
+		label.classList.toggle("disabled", !usable);
+		label.title = usable
+			? "Apply each change at once, while the simulation is stopped"
+			: "Only while the simulation is stopped (■): it would cut the run short";
 	}
-});
+}
+
+for (const box of document.querySelectorAll(".auto-apply-checkbox")) {
+	box.addEventListener("change", () => {
+		autoApply = box.checked;
+		try {
+			localStorage.setItem(AUTO_APPLY_KEY, autoApply ? "1" : "0");
+		} catch {}
+		updateAutoApply(lastStatus);
+		if (autoApplying()) applyDirty();
+	});
+}
+updateAutoApply(null);
 
 async function loadParams() {
 	try {
@@ -2647,7 +2707,7 @@ function buildDisplayPanel(spec, useSaved = true, overrides = null) {
 	}
 	if (sceneInfo.view !== "2d") {
 		// The scale ruler (see updateRuler), for every 3D scene.
-		displayState.scaleTicks = "scaleTicks" in saved ? !!saved.scaleTicks : true;
+		displayState.scaleTicks = "scaleTicks" in saved ? !!saved.scaleTicks : false;
 		form.appendChild(checkboxRow("scaleTicks", "Axis scale (ticks, labels)"));
 		// Surface textures, where the scene has them (shown once the setup
 		// says so, see updateTextureRow); off draws plain colours, faster.

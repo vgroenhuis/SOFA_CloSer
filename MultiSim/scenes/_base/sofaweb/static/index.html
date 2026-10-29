@@ -60,10 +60,16 @@
 			<details id="params-panel" class="panel side-panel">
 				<summary>Parameters</summary>
 				<div class="preset-row" data-section="params"><label for="params-preset">Preset</label><select id="params-preset" title="Load a named preset of the running parameters"></select><button class="secondary admin-only preset-save" type="button" title="Admin: overwrite the selected preset with the current running parameters">Save</button><button class="secondary admin-only preset-save-as" type="button" title="Admin: save the current running parameters as a new named preset">Save as…</button><button class="secondary admin-only preset-delete" type="button" title="Admin: delete the selected preset">Delete</button><button class="secondary preset-import hidden" type="button" title="Load a parameters preset of another scene, converted to this scene's parameters">Import…</button></div>
+				<div class="param-buttons top">
+					<label class="auto-apply owner-only" title="While the simulation is stopped (■), apply each change at once"><input type="checkbox" class="auto-apply-checkbox" /> Auto apply</label>
+					<button class="apply-params-btn owner-only" type="submit" form="params-form" disabled>Apply &amp; restart</button>
+					<button class="default-params-btn secondary owner-only" type="button" title="Back to the scene's default values">Defaults</button>
+				</div>
 				<form id="params-form" autocomplete="off" novalidate></form>
 				<div class="param-buttons">
-					<button id="apply-params-btn" class="owner-only" type="submit" form="params-form" disabled>Apply &amp; restart</button>
-					<button id="default-params-btn" class="secondary owner-only" type="button" title="Back to the scene's default values">Defaults</button>
+					<label class="auto-apply owner-only" title="While the simulation is stopped (■), apply each change at once"><input type="checkbox" class="auto-apply-checkbox" /> Auto apply</label>
+					<button class="apply-params-btn owner-only" type="submit" form="params-form" disabled>Apply &amp; restart</button>
+					<button class="default-params-btn secondary owner-only" type="button" title="Back to the scene's default values">Defaults</button>
 				</div>
 				<p class="param-note"><span class="live-badge">live</span> fields take effect immediately; the others rebuild the scene, like the SOFA GUI's Reload.</p>
 			</details>

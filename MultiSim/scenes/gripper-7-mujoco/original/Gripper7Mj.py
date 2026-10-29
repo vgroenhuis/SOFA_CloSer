@@ -1107,6 +1107,84 @@ CART_CHOICES = [('omni', 'Omniwheels (any direction)'), ('diff', 'Two-wheel diff
                 ('tank', 'Tank tracks (skid steering)'), ('car', 'Car-like (front-wheel steering)')]
 
 
+def cart_wheels(cart, PL, PW, car_x, car_y, wheel_r, track_w):
+    """The cart's wheels: name, its body's parent and position there, `at` (x, y in the platform), radius `r`
+    (0: not turned), mecanum `slant` (0: a plain wheel), `well` (half length, depth in from the side, top) for the
+    deck's cut-out, and what it looks like (`kind`, `width`, `hub`)."""
+    out = []
+
+    def add(name, x, y, z, r, width, kind, slant=0, well=None, hub=0.0, parent='platform', pos=None):
+        out.append({'name': name, 'parent': parent, 'pos': pos if pos is not None else [x, y, z], 'at': (x, y),
+                    'r': r, 'slant': slant, 'well': well, 'width': width, 'kind': kind, 'hub': hub})
+    if cart == 'omni':  # four mecanum wheels in the corners; the lowest rollers' axes point at the platform's middle
+        for i, wx in enumerate((-PL / 2 + 0.16, PL / 2 - 0.16)):
+            for side in (-1, 1):
+                wy = side * (PW / 2 - 0.045)
+                add(f'wheel_{"rf"[i]}{"rl"[side > 0]}', wx, wy, 0.075, 0.075, 0.074, 'mecanum',
+                    slant=-1 if (wx > 0) == (side > 0) else 1, well=(0.092, 0.092, 0.165), hub=0.05)
+    elif cart == 'diff':  # two big driven wheels in the middle
+        for side in (-1, 1):
+            wy = side * (PW / 2 - 0.04)
+            add(f'wheel_{"rl"[side > 0]}', 0.0, wy, 0.11, 0.11, 0.06, 'tyre', well=(0.125, 0.085, 0.235), hub=0.045)
+    elif cart == 'tank':  # the drive sprockets at the tracks' ends
+        xe = PL * 0.47 - 0.075
+        for i, xc in enumerate((-xe, xe)):
+            for side in (-1, 1):
+                add(f'sprocket_{"rf"[i]}{"rl"[side > 0]}', xc, side * (PW / 2 + track_w / 2 + 0.005), 0.08, 0.075,
+                    track_w, 'sprocket', hub=0.03)
+    else:  # car: rear wheels fixed, the front ones on the steering bodies
+        for side in (-1, 1):
+            add(f'wheel_r{"rl"[side > 0]}', -car_x, side * car_y, wheel_r, wheel_r, 0.07, 'tyre',
+                well=(0.11, 0.075, wheel_r * 2 + 0.015), hub=0.04)
+        for side, steer in ((1, 'steer_l'), (-1, 'steer_r')):
+            add(f'wheel_f{"rl"[side > 0]}', car_x, side * car_y, wheel_r, wheel_r, 0.07, 'tyre',
+                well=(0.13, 0.12, wheel_r * 2 + 0.015), hub=0.04, parent=steer, pos=[0.0, 0.0, 0.0])
+    return out
+
+
+def wheel_meshes(w):
+    """A wheel in its own frame (its centre, the axle along y): (tyre or rollers, hub) parts."""
+    hw, r = w['width'] / 2, w['r']
+    if w['kind'] == 'mecanum':  # rollers at 45 degrees round the rim, between two side plates
+        rollers = []
+        for k in range(10):
+            a = 2 * math.pi * k / 10
+            c = np.array([(r - 0.013) * math.cos(a), 0.0, (r - 0.013) * math.sin(a)])
+            tang = np.array([-math.sin(a), 0.0, math.cos(a)])
+            ax = (tang + w['slant'] * np.array([0.0, 1.0, 0.0])) / math.sqrt(2)
+            rollers.append(_cylinder_along(list(c - 0.022 * ax), list(c + 0.022 * ax), 0.012, n=8))
+        hub = [_cylinder_along([0, -hw, 0], [0, -hw + 0.006, 0], w['hub'], n=20),
+               _cylinder_along([0, hw - 0.006, 0], [0, hw, 0], w['hub'], n=20),
+               _cylinder_along([0, -hw, 0], [0, hw, 0], 0.02, n=12)]
+        return rollers, hub
+    if w['kind'] == 'sprocket':
+        return ([_cylinder_along([0, -hw, 0], [0, hw, 0], r, n=24)],
+                [_cylinder_along([0, -hw - 0.002, 0], [0, hw + 0.002, 0], w['hub'], n=12)])
+    return ([_cylinder_along([0, -hw, 0], [0, hw, 0], r, n=28)],
+            [_cylinder_along([0, -hw - 0.002, 0], [0, hw + 0.002, 0], w['hub'], n=16)])
+
+
+def _notched_box(x0, y0, z0, x1, y1, z1, wells):
+    """A box with wells cut in from both its long sides (y0, y1): `wells` [(xa, xb, depth, top)], each from the
+    bottom up to `top` (and x from xa to xb); as boxes: a slab above the wells, bands along x below."""
+    if not wells:
+        return [_box(x0, y0, z0, x1, y1, z1)]
+    top = min(max(t for _, _, _, t in wells), z1)
+    parts = [_box(x0, y0, top, x1, y1, z1)] if top < z1 else []
+    if top <= z0:
+        return parts
+    cuts = sorted(wells)
+    x = x0
+    for xa, xb, depth, _ in cuts + [(x1, x1, 0.0, 0.0)]:
+        xa, xb = max(xa, x0), min(xb, x1)
+        if xa > x:
+            parts.append(_box(x, y0, z0, xa, y1, top))
+        if xb > xa and depth > 0:
+            parts.append(_box(xa, y0 + depth, z0, xb, y1 - depth, top))
+        x = max(x, xb)
+    return parts
+
+
 def arm_spec(P, pedestal):
     """The chosen arm, described at zero (every joint angle 0) in the platform's orientation: `joints` [(axis, offset
     from the previous joint, collision capsule (from, to) in the link, radius)], `limits`, link `masses`, position
@@ -1133,6 +1211,7 @@ def arm_spec(P, pedestal):
                 'masses': [4.0, 4.0, 3.2, 2.7, 1.7, 1.8, 0.3], 'gains': [1, 1, 1, 1, 0.1, 0.1, 0.1],
                 'inertia': [1.5, 1.5, 0.6, 0.5, 0.06, 0.05, 0.02], 'tool': (0.0, 0.0, 0.066), 'dir': (0, 0, 1),
                 'colours': ([0.9, 0.9, 0.88, 1.0], [0.96, 0.45, 0.05, 1.0]), 'seeds': seeds, 'reach': 0.82,
+                'meshes': 'kuka.npz', 'mesh_colours': {(0.4, 0.4, 0.4): [0.8, 0.81, 0.82]},  # (KUKA's light grey)
                 # At the cart's front, centred: its elbow folds only to 120 degrees, so it can't reach close to its
                 # base; from there the whole crate is 0.4-0.8 m away.
                 'mount': (0.30, 0.0), 'mount_yaw': math.pi, 'inner': 0.42}  # (turned round: its base joint turns only 340 deg)
@@ -1157,6 +1236,7 @@ def arm_spec(P, pedestal):
                 'masses': [3.0, 2.5, 2.5, 2.5, 1.5, 1.5, 0.6], 'gains': [1, 1, 1, 1, 0.1, 0.1, 0.1],
                 'inertia': [1.2, 1.2, 0.5, 0.4, 0.05, 0.04, 0.02], 'tool': (0.0, 0.0, -0.107), 'dir': (0, 0, -1),
                 'colours': ([0.95, 0.95, 0.95, 1.0], [0.14, 0.14, 0.15, 1.0]), 'seeds': seeds, 'reach': 0.855,
+                'meshes': 'franka.npz',
                 'mount': (0.12, 0.12), 'mount_yaw': math.pi, 'inner': 0.3, 'tool_roll': True}  # (nearer the crate, facing it)
     A = {k: max(float(P[f'arm_{k}']), 1.0) * MM for k in ('base_height', 'shoulder_offset', 'upper', 'elbow_offset',
                                                            'fore', 'wrist1', 'wrist2', 'wrist3')}
@@ -1180,6 +1260,20 @@ def arm_spec(P, pedestal):
             'tool': (0.0, A['wrist3'], 0.0), 'dir': (0, 1, 0),
             'colours': ([0.82, 0.84, 0.86, 1.0], [0.16, 0.3, 0.55, 1.0]), 'seeds': seeds,
             'reach': A['upper'] + A['fore'] + A['wrist2']}
+
+
+def arm_meshes(spec):
+    """The real arm's link meshes (arm_meshes/, from MuJoCo Menagerie: see its README): {link: [(points in the arm
+    base's frame at zero, on its pedestal), triangles, rgba]}, link 0 the base; {} for an arm without them."""
+    if not spec.get('meshes'):
+        return {}
+    with np.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'arm_meshes', spec['meshes'])) as f:
+        index = json.loads(str(f['index']))
+        out = {}
+        for i, (k, rgba) in enumerate(index):
+            rgb = spec.get('mesh_colours', {}).get(tuple(round(c, 3) for c in rgba[:3]), rgba[:3])
+            out.setdefault(k, []).append((f[f'p{i}'].astype(float), f[f't{i}'].tolist(), list(rgb) + [1.0]))
+    return out
 
 
 def _quat_z_to(v):
@@ -1213,12 +1307,15 @@ class DriveController:
     doesn't push harder and harder."""
 
     def __init__(self, actuators, qpos, lead=(0.0, 0.0), speed=0.5, acceleration=0.6, turn_speed=1.0,
-                 turn_acceleration=3.0, kind='omni', wheelbase=0.6, track=0.6, steer_limit=0.6, steer_actuators=()):
+                 turn_acceleration=3.0, kind='omni', wheelbase=0.6, track=0.6, steer_limit=0.6, steer_actuators=(),
+                 dofs=(), wheels=()):
         self.actuators, self.qpos, self.lead = list(actuators), list(qpos), lead
         self.speed, self.acceleration = speed, acceleration
         self.turn_speed, self.turn_acceleration = turn_speed, turn_acceleration
         self.kind, self.wheelbase, self.track, self.steer_limit = kind, wheelbase, track, steer_limit
         self.steer_actuators = list(steer_actuators)
+        # The wheels, only seen turning: [(qpos, dof, x, y, r, slant, steer qpos or None)], `dofs` the platform's.
+        self.dofs, self.wheels = list(dofs), list(wheels)
         self.forward = self.sideways = self.turn = 0.0  # commanded
         self.v = [0.0, 0.0]  # actual, in the platform's frame
         self.w = 0.0
@@ -1281,6 +1378,27 @@ class DriveController:
                 left = math.atan(self.wheelbase / (r - self.track / 2))
                 right = math.atan(self.wheelbase / (r + self.track / 2))
             scene.data.ctrl[self.steer_actuators] = [left, right]
+        if self.wheels:
+            self.spin(scene.data, h)
+
+    def spin(self, d, h):
+        """Each wheel turns as it rolls with the platform's actual motion, at its contact point: a plain wheel at the
+        speed along its heading; a mecanum wheel so its rim matches the motion along the axis of its lowest roller
+        (slant +-1: the roller's axis forward and to the left or right), which makes it roll sideways: going to the
+        left, the front-left and back-right wheels turn backwards, the others forwards."""
+        qth = float(d.qpos[self.qpos[2]])
+        c, s = math.cos(qth), math.sin(qth)
+        wx, wy, w = (float(d.qvel[i]) for i in self.dofs)
+        vx, vy = c * wx + s * wy, -s * wx + c * wy  # in the platform's frame
+        for qpos, dof, x, y, r, slant, steer in self.wheels:
+            ux, uy = vx - w * y, vy + w * x  # the velocity at the wheel
+            if slant:
+                rate = (ux + slant * uy) / r
+            else:
+                a = float(d.qpos[steer]) if steer is not None else 0.0
+                rate = (math.cos(a) * ux + math.sin(a) * uy) / r
+            d.qvel[dof] = rate
+            d.qpos[qpos] = math.remainder(float(d.qpos[qpos]) + rate * h, 2 * math.pi)
 
 
 class JawController:
@@ -1790,7 +1908,8 @@ class Stocker:
                 if curv <= cup_r:
                     raise _Abort(f'too small or round for the cup to seal on ({2 * curv * 1000:.0f} mm across)')
                 sag = curv - math.sqrt(curv * curv - cup_r * cup_r)
-            z = top - min(sag + 0.003, 0.0145)  # (the lip gives 15 mm)
+            # (the lip gives 15 mm; a lifted cup takes the tool point below the top)
+            z = top - min(sag + 0.003, 0.0145) - self.plan.get('cup_lift', 0.0)
         else:
             low = {'pear': 0.08, 'banana': 0.1, 'egg': 0.12}.get(shape, 0.3 if g in SOFT_FINGERS else 0.25)
             z = max(bottom + low * H + plan['reach_below_tcp'], top - plan['palm_above_tcp'] + 0.005)
@@ -2297,14 +2416,19 @@ def createScene():
                     '<geom name="cup" type="cylinder" size="0.019 0.006" pos="0 0 0.006" mass="0.02" '
                     'margin="0.004" gap="0.004" friction="1.2 0.01 0.0001" class="finger"/>', '</body>']
 
-    lip_names, cup_r = [], 0.0
+    lip_names, cup_r, cup_lift = [], 0.0, 0.0
     if gkind in VACUUM_CUPS:
         cup_r, n_lip = VACUUM_CUPS[gkind]
         lip_h, lip_t = 0.006, 0.0028
         k_lip = max(float(P['cup_lip_stiffness']), 1.0)
-        gripper += ['<body name="vcup">',
-                    f'<geom name="vcup_hub" type="cylinder" size="{0.55 * cup_r:.9g} {(z_palm - lip_h) / 2:.9g}" '
-                    f'pos="0 0 {lip_h + (z_palm - lip_h) / 2:.9g}" mass="0.04" class="finger"/>']
+        # Between soft fingers the cup is short (25 mm from the palm), its lip above the tool point: the fingers,
+        # opened, still reach well below it.
+        if gkind in SOFT_FINGERS:
+            cup_lift = max(z_palm - 0.025, 0.0)
+        hub_h = z_palm - cup_lift - lip_h
+        gripper += [f'<body name="vcup" pos="0 0 {cup_lift:.9g}">',
+                    f'<geom name="vcup_hub" type="cylinder" size="{0.55 * cup_r:.9g} {hub_h / 2:.9g}" '
+                    f'pos="0 0 {lip_h + hub_h / 2:.9g}" mass="0.04" class="finger"/>']
         seg = 2 * math.pi * cup_r / n_lip
         for i in range(n_lip):
             a = 2 * math.pi * i / n_lip
@@ -2336,7 +2460,10 @@ def createScene():
         gripper += [f'<geom name="mia_palm" type="box" size="0.016 0.043 0.045" pos="0.026 0 {zr + 0.045:.9g}" '
                     f'mass="0.35" class="finger"/>',
                     f'<geom name="mia_wrist" type="cylinder" size="0.024 {0.0125:.9g}" pos="0.026 0 {zr + 0.1025:.9g}" '
-                    f'mass="0.1" class="finger"/>']
+                    f'mass="0.1" class="finger"/>',
+                    # the thumb's housing (the thenar side), from the palm out to the thumb's root
+                    f'<geom name="mia_thenar" type="box" size="0.027 0.016 0.023" pos="-0.017 0 {zr + 0.027:.9g}" '
+                    f'mass="0.08" class="finger"/>']
         for name, y, l1, l2, r in MIA_FINGERS + [MIA_THUMB]:
             thumb = name == 'thumb'
             root = np.array([-0.03, y, zr]) if thumb else np.array([0.025, y, zr])
@@ -2417,11 +2544,22 @@ def createScene():
             plat.append(f'<geom name="track{side + 1}" type="box" size="{_v([PL * 0.47, track_w / 2, 0.075])}" '
                         f'pos="{_v([0, side * (PW / 2 + track_w / 2 + 0.005), 0.08])}" mass="5" class="platform"/>')
     car_x, car_y = PL / 2 - 0.17, PW / 2 - 0.02
+    wheel_set = cart_wheels(cart, PL, PW, car_x, car_y, wheel_r, track_w)
+
+    def spinning(w):  # a wheel's body, its axle along y: only seen turning (the platform rides on its joints)
+        return [f'<body name="{w["name"]}" pos="{_v(w["pos"])}">',
+                f'<joint name="{w["name"]}" type="hinge" axis="0 1 0"/>',
+                '<inertial pos="0 0 0" mass="0.01" diaginertia="1e-5 1e-5 1e-5"/>', '</body>']
     if cart == 'car':
         for side, name in ((1, 'steer_l'), (-1, 'steer_r')):
             plat += [f'<body name="{name}" pos="{_v([car_x, side * car_y, wheel_r])}">',
                      f'<joint name="{name}" type="hinge" axis="0 0 1" range="-0.9 0.9" damping="2"/>',
-                     '<inertial pos="0 0 0" mass="0.5" diaginertia="0.003 0.003 0.003"/>', '</body>']
+                     '<inertial pos="0 0 0" mass="0.5" diaginertia="0.003 0.003 0.003"/>']
+            plat += spinning(next(w for w in wheel_set if w['parent'] == name))
+            plat.append('</body>')
+    for w in wheel_set:
+        if w['parent'] == 'platform':
+            plat += spinning(w)
     plat += arm_bodies(False)
     plat.append('</body>')
     world += plat
@@ -2654,46 +2792,23 @@ def createScene():
     # The platform (in its own frame): a grey deck with a yellow bumper, black wheels, an arrow on top pointing
     # forward, and the crate.
     robot = '/world/robot'
-    deck = [_box(-PL / 2, -PW / 2, 0.04, PL / 2, PW / 2, PH)]
-    bumper = [_box(-PL / 2 - 0.012, -PW / 2 - 0.012, 0.07, PL / 2 + 0.012, PW / 2 + 0.012, 0.13)]
-    wheels, hubs, steered = [], [], []
-    if cart == 'omni':  # four mecanum wheels: rollers at 45 degrees round each rim
-        for wx in (-PL / 2 + 0.16, PL / 2 - 0.16):
-            for side in (-1, 1):
-                wy = side * (PW / 2 - 0.02)
-                hubs.append(_cylinder_along([wx, wy - 0.037, 0.075], [wx, wy + 0.037, 0.075], 0.05, n=20))
-                slant = 1 if (wx > 0) == (side > 0) else -1
-                for k in range(10):
-                    a = 2 * math.pi * k / 10
-                    c = np.array([wx + 0.062 * math.cos(a), wy, 0.075 + 0.062 * math.sin(a)])
-                    tang = np.array([-math.sin(a), 0.0, math.cos(a)])
-                    ax = (tang + slant * np.array([0.0, 1.0, 0.0])) / math.sqrt(2)
-                    wheels.append(_cylinder_along(list(c - 0.022 * ax), list(c + 0.022 * ax), 0.012, n=8))
-    elif cart == 'diff':  # two big driven wheels in the middle, a caster at each end
-        for side in (-1, 1):
-            wy = side * (PW / 2 - 0.005)
-            wheels.append(_cylinder_along([0.0, wy - 0.03, 0.11], [0.0, wy + 0.03, 0.11], 0.11, n=32))
-            hubs.append(_cylinder_along([0.0, wy - 0.032, 0.11], [0.0, wy + 0.032, 0.11], 0.045, n=16))
+    # The wheels sit in wells, open to the side: the deck and the bumper are cut away round them.
+    wells = [(w['at'][0] - w['well'][0], w['at'][0] + w['well'][0], w['well'][1], w['well'][2])
+             for w in wheel_set if w['well'] and w['at'][1] > 0]
+    deck = _notched_box(-PL / 2, -PW / 2, 0.04, PL / 2, PW / 2, PH, wells)
+    bumper = _notched_box(-PL / 2 - 0.012, -PW / 2 - 0.012, 0.07, PL / 2 + 0.012, PW / 2 + 0.012, 0.13,
+                          [(a, b, d + 0.012, top) for a, b, d, top in wells])
+    wheels, hubs = [], []
+    if cart == 'diff':  # a small caster at each end, low under the deck
         for cx_ in (-PL / 2 + 0.1, PL / 2 - 0.1):
-            wheels.append(_cylinder_along([cx_, -0.015, 0.035], [cx_, 0.015, 0.035], 0.035, n=16))
-            hubs.append(_box(cx_ - 0.025, -0.03, 0.03, cx_ + 0.025, 0.03, 0.045))
-    elif cart == 'tank':  # a track along each side: two drive sprockets and the belt round them
+            wheels.append(_cylinder_along([cx_, -0.012, 0.02], [cx_, 0.012, 0.02], 0.02, n=16))
+            for fy in (-0.017, 0.013):
+                hubs.append(_box(cx_ - 0.012, fy, 0.012, cx_ + 0.012, fy + 0.004, 0.04))
+    elif cart == 'tank':  # the belt round each track's two sprockets
         for side in (-1, 1):
             wy = side * (PW / 2 + track_w / 2 + 0.005)
-            y0_, y1_ = wy - track_w / 2, wy + track_w / 2
             xe = PL * 0.47 - 0.075
-            for xc in (-xe, xe):
-                wheels.append(_cylinder_along([xc, y0_, 0.08], [xc, y1_, 0.08], 0.075, n=24))
-                hubs.append(_cylinder_along([xc, y0_ - 0.002, 0.08], [xc, y1_ + 0.002, 0.08], 0.03, n=12))
-            wheels.append(_box(-xe, y0_, 0.005, xe, y1_, 0.155))
-    else:  # car: four wheels, the front two steered (on their own bodies)
-        for side in (-1, 1):
-            wy = side * car_y
-            wheels.append(_cylinder_along([-car_x, wy - 0.035, wheel_r], [-car_x, wy + 0.035, wheel_r], wheel_r, n=28))
-            hubs.append(_cylinder_along([-car_x, wy - 0.037, wheel_r], [-car_x, wy + 0.037, wheel_r], 0.04, n=16))
-        for name in ('steer_l', 'steer_r'):
-            steered.append((name, _cylinder_along([0, -0.035, 0], [0, 0.035, 0], wheel_r, n=28),
-                            _cylinder_along([0, -0.037, 0], [0, 0.037, 0], 0.04, n=16)))
+            wheels.append(_box(-xe, wy - track_w / 2, 0.005, xe, wy + track_w / 2, 0.155))
     arrow = [([[PL / 2 - 0.05, 0, PH + 1e-3], [PL / 2 - 0.17, 0.06, PH + 1e-3], [PL / 2 - 0.17, -0.06, PH + 1e-3]],
               [[0, 1, 2]])]
     crate_parts = [_box(a0, b0, PH, a1, b1, PH + ch, skip=('-Z',)) for _, (a0, b0), (a1, b1) in crate_walls]
@@ -2707,10 +2822,11 @@ def createScene():
         if parts:
             scene.add_visual(f'{robot}/platform/{name}/visual', *_smooth_shaded(*_merge(parts)), platform_id, colour,
                              texture=texture)
-    for name, tyre, hub in steered:
-        scene.add_visual(f'{robot}/platform/{name}/visual', *_smooth_shaded(*tyre), body(name),
+    for w in wheel_set:  # each on its own body, in its frame (the axle along y)
+        tyre, hub = wheel_meshes(w)
+        scene.add_visual(f'{robot}/platform/{w["name"]}/visual', *_smooth_shaded(*_merge(tyre)), body(w['name']),
                          [0.08, 0.08, 0.09, 1.0], texture='rubber')
-        scene.add_visual(f'{robot}/platform/{name}_hub/visual', *_smooth_shaded(*hub), body(name),
+        scene.add_visual(f'{robot}/platform/{w["name"]}_hub/visual', *_smooth_shaded(*_merge(hub)), body(w['name']),
                          [0.55, 0.57, 0.6, 1.0], texture='brushed')
 
     # The arm (each link in its own frame, which at zero is the platform's turned by nothing), in its maker's colours.
@@ -2723,7 +2839,10 @@ def createScene():
     scene.add_visual(f'{robot}/arm/pedestal/visual',
                      *_smooth_shaded(*_frustum_z(mount[0], mount[1], PH, PH + pedestal, 0.075, 0.075, n=32)),
                      platform_id, [0.2, 0.22, 0.26, 1.0], texture='brushed')
+    meshes = arm_meshes(spec)
     for i, (axis, offset, (p0, p1), r) in enumerate(links):
+        if meshes:
+            break
         o = link_origins[i]
         shell = _cylinder_along(list(np.array(p0)), list(np.array(p1)), r * 0.85, n=24)
         housing_axis = np.array(axis, float)
@@ -2737,10 +2856,19 @@ def createScene():
                          texture='painted')
         scene.add_visual(f'{robot}/arm/joint{i + 1}/visual', *_smooth_shaded(*housing), bid, housing_rgba,
                          texture='painted')
-    tool = np.array(spec['tool'])
-    flange_disc = _cylinder_along(list(tool - 0.01 * tool_dir), list(tool + 0.004 * tool_dir), 0.045, n=24)
-    scene.add_visual(f'{robot}/arm/flange/visual', *_smooth_shaded(*flange_disc), body(f'arm_l{n_arm}'),
-                     [0.25, 0.27, 0.3, 1.0], texture='brushed')
+    # The real arm's links (its makers' CAD, simplified), each in its link's frame: at zero that's the arm base's,
+    # moved to the link's joint.
+    for k, groups in sorted(meshes.items()):
+        at = sum((np.array(o_, float) for _, o_, _, _ in links[:k]), np.zeros(3))
+        at[2] -= pedestal  # (the meshes' base is on top of the pedestal; arm_base is at its foot)
+        for j, (pts, tris, rgba) in enumerate(groups):
+            scene.add_visual(f'{robot}/arm/link{k}_{j}/visual', *_smooth_shaded([list(q - at) for q in pts], tris),
+                             body(f'arm_l{k}') if k else body('arm_base'), rgba, texture='painted')
+    if not meshes:
+        tool = np.array(spec['tool'])
+        flange_disc = _cylinder_along(list(tool - 0.01 * tool_dir), list(tool + 0.004 * tool_dir), 0.045, n=24)
+        scene.add_visual(f'{robot}/arm/flange/visual', *_smooth_shaded(*flange_disc), body(f'arm_l{n_arm}'),
+                         [0.25, 0.27, 0.3, 1.0], texture='brushed')
 
     def carried(parts):  # [(points at rest, triangles, body id, body origin)] -> one mesh with a body per point
         pts, tris, bodies = [], [], []
@@ -2815,7 +2943,11 @@ def createScene():
     else:  # the hand: palm and wrist, rounded phalanges, a skin pad on each phalanx's palmar side
         zr = z_palm
         palm_v = _merge([_box(0.010, -0.043, zr, 0.042, 0.043, zr + 0.09),
-                         _cylinder_along([0.026, 0, zr + 0.09], [0.026, 0, zr + 0.115], 0.024, n=28)])
+                         _cylinder_along([0.026, 0, zr + 0.09], [0.026, 0, zr + 0.115], 0.024, n=28),
+                         # the thumb's housing: out from the palm to the thumb's root, round over its joint
+                         _box(-0.03, -0.016, zr + 0.004, 0.0105, 0.016, zr + 0.05),
+                         _box(-0.044, -0.016, zr + 0.017, -0.0295, 0.016, zr + 0.05),
+                         _cylinder_along([-0.03, -0.016, zr + 0.017], [-0.03, 0.016, zr + 0.017], 0.014, n=24)])
         scene.add_visual('/world/angles/bodies/trunk/visual', *_smooth_shaded(*palm_v), flange_id,
                          [0.86, 0.87, 0.89, 1.0], texture='plastic')
         shells, knuckles = [], []
@@ -2917,7 +3049,7 @@ def createScene():
         scene.add_visual(f'/world/angles/bodies/skin/{pad}/visual', *_flat_shaded(pp, tt), b,
                          [0.22, 0.24, 0.27, float(P['wall_alpha'])], texture='plastic')
     if lip_names:
-        hub = _frustum_z(0, 0, 0.006, z_palm, 0.75 * cup_r, 0.4 * cup_r, n=32)
+        hub = _frustum_z(0, 0, 0.006, z_palm - cup_lift, 0.75 * cup_r, 0.4 * cup_r, n=32)
         scene.add_visual('/world/angles/bodies/cup_stem/visual', *_smooth_shaded(*hub), body('vcup'),
                          [0.94, 0.94, 0.9, float(P['wall_alpha'])], texture='silicone')
         petals = []
@@ -2989,7 +3121,12 @@ def createScene():
                             turn_speed=math.radians(float(P['turn_speed'])),
                             turn_acceleration=math.radians(float(P['turn_acceleration'])), kind=cart,
                             wheelbase=2 * car_x, track=2 * car_y, steer_limit=math.radians(float(P['steer_limit'])),
-                            steer_actuators=[act('steer_l'), act('steer_r')] if cart == 'car' else ())
+                            steer_actuators=[act('steer_l'), act('steer_r')] if cart == 'car' else (),
+                            dofs=[int(model.jnt_dofadr[jnt(n)]) for n in ('base_x', 'base_y', 'base_yaw')],
+                            wheels=[(int(model.jnt_qposadr[jnt(w['name'])]), int(model.jnt_dofadr[jnt(w['name'])]),
+                                     *w['at'], w['r'], w['slant'],
+                                     int(model.jnt_qposadr[jnt(w['parent'])]) if w['parent'] != 'platform' else None)
+                                    for w in wheel_set if w['r']])
     pressure = PressureRamp(hinge_dofs, torque_per_pa, 0.0, float(P['ramp_time']), instant=bool(P['instant']),
                             ramp_start=float(P['ramp_start']))
     scene.controllers += [drive, motion, arm, pressure]
@@ -3052,7 +3189,7 @@ def createScene():
         'half_diagonal': math.hypot(PL / 2, half_w), 'floor_x': half_floor - PL / 2 - 0.2,
         'carry': tuple(float(c) for c in tcp_start), 'lip': lip_h, 'reach_below_tcp': below,
         'palm_above_tcp': palm, 'above_tcp': grip_top + 0.2, 'settle': 0.6 if gkind in SOFT_FINGERS else 0.35,
-        'vacuum': gkind == 'suction' or gkind in VACUUM_CUPS, 'cup_r': cup_r,
+        'vacuum': gkind == 'suction' or gkind in VACUUM_CUPS, 'cup_r': cup_r, 'cup_lift': cup_lift,
     }
     stocker = Stocker(motion, arm, drive, pressure, jaws, stocker_plan)
     scene.controllers.append(stocker)
