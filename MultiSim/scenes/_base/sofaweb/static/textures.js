@@ -494,3 +494,62 @@ export function texturedMaterial(material, geometry, info) {
 	textured.customProgramCacheKey = () => `sofaweb-triplanar-${label ? label.mode : 0}`;
 	return textured;
 }
+
+// -- images ----------------------------------------------------------------
+// A photo on a model (MuJoCo visuals with an `image`, see
+// mjscene.MjScene.add_visual): `info.image.url` (served by the scene) mapped
+// by per-vertex texture coordinates `info.image.uv` (glTF's convention: v
+// runs down the image). The textured material is white, so the photo shows
+// as it is; `onMean` gets the image's mean colour once it has loaded, for the
+// plain (untextured) material.
+const imageCache = new Map();
+const imageLoader = new THREE.TextureLoader();
+
+function meanColour(image) {
+	try {
+		const n = 16;
+		const canvas = document.createElement("canvas");
+		canvas.width = canvas.height = n;
+		const ctx = canvas.getContext("2d", { willReadFrequently: true });
+		ctx.drawImage(image, 0, 0, n, n);
+		const px = ctx.getImageData(0, 0, n, n).data;
+		const sum = [0, 0, 0];
+		for (let i = 0; i < px.length; i += 4) for (let k = 0; k < 3; k++) sum[k] += px[i + k];
+		// (sRGB bytes to the linear colours the materials take)
+		return sum.map((v) => new THREE.Color().setRGB(v / (255 * n * n), 0, 0, THREE.SRGBColorSpace).r);
+	} catch {
+		return null;
+	}
+}
+
+function imageTexture(url) {
+	if (imageCache.has(url)) return imageCache.get(url);
+	const entry = { texture: null, mean: null, waiting: [] };
+	entry.texture = imageLoader.load(url, (tex) => {
+		entry.mean = meanColour(tex.image);
+		for (const cb of entry.waiting) cb(entry.mean);
+		entry.waiting = [];
+	});
+	entry.texture.colorSpace = THREE.SRGBColorSpace;
+	entry.texture.flipY = false;
+	entry.texture.anisotropy = anisotropy;
+	imageCache.set(url, entry);
+	return entry;
+}
+
+export function imageMaterial(material, geometry, info, onMean) {
+	const spec = info.image;
+	if (!spec || !spec.url || !spec.uv) return null;
+	const uv = decodeFloats(spec.uv);
+	if (uv.length !== info.vertexCount * 2) return null;
+	geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+	const entry = imageTexture(spec.url);
+	const textured = material.clone();
+	textured.map = entry.texture;
+	textured.color.setRGB(1, 1, 1);
+	if (onMean) {
+		if (entry.mean) onMean(entry.mean);
+		else entry.waiting.push(onMean);
+	}
+	return textured;
+}

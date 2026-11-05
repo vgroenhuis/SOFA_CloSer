@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Chart from "chart.js/auto";
 import { createManipulator } from "./manipulator.js";
-import { texturedMaterial, setAnisotropy } from "./textures.js";
+import { texturedMaterial, imageMaterial, setAnisotropy } from "./textures.js";
 
 const isViewer = new URLSearchParams(location.search).get("role") === "viewer";
 if (isViewer) document.body.classList.add("viewer");
@@ -686,8 +686,18 @@ function buildModel(info, order) {
 		// pulled forward in depth so it doesn't flicker through it.
 		Object.assign(object.material, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
 	}
-	const texMaterial = info.kind === "mesh" && !is2d ? texturedMaterial(object.material, geometry, info) : null;
-	models.set(info.id, { object, geometry, info, order, wire, plainMaterial: object.material, texMaterial });
+	let texMaterial = info.kind === "mesh" && !is2d ? texturedMaterial(object.material, geometry, info) : null;
+	const entry = { object, geometry, info, order, wire, plainMaterial: object.material, texMaterial };
+	if (!texMaterial && info.kind === "mesh" && info.image) {
+		// A photo on it (an image texture): shown white-lit as it is; without
+		// textures, the plain material takes the image's mean colour.
+		entry.texMaterial = imageMaterial(object.material, geometry, info, (mean) => {
+			if (!mean || models.get(info.id) !== entry) return;
+			entry.imageMean = mean;
+			applyDisplay();
+		});
+	}
+	models.set(info.id, entry);
 }
 
 function applyPositions(entry, packed) {
@@ -1793,6 +1803,7 @@ function applyDisplay() {
 		}
 		if (entry.texMaterial) entry.object.material = displayState.textures !== false ? entry.texMaterial : entry.plainMaterial;
 		const material = entry.object.material;
+		if (entry.info.image) color = material === entry.texMaterial ? [1, 1, 1] : entry.imageMean || color;
 		material.color.setRGB(color[0], color[1], color[2]);
 		const transparent = alpha < 0.999;
 		if (material.transparent !== transparent) {
@@ -2735,7 +2746,7 @@ $("display-reset-btn").addEventListener("click", () => {
 // The Display panel's "Textures" only for a scene with textured models.
 function updateTextureRow() {
 	const row = $("display-textures-row");
-	if (row) row.hidden = !setup || !setup.models.some((m) => m.texture);
+	if (row) row.hidden = !setup || !setup.models.some((m) => m.texture || m.image);
 }
 
 // Back to the scene's default display settings, with a preset's values on top.

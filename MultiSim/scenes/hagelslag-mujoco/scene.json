@@ -1,0 +1,10 @@
+{
+	"title": "Hagelslag (MuJoCo)",
+	"group": "stocking",
+	"description": "Gripper 7's robot shop assistant (a choice of gripper, arm and cart) at a real supermarket shelf, modelled from photos: the two-bay Hagelslag shelf with its 985 packages, each a body of its own with its own collision shape and printed front. The front package of each lane is free to move.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

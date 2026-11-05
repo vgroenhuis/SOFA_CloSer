@@ -151,6 +151,15 @@ def create_app(config_path: Path) -> FastAPI:
         runner.request("presets_changed")  # keeps or forgets recorded preset runs
         return {"ok": True}
 
+    @app.get("/images/{name}")
+    def image(name: str) -> Response:
+        """An image the scene maps on its visuals (MjVisual.image)."""
+        found = runner.image(name)
+        if found is None:
+            return Response(status_code=404)
+        media_type, data = found
+        return Response(content=data, media_type=media_type, headers={"Cache-Control": "public, max-age=3600"})
+
     @app.get("/api/info")
     async def info() -> dict:
         return runner.info()

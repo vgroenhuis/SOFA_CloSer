@@ -135,6 +135,9 @@ class Model:
     # A surface texture (MuJoCo visuals): {"name", "scale"} and the vertices' positions in their bodies' frames.
     texture: Optional[dict] = None
     local: Optional[np.ndarray] = None
+    # An image on it (MuJoCo visuals): {"url"} and each vertex's texture coordinates.
+    image: Optional[dict] = None
+    uv: Optional[np.ndarray] = None
 
     def setup(self) -> dict:
         info = {
@@ -154,6 +157,8 @@ class Model:
             # float32, base64: a scene's worth of vertices stays a fraction of the setup message.
             info["texture"] = {**self.texture,
                                "local": base64.b64encode(self.local.astype("<f4").tobytes()).decode("ascii")}
+        if self.image is not None and self.uv is not None:
+            info["image"] = {**self.image, "uv": base64.b64encode(self.uv.astype("<f4").tobytes()).decode("ascii")}
         return info
 
     def packed(self, positions: np.ndarray) -> np.ndarray:
@@ -196,6 +201,13 @@ def _build_model(model_id: int, record) -> Optional[Model]:
         if getattr(obj, "label", None):
             texture["label"] = dict(obj.label)
         local = np.asarray(obj.local, dtype=np.float64).reshape(-1, 3)
+    image = uv = None
+    if kind == "mesh" and getattr(obj, "image", None) and getattr(obj, "uv", None) is not None:
+        uv = np.asarray(obj.uv, dtype=np.float64).reshape(-1, 2)
+        if len(uv) == len(positions):
+            image = {"url": "images/" + str(obj.image)}
+        else:
+            uv = None
     return Model(
         id=model_id,
         obj=obj,
@@ -212,6 +224,8 @@ def _build_model(model_id: int, record) -> Optional[Model]:
         bound=1000.0 * float(np.abs(positions).max() + max(extent.max(), 1e-9)),
         texture=texture,
         local=local,
+        image=image,
+        uv=uv,
     )
 
 
@@ -710,6 +724,11 @@ class Runner:
         lines = [",".join(keys)]
         lines.extend(",".join(f"{row.get(k, float('nan')):.6g}" for k in keys) for row in rows)
         return "\n".join(lines) + "\n"
+
+    def image(self, name: str) -> Optional[tuple[str, bytes]]:
+        """One of the built scene's images (a MuJoCo scene's MjScene.images): (media type, bytes), or None."""
+        images = getattr(self._root, "images", None)
+        return images.get(name) if isinstance(images, dict) else None
 
     def info(self) -> dict:
         root = self._root

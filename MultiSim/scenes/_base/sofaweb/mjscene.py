@@ -36,7 +36,8 @@ class MjVisual:
     position in that body's frame)."""
 
     def __init__(self, scene: "MjScene", path: str, points, triangles, bodies, texture: Optional[str] = None,
-                 texture_scale: Optional[float] = None, label: Optional[dict] = None) -> None:
+                 texture_scale: Optional[float] = None, label: Optional[dict] = None, image: Optional[str] = None,
+                 uv=None) -> None:
         self._scene = scene
         self._path = path
         # The browser's surface texture (a name from viewer.js' TEXTURES, mapped onto the mesh in its bodies' frames
@@ -46,6 +47,10 @@ class MjVisual:
         # 'wrap' (around its local z axis), 'seed': the same seed, the same label, 'overlay': a part lying on another
         # one, drawn in front of it}.
         self.label = label
+        # An image on it instead (a photo, a printed package): the name of one of the scene's images (MjScene.images,
+        # served at images/<name>) and each point's texture coordinates (u, v; glTF's convention, v down the image).
+        self.image = image
+        self.uv = None if image is None or uv is None else np.asarray(uv, dtype=np.float64).reshape(-1, 2)
         self.local = np.asarray(points, dtype=np.float64).reshape(-1, 3)
         body = np.asarray(bodies, dtype=np.int64).reshape(-1)
         self.body = np.full(len(self.local), int(body[0])) if body.size == 1 else body
@@ -92,6 +97,8 @@ class MjScene:
         self.ambient: list[float] = [0.3, 0.3, 0.3, 1.0]
         self.background: list[float] = [0.0, 0.0, 0.0, 1.0]
         self.camera: Optional[dict] = None
+        # Images for the visuals (MjVisual.image): name -> (media type, bytes), served to the browser.
+        self.images: dict[str, tuple[str, bytes]] = {}
         self.objects: dict[str, Any] = {}
         self.controllers: list[Callable[["MjScene", float], None]] = []
         mujoco.mj_forward(self.model, self.data)
@@ -103,11 +110,16 @@ class MjScene:
 
     def add_visual(self, path: str, points, triangles, bodies=0, color=(1.0, 1.0, 1.0, 1.0),
                    texture: Optional[str] = None, texture_scale: Optional[float] = None,
-                   label: Optional[dict] = None) -> MjVisual:
+                   label: Optional[dict] = None, image: Optional[str] = None, uv=None) -> MjVisual:
         """A mesh carried by `bodies` (one body id, or one per point; 0 is the world), `points` in the body's frame;
         `texture` a surface texture of the browser's (e.g. 'cardboard', 'brushed'; see MjVisual), `texture_scale`
-        the size of one repeat of it [m]; `label` a printed label on it (see MjVisual)."""
-        visual = MjVisual(self, path, points, triangles, bodies, texture, texture_scale, label)
+        the size of one repeat of it [m]; `label` a printed label on it (see MjVisual); `image` one of the scene's
+        images (self.images) mapped on it by `uv`, a pair of texture coordinates per point."""
+        if image is not None and image not in self.images:
+            raise ValueError(f"add_visual({path!r}): no image {image!r} in the scene's images")
+        visual = MjVisual(self, path, points, triangles, bodies, texture, texture_scale, label, image, uv)
+        if visual.uv is not None and len(visual.uv) != len(visual.local):
+            raise ValueError(f"add_visual({path!r}): {len(visual.uv)} texture coordinates for {len(visual.local)} points")
         rgba = list(color) + [1.0] * (4 - len(color))
         self.visuals.append(VisualRecord(visual, [float(c) for c in rgba[:4]]))
         return visual
