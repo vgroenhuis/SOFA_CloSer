@@ -2797,7 +2797,8 @@ def createScene():
              for w in wheel_set if w['well'] and w['at'][1] > 0]
     deck = _notched_box(-PL / 2, -PW / 2, 0.04, PL / 2, PW / 2, PH, wells)
     bumper = _notched_box(-PL / 2 - 0.012, -PW / 2 - 0.012, 0.07, PL / 2 + 0.012, PW / 2 + 0.012, 0.13,
-                          [(a, b, d + 0.012, top) for a, b, d, top in wells])
+                          # (2 mm past the deck's faces, so the two don't fight where they'd coincide)
+                          [(a - 0.002, b + 0.002, d + 0.014, top) for a, b, d, top in wells])
     wheels, hubs = [], []
     if cart == 'diff':  # a small caster at each end, low under the deck
         for cx_ in (-PL / 2 + 0.1, PL / 2 - 0.1):
