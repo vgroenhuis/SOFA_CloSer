@@ -1,8 +1,15 @@
 """Menagerie arm -> per-link visual meshes at the zero pose, in Gripper 7's arm frame, decimated."""
 import sys, math, json
-import numpy as np, mujoco, fast_simplification
+import numpy as np, mujoco
 
 xml, out, n_links, my_axes, budget = sys.argv[1], sys.argv[2], int(sys.argv[3]), json.loads(sys.argv[4]), int(sys.argv[5])
+# 'borders' (optional 6th argument): decimate with pyfqmr, keeping open edges in place (see below); otherwise
+# fast-simplification, which moves them
+BORDERS = len(sys.argv) > 6 and sys.argv[6] == 'borders'
+if BORDERS:
+    import pyfqmr
+else:
+    import fast_simplification
 m = mujoco.MjModel.from_xml_path(xml)
 d = mujoco.MjData(m)
 mujoco.mj_forward(m, d)
@@ -45,6 +52,7 @@ for g in range(m.ngeom):
     P, F = groups.get(key, (np.zeros((0, 3)), np.zeros((0, 3), np.int64)))
     groups[key] = (np.vstack([P, w @ R.T]), np.vstack([F, f + len(P)]))
 
+SMALL = 1000  # faces: meshes this small aren't decimated
 total = sum(len(F) for P, F in groups.values())
 arrays, index = {}, []
 for i, ((k, rgba), (P, F)) in enumerate(sorted(groups.items())):
@@ -54,7 +62,20 @@ for i, ((k, rgba), (P, F)) in enumerate(sorted(groups.items())):
     P2, F2 = P[first], inv.reshape(-1)[F]
     F2 = F2[(F2[:, 0] != F2[:, 1]) & (F2[:, 1] != F2[:, 2]) & (F2[:, 0] != F2[:, 2])]
     target = max(300, int(budget * len(F) / total))
-    if len(F2) > target:
+    if BORDERS:
+        # Open edges stay put (preserve_border): they are where two colours of a link meet (e.g. KUKA's grey shell
+        # and its light band), and moving them separately on each side left jagged gaps and overlaps. A face per open
+        # edge is added to the share (they'd use it up otherwise), and small meshes (the band, the lettering) are
+        # kept as they are.
+        edges = np.sort(np.vstack([F2[:, [0, 1]], F2[:, [1, 2]], F2[:, [2, 0]]]), axis=1)
+        _, edge_count = np.unique(edges, axis=0, return_counts=True)
+        target += int((edge_count == 1).sum())
+    if BORDERS and len(F2) > max(target, SMALL):
+        simplifier = pyfqmr.Simplify()
+        simplifier.setMesh(P2.astype(np.float64), F2.astype(np.int32))
+        simplifier.simplify_mesh(target_count=target, aggressiveness=7, preserve_border=True, verbose=False)
+        P3, F3, _ = simplifier.getMesh()
+    elif not BORDERS and len(F2) > target:
         P3, F3 = fast_simplification.simplify(P2.astype(np.float32), F2.astype(np.int32), 1 - target / len(F2))
     else:
         P3, F3 = P2, F2
