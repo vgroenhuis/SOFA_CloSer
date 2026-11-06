@@ -507,6 +507,38 @@ body.viewer .param-note { display: none; }
 #import-result .import-ok { color: #8fd19e; margin: 0 0 4px; }
 .dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 
+/* The choice gallery (buildChoiceGallery): pictures of a drop-down's options. */
+.param-section h3.with-gallery { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.param-section .gallery-open { padding: 2px 8px; font-size: 11px; font-weight: 500; }
+#choice-gallery {
+	background: #23252c;
+	color: #e8e8e8;
+	border: 1px solid #3a3d47;
+	border-radius: 10px;
+	padding: 14px 16px 16px;
+	width: min(940px, calc(100% - 32px));
+	max-height: calc(100% - 48px);
+	box-sizing: border-box;
+	font-size: 13px;
+}
+#choice-gallery::backdrop { background: rgba(0, 0, 0, 0.5); }
+#choice-gallery .gallery-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#choice-gallery h3 { margin: 0; font-size: 15px; }
+#choice-gallery h4 { margin: 14px 0 6px; font-size: 13px; color: #cfd3da; }
+#choice-gallery .gallery-hint { color: #8f97a3; margin: 6px 0 0; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.gallery-card {
+	display: flex; flex-direction: column; gap: 5px; padding: 4px 4px 7px;
+	background: #1b1d22; color: #e8e8e8; border: 2px solid #3a3d47; border-radius: 8px;
+	font: inherit; font-size: 12px; line-height: 1.3; text-align: left; cursor: pointer;
+}
+.gallery-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 5px; background: #dde3ec; }
+.gallery-card span { padding: 0 3px; }
+.gallery-card:hover, .gallery-card:active { background: #1b1d22; }
+.gallery-card:hover:not(:disabled) { border-color: #6b7383; }
+.gallery-card.chosen, .gallery-card.chosen:hover { border-color: #3a5bd9; background: #26304f; }
+.gallery-card:disabled { cursor: default; opacity: 0.75; }
+
 /* The manipulator (manipulator.js): a toolbar above the charts, a hint, and a tall height slider at the left. */
 #manip-row { flex: 1 1 100%; order: -1; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
 #manip-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 6px 8px; }

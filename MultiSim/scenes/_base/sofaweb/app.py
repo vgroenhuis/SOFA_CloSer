@@ -11,12 +11,15 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import SceneConfig
 from .runner import Runner
+
+# The choice gallery's picture types (SceneConfig.choice_gallery)
+GALLERY_TYPES = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
 
 log = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
@@ -142,7 +145,32 @@ def create_app(config_path: Path) -> FastAPI:
             "controls": [{k: v for k, v in c.items() if k != "apply"} for c in config.controls],
             "manipulator": config.manipulator,
             "heat": config.heat,
+            "choiceGallery": choice_gallery(),
         }
+
+    gallery_dir = (config_path.parent / config.choice_gallery["folder"]).resolve() if config.choice_gallery else None
+
+    def choice_gallery() -> Optional[dict]:
+        """The overview's pictures that exist: {"title", "button", "keys": [{"key", "label", "options":
+        [{"value", "text", "image"}]}]} (see SceneConfig.choice_gallery)."""
+        if gallery_dir is None or not gallery_dir.is_dir():
+            return None
+        files = {p.stem: p.name for p in gallery_dir.iterdir() if p.suffix.lower() in GALLERY_TYPES}
+        fields = {f["key"]: f for s in runner.spec for f in s["fields"] if f.get("type") == "choice"}
+        keys = config.choice_gallery.get("keys") or list(fields)
+        out = []
+        for key in keys:
+            field = fields.get(key)
+            if field is None:
+                continue
+            options = [{"value": v, "text": t, "image": f"choices/{files[f'{key}_{v}']}"}
+                       for v, t in field["choices"] if f"{key}_{v}" in files]
+            if options:
+                out.append({"key": key, "label": field["label"], "options": options})
+        if not out:
+            return None
+        return {"title": config.choice_gallery.get("title", "Overview"),
+                "button": config.choice_gallery.get("button", "Overview"), "keys": out}
 
     @app.post("/api/defaults")
     async def set_defaults(body: dict[str, Any]) -> dict:
@@ -159,6 +187,16 @@ def create_app(config_path: Path) -> FastAPI:
             return Response(status_code=404)
         media_type, data = found
         return Response(content=data, media_type=media_type, headers={"Cache-Control": "public, max-age=3600"})
+
+    @app.get("/choices/{name}")
+    def choice_picture(name: str) -> Response:
+        """A picture of the choice gallery (SceneConfig.choice_gallery)."""
+        path = gallery_dir / name if gallery_dir is not None and "/" not in name and "\\" not in name else None
+        if path is None or path.suffix.lower() not in GALLERY_TYPES or not path.is_file() \
+                or path.resolve().parent != gallery_dir:
+            return Response(status_code=404)
+        return FileResponse(path, media_type=GALLERY_TYPES[path.suffix.lower()],
+                            headers={"Cache-Control": "public, max-age=3600"})
 
     @app.get("/api/info")
     async def info() -> dict:

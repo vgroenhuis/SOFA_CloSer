@@ -459,6 +459,7 @@ CONFIG = SceneConfig(
         {"key": "cup_force", "label": "vacuum cup: pull", "digits": 1, "unit": "N"},
         {"key": "contacts", "label": "contacts", "digits": 0, "unit": ""},
     ],
+    choice_gallery={"folder": "docs/choices", "title": "Grippers, arms and carts", "keys": ["gripper", "arm", "cart"]},
     stop_at=None,  # interactive: it keeps running
     about=[
         "Gripper 7's robot shop assistant at a real supermarket shelf: the two-bay Hagelslag shelf (chocolate "
@@ -471,8 +472,8 @@ CONFIG = SceneConfig(
         "it. Masses and "
         "frictions are placeholders, per kind of package, in original/hagelslag_physics.json.",
         "Choose the robot in the Parameters panel (Robot): the gripper, the arm (UR-like, KUKA LBR iiwa 14, Franka "
-        "Emika Panda) and the cart (omniwheels, two-wheel drive, tracks, car steering), as in Gripper 7. The cart "
-        "carries a crate of nine of the shelf's packages.",
+        "Emika Panda) and the cart (omniwheels, two-wheel drive, tracks, car steering), as in Gripper 7; the section's "
+        "Overview button shows a picture of each. The cart carries a crate of nine of the shelf's packages.",
         "By hand, as in Gripper 6 and 7: drive with the joystick at the left of the view or the arrow keys (, . "
         "turn), steer the gripper by dragging it, the gizmo, the height slider, the keys WASD R F Q E, and Space to "
         "grip. The arm follows by inverse kinematics while it can reach (the target dot turns red when it can't). "

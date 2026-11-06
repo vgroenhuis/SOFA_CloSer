@@ -1587,6 +1587,90 @@ function buildParamsPanel(spec) {
 	}
 }
 
+// The choice gallery (SceneConfig.choice_gallery): a button in the heading of the
+// Parameters section holding its first drop-down opens an overview with a picture
+// and the name of every option (e.g. each gripper); clicking one picks it in its
+// drop-down, as choosing it there would (Apply, or applied at once with Auto apply).
+function buildChoiceGallery(gallery) {
+	if (!gallery || !gallery.keys.length) return;
+	const first = fieldInputs.get(gallery.keys[0].key);
+	if (!first) return;
+	const dialog = document.createElement("dialog");
+	dialog.id = "choice-gallery";
+	dialog.setAttribute("aria-label", gallery.title);
+	const head = document.createElement("div");
+	head.className = "gallery-head";
+	const title = document.createElement("h3");
+	title.textContent = gallery.title;
+	const close = document.createElement("button");
+	close.type = "button";
+	close.className = "secondary";
+	close.textContent = "Close";
+	close.addEventListener("click", () => dialog.close());
+	head.append(title, close);
+	const hint = document.createElement("p");
+	hint.className = "gallery-hint";
+	dialog.append(head, hint);
+	const cards = [];
+	for (const group of gallery.keys) {
+		const entry = fieldInputs.get(group.key);
+		if (!entry) continue;
+		const h = document.createElement("h4");
+		h.textContent = group.label;
+		const grid = document.createElement("div");
+		grid.className = "gallery-grid";
+		for (const option of group.options) {
+			const card = document.createElement("button");
+			card.type = "button";
+			card.className = "gallery-card";
+			const img = document.createElement("img");
+			img.src = option.image;
+			img.alt = "";
+			img.loading = "lazy";
+			const name = document.createElement("span");
+			name.textContent = option.text;
+			card.append(img, name);
+			card.addEventListener("click", () => {
+				if (entry.input.disabled || entry.input.value === option.value) return;
+				entry.input.value = option.value;
+				entry.input.dispatchEvent(new Event("change"));
+				mark();
+			});
+			grid.appendChild(card);
+			cards.push({ card, entry, option });
+		}
+		dialog.append(h, grid);
+	}
+	// The drop-down's value: chosen (maybe not applied yet), and whether picking is possible here
+	const mark = () => {
+		for (const { card, entry, option } of cards) {
+			const chosen = entry.input.value === option.value;
+			card.classList.toggle("chosen", chosen);
+			card.setAttribute("aria-pressed", String(chosen));
+			card.disabled = entry.input.disabled && !chosen;
+		}
+		hint.textContent = first.input.disabled
+			? "What each option looks like. Only the simulation's owner can change them."
+			: "Click a picture to choose it (then Apply, unless Auto apply is on).";
+	};
+	dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); }); // the backdrop
+	document.body.appendChild(dialog);
+	const open = document.createElement("button");
+	open.type = "button";
+	open.className = "gallery-open secondary";
+	open.textContent = gallery.button;
+	open.title = gallery.title;
+	open.addEventListener("click", () => { mark(); dialog.showModal(); });
+	const section = first.input.closest(".param-section");
+	let heading = section.querySelector("h3");
+	if (!heading) {
+		heading = document.createElement("h3");
+		section.prepend(heading);
+	}
+	heading.classList.add("with-gallery");
+	heading.appendChild(open);
+}
+
 // Display rows that depend on a scene parameter (a mirror needs its
 // symmetry to be in use) are grayed out while it's off in the running scene.
 function updateDisplayAvailability() {
@@ -3390,6 +3474,7 @@ async function init() {
 	buildControlsPanel(sceneInfo.controls || []);
 	buildManipulator(sceneInfo.manipulator, sceneInfo.controls || []);
 	buildParamsPanel(sceneInfo.spec);
+	buildChoiceGallery(sceneInfo.choiceGallery);
 	if (!sceneInfo.spec.length) $("params-panel").classList.add("hidden");
 	buildDisplayPanel(sceneInfo.display || []);
 	buildCameraControls();

@@ -187,6 +187,15 @@ class SceneConfig:
     # the one just switched on).
     exclusive: list[tuple[str, str]] = field(default_factory=list)
 
+    # Pictures of choice parameters' options (e.g. each gripper of a "gripper" drop-down), shown with their names in
+    # an overview that a button in the Parameters panel opens; clicking one picks it in its drop-down:
+    #   {"folder": a folder in the scene ("docs/choices"), with a picture <key>_<value>.jpg (or .png, .webp) per
+    #               option; options without one are left out,
+    #    "title": the overview's title, "button": the button's text (default "Overview"),
+    #    "keys": the choice parameters it shows, in order (default: every choice parameter with pictures)}.
+    # The button sits in the heading of the panel section holding the first of them.
+    choice_gallery: Optional[dict] = None
+
     # "3d": orbit/pan/zoom; "2d": pan/zoom only, painter's-order drawing.
     view: str = "3d"
     up: tuple[float, float, float] = (0.0, 0.0, 1.0)
