@@ -1,0 +1,10 @@
+{
+	"title": "Gripper 8: Grip test line (MuJoCo)",
+	"group": "gripper",
+	"description": "Every gripper of Gripper 7 and Hagelslag in a row, each over the same grocery item (Gripper 7's groceries, the Hagelslag shelf's packages, or a deformable bag of chips or of potatoes), and an automatic test for all at once: grip, lift, a full turn about x, a metre forward, put down and let go. Which ones hold on?",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

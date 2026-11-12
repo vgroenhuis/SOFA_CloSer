@@ -248,10 +248,10 @@ function visibilitySelect(scene) {
 // The lobby section the scene is listed in.
 const GROUP_OPTIONS = [
 	["closer", "CloSer project"],
-	["finger", "Finger"],
-	["gripper", "Gripper"],
-	["pneumatics", "Pneumatics"],
 	["stocking", "Stocking shelves"],
+	["gripper", "Gripper"],
+	["finger", "Finger"],
+	["pneumatics", "Pneumatics"],
 	["playground", "Playground"],
 	["archive", "Archive"],
 	["other", "Other"],

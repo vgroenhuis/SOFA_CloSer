@@ -1,0 +1,16773 @@
+{
+"frame": "metres; origin on the floor at the back-left corner; +x along the shelf, +y up, +z towards the aisle",
+"shelves": {
+"left_heights_cm": [
+175,
+149,
+122,
+99,
+77,
+59,
+39,
+16
+],
+"right_heights_cm": [
+175,
+152,
+131,
+110,
+92,
+75,
+58,
+38,
+16
+]
+},
+"units": [
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.059,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_melk",
+"name": "De Ruijter chocoladevlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.161,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.263,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_puur",
+"name": "De Ruijter chocoladevlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.365,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_feest",
+"name": "De Ruijter vlokfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.467,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.322
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.276
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.23
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.184
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.138
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_vl_wit",
+"name": "De Ruijter witte vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.569,
+1.841,
+0.092
+],
+"size_m": [
+0.102,
+0.182,
+0.046
+]
+},
+{
+"product": "dr_roy_vl",
+"name": "De Ruijter Royaal chocoladevlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.67,
+1.841,
+0.3195
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_vl",
+"name": "De Ruijter Royaal chocoladevlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.67,
+1.841,
+0.2685
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_vl",
+"name": "De Ruijter Royaal chocoladevlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.67,
+1.841,
+0.2175
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_vl",
+"name": "De Ruijter Royaal chocoladevlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.67,
+1.841,
+0.1665
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_vl",
+"name": "De Ruijter Royaal chocoladevlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.67,
+1.841,
+0.1155
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_ha",
+"name": "De Ruijter Royaal hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.77,
+1.841,
+0.3195
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_ha",
+"name": "De Ruijter Royaal hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.77,
+1.841,
+0.2685
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_ha",
+"name": "De Ruijter Royaal hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.77,
+1.841,
+0.2175
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_ha",
+"name": "De Ruijter Royaal hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.77,
+1.841,
+0.1665
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_roy_ha",
+"name": "De Ruijter Royaal hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.77,
+1.841,
+0.1155
+],
+"size_m": [
+0.1,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.3245
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.2835
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.2425
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.2015
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.1605
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.1195
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.863,
+1.835,
+0.0785
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.3245
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.2835
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.2425
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.2015
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.1605
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.1195
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_spec",
+"name": "De Ruijter Specials intens puur",
+"kind": "box",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.949,
+1.835,
+0.0785
+],
+"size_m": [
+0.086,
+0.17,
+0.041
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.059,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_melk",
+"name": "De Ruijter hagel melk",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.161,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.263,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_puur",
+"name": "De Ruijter hagel puur",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.365,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.467,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.362
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.311
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.26
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.209
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.158
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "dr_ha_feest",
+"name": "De Ruijter hagelfeest",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.569,
+1.581,
+0.107
+],
+"size_m": [
+0.102,
+0.182,
+0.051
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.524,
+0.346
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.592,
+0.346
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.524,
+0.263
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.592,
+0.263
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.524,
+0.18
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_minis",
+"name": "Jumbo Stroo! mini's",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.6795,
+1.592,
+0.18
+],
+"size_m": [
+0.115,
+0.068,
+0.083
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.3645
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.3185
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.2725
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.2265
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.1805
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.1345
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_unicorn",
+"name": "Jumbo Crunchy Unicorn mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.7815,
+1.5725,
+0.0885
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.3245
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.2785
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.2325
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.1865
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.1405
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_chocobal",
+"name": "Jumbo Choco Bal triomix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.866,
+1.5725,
+0.0945
+],
+"size_m": [
+0.08,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.3645
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.3185
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.2725
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.2265
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.1805
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.1345
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_duomix",
+"name": "Jumbo Crunchy Duo mix",
+"kind": "box",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.9505,
+1.5725,
+0.0885
+],
+"size_m": [
+0.085,
+0.165,
+0.046
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.4062
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.3552
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.3042
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.2532
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.2022
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.1512
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.0635,
+1.321,
+0.1002
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.4062
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.3552
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.3042
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.2532
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.2022
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.1512
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.1645,
+1.321,
+0.1002
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.4062
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.3552
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.3042
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.2532
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.2022
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.1512
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.2655,
+1.321,
+0.1002
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.4062
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.3552
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.3042
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.2532
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.2022
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.1512
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.3645,
+1.321,
+0.1002
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.4735,
+1.312,
+0.3487
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.4735,
+1.312,
+0.3027
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.4735,
+1.312,
+0.2567
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.5705,
+1.312,
+0.3487
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.5705,
+1.312,
+0.3027
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.5705,
+1.312,
+0.2567
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.665,
+1.312,
+0.3487
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.665,
+1.312,
+0.3027
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.665,
+1.312,
+0.2567
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.757,
+1.312,
+0.3487
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.757,
+1.312,
+0.3027
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_vrucht",
+"name": "Jumbo vruchtenhagel mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.757,
+1.312,
+0.2567
+],
+"size_m": [
+0.092,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_kruid",
+"name": "Jumbo kruidnootjes mini mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.8495,
+1.2935,
+0.3732
+],
+"size_m": [
+0.083,
+0.147,
+0.037
+]
+},
+{
+"product": "jb_kruid",
+"name": "Jumbo kruidnootjes mini mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.8495,
+1.2935,
+0.3362
+],
+"size_m": [
+0.083,
+0.147,
+0.037
+]
+},
+{
+"product": "jb_kruid",
+"name": "Jumbo kruidnootjes mini mix",
+"kind": "box",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.8495,
+1.2935,
+0.2992
+],
+"size_m": [
+0.083,
+0.147,
+0.037
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.0685,
+1.091,
+0.4438
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.0685,
+1.091,
+0.3928
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.1725,
+1.091,
+0.3438
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_melk",
+"name": "Jumbo hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.1725,
+1.091,
+0.2928
+],
+"size_m": [
+0.101,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.2815,
+1.091,
+0.3438
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_ha_puur",
+"name": "Jumbo hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.2815,
+1.091,
+0.2928
+],
+"size_m": [
+0.097,
+0.202,
+0.051
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.4485,
+1.082,
+0.4163
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.4485,
+1.082,
+0.3703
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.4485,
+1.082,
+0.3243
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.5455,
+1.082,
+0.4163
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.5455,
+1.082,
+0.3703
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_duo_ha",
+"name": "Jumbo Duo hagelslag mix",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.5455,
+1.082,
+0.3243
+],
+"size_m": [
+0.097,
+0.184,
+0.046
+]
+},
+{
+"product": "jb_ha_small",
+"name": "Jumbo hagelslag klein",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.629,
+1.0545,
+0.4508
+],
+"size_m": [
+0.06,
+0.129,
+0.037
+]
+},
+{
+"product": "jb_ha_small",
+"name": "Jumbo hagelslag klein",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.629,
+1.0545,
+0.4138
+],
+"size_m": [
+0.06,
+0.129,
+0.037
+]
+},
+{
+"product": "jb_ha_small",
+"name": "Jumbo hagelslag klein",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.629,
+1.0545,
+0.3768
+],
+"size_m": [
+0.06,
+0.129,
+0.037
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.795,
+1.059,
+0.4418
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.795,
+1.059,
+0.3868
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.795,
+1.059,
+0.3318
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.795,
+1.059,
+0.2768
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.887,
+1.059,
+0.4418
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.887,
+1.059,
+0.3868
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.887,
+1.059,
+0.3318
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_puur",
+"name": "Jumbo hagel XXL puur",
+"kind": "box",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.887,
+1.059,
+0.2768
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.059,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_melk",
+"name": "Jumbo vlokken melk",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.151,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.243,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_puur",
+"name": "Jumbo vlokken puur",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.335,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.427,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.4823
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.4363
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.3903
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.3443
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.2983
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.2523
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.2063
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.1603
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.1143
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_vl_duo",
+"name": "Jumbo Duo vlokken mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.519,
+0.8575,
+0.0683
+],
+"size_m": [
+0.092,
+0.175,
+0.046
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.4778
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.4228
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.3678
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.3128
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.2578
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.2028
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.1478
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.616,
+0.839,
+0.0928
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.4778
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.4228
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.3678
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.3128
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.2578
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.2028
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.1478
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_mix",
+"name": "Jumbo Duo hagel XXL mix",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.708,
+0.839,
+0.0928
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.4778
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.4228
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.3678
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.3128
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.2578
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.2028
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.1478
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.8,
+0.839,
+0.0928
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.4778
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.4228
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.3678
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.3128
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.2578
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.2028
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.1478
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "jb_xxl_disco",
+"name": "Jumbo hagel XXL melk & disco",
+"kind": "box",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.892,
+0.839,
+0.0928
+],
+"size_m": [
+0.092,
+0.138,
+0.055
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.5092
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.4582
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.4072
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.3562
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.3052
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.2542
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.2032
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.1522
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.0515,
+0.6615,
+0.1012
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.5092
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.4582
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.4072
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.3562
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.3052
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.2542
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.2032
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.1522
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_melk",
+"name": "Venz hagelslag melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.1385,
+0.6615,
+0.1012
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.5092
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.4582
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.4072
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.3562
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.3052
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.2542
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.2032
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.1522
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.2255,
+0.6615,
+0.1012
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.5092
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.4582
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.4072
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.3562
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.3052
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.2542
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.2032
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.1522
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_puur",
+"name": "Venz hagelslag puur",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3125,
+0.6615,
+0.1012
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.5092
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.4582
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.4072
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.3562
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.3052
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.2542
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.2032
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.1522
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kwink",
+"name": "Venz Kwinkslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.3995,
+0.6615,
+0.1012
+],
+"size_m": [
+0.087,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.5092
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.4582
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.4072
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.3562
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.3052
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.2542
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.2032
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.1522
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_wit",
+"name": "Venz XXL wit",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.489,
+0.6615,
+0.1012
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.5092
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.4582
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.4072
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.3562
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.3052
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.2542
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.2032
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.1522
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_xxl_melk",
+"name": "Venz XXL melk",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.581,
+0.6615,
+0.1012
+],
+"size_m": [
+0.092,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.5092
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.4582
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.4072
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.3562
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.3052
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.2542
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.2032
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.1522
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_beer",
+"name": "Venz Beer hagelslag",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.6755,
+0.6615,
+0.1012
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.5092
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.4582
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.4072
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.3562
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.3052
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.2542
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.2032
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.1522
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_kroko",
+"name": "Venz Krokovlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.7725,
+0.6615,
+0.1012
+],
+"size_m": [
+0.097,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.5092
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.4582
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.4072
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.3562
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.3052
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.2542
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.2032
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.1522
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_tijger",
+"name": "Venz Tijgervlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.874,
+0.6615,
+0.1012
+],
+"size_m": [
+0.106,
+0.143,
+0.051
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.5489
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.5119
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.4749
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.4379
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.4009
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.3639
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.3269
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.2899
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.2529
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.2159
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.1789
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.1419
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.1049
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_banaan",
+"name": "Venz bananen split",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.045,
+0.45,
+0.0679
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.5489
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.5119
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.4749
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.4379
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.4009
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.3639
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.3269
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.2899
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.2529
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.2159
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.1789
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.1419
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.1049
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "vz_aardbei",
+"name": "Venz aardbeien smoothie",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.119,
+0.45,
+0.0679
+],
+"size_m": [
+0.074,
+0.12,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.5489
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.5119
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.4749
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.4379
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.4009
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.3639
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.3269
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.2899
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.2529
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.2159
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.1789
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.1419
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.1049
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_bos",
+"name": "De Ruijter bosvruchtenhagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.205,
+0.459,
+0.0679
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.5189
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.4819
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.4449
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.4079
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.3709
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.3339
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.2969
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.2599
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.2229
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.1859
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.1489
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.1119
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_anijs",
+"name": "De Ruijter witte hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.297,
+0.459,
+0.0749
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.5489
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.5119
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.4749
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.4379
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.4009
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.3639
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.3269
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.2899
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.2529
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.2159
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.1789
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.1419
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.1049
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_roze",
+"name": "De Ruijter muisjes roze",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.389,
+0.459,
+0.0679
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.5189
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.4819
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.4449
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.4079
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.3709
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.3339
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.2969
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.2599
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.2229
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.1859
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.1489
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.1119
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "dr_muis_blauw",
+"name": "De Ruijter muisjes blauw",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.481,
+0.459,
+0.0749
+],
+"size_m": [
+0.092,
+0.138,
+0.037
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.5399
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.4849
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.4299
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.3749
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.3199
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.2649
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.2099
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.1549
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_klein",
+"name": "Choca (smal pak)",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.5575,
+0.4635,
+0.0999
+],
+"size_m": [
+0.055,
+0.147,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.5399
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.4849
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.4299
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.3749
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.3199
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.2649
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.2099
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.1549
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_vl",
+"name": "Choca vlokken",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.6425,
+0.4705,
+0.0999
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.7605,
+0.4705,
+0.5399
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.7605,
+0.4705,
+0.4849
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.7605,
+0.4705,
+0.4299
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.7605,
+0.4705,
+0.3749
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.8755,
+0.4705,
+0.5399
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.8755,
+0.4705,
+0.4849
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.8755,
+0.4705,
+0.4299
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "choca_mix",
+"name": "Choca vlok mix",
+"kind": "box",
+"bay": "L",
+"shelf": 7,
+"center_m": [
+0.8755,
+0.4705,
+0.3749
+],
+"size_m": [
+0.115,
+0.161,
+0.055
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.5995
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.5485
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.4975
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.4465
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.3955
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.3445
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.2935
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.2425
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.1915
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.1405
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.0605,
+0.252,
+0.0895
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.5995
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.5485
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.4975
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.4465
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.3955
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.3445
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.2935
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.2425
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.1915
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.1405
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "dr_vrucht",
+"name": "De Ruijter vruchten hagel",
+"kind": "box",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.1615,
+0.252,
+0.0895
+],
+"size_m": [
+0.101,
+0.184,
+0.051
+]
+},
+{
+"product": "korrel_l",
+"name": "Chogal boterhamkorrels licht",
+"kind": "bag",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.312,
+0.2025,
+0.602
+],
+"size_m": [
+0.18,
+0.085,
+0.046
+]
+},
+{
+"product": "korrel_d",
+"name": "Chogal boterhamkorrels donker",
+"kind": "bag",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.475,
+0.255,
+0.602
+],
+"size_m": [
+0.14,
+0.19,
+0.046
+]
+},
+{
+"product": "korrel_d",
+"name": "Chogal boterhamkorrels donker",
+"kind": "bag",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.615,
+0.255,
+0.602
+],
+"size_m": [
+0.14,
+0.19,
+0.046
+]
+},
+{
+"product": "matinettes",
+"name": "Jacques Matinettes (stapel)",
+"kind": "block",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.7645,
+0.215,
+0.57
+],
+"size_m": [
+0.155,
+0.11,
+0.11
+]
+},
+{
+"product": "matinettes",
+"name": "Jacques Matinettes (stapel)",
+"kind": "block",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.7645,
+0.215,
+0.46
+],
+"size_m": [
+0.155,
+0.11,
+0.11
+]
+},
+{
+"product": "matinettes",
+"name": "Jacques Matinettes (stapel)",
+"kind": "block",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.9195,
+0.215,
+0.57
+],
+"size_m": [
+0.155,
+0.11,
+0.11
+]
+},
+{
+"product": "matinettes",
+"name": "Jacques Matinettes (stapel)",
+"kind": "block",
+"bay": "L",
+"shelf": 8,
+"center_m": [
+0.9195,
+0.215,
+0.46
+],
+"size_m": [
+0.155,
+0.11,
+0.11
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0505,
+1.855,
+0.3075
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0505,
+1.855,
+0.2325
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0505,
+1.855,
+0.1575
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0505,
+1.855,
+0.0825
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1255,
+1.855,
+0.3075
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1255,
+1.855,
+0.2325
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1255,
+1.855,
+0.1575
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1255,
+1.855,
+0.0825
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2005,
+1.855,
+0.3075
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2005,
+1.855,
+0.2325
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2005,
+1.855,
+0.1575
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "schudde",
+"name": "Bolletje Schuddebuikjes speculaas",
+"kind": "carton",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2005,
+1.855,
+0.0825
+],
+"size_m": [
+0.075,
+0.21,
+0.075
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.283,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.283,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.283,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.363,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.363,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.363,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.443,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.443,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.443,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.523,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.523,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec",
+"name": "Jumbo speculoos pasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.523,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.603,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.603,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.603,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.683,
+1.81,
+0.305
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.683,
+1.81,
+0.225
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_spec_cr",
+"name": "Jumbo speculoos crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.683,
+1.81,
+0.145
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7705,
+1.8175,
+0.3025
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7705,
+1.8175,
+0.2175
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7705,
+1.8175,
+0.1325
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8555,
+1.8175,
+0.3025
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8555,
+1.8175,
+0.2175
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff",
+"name": "Lotus Biscoff creamy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8555,
+1.8175,
+0.1325
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff_cr",
+"name": "Lotus Biscoff crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9405,
+1.8175,
+0.3025
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff_cr",
+"name": "Lotus Biscoff crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9405,
+1.8175,
+0.2175
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "biscoff_cr",
+"name": "Lotus Biscoff crunchy",
+"kind": "jar",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9405,
+1.8175,
+0.1325
+],
+"size_m": [
+0.085,
+0.135,
+0.085
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.053,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.053,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.053,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.053,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.133,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.133,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.133,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.133,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.213,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.213,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.213,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_melk",
+"name": "Jumbo chocopasta melk",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.213,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_puur",
+"name": "Jumbo chocopasta puur",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.298,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_puur",
+"name": "Jumbo chocopasta puur",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.298,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_puur",
+"name": "Jumbo chocopasta puur",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.298,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_puur",
+"name": "Jumbo chocopasta puur",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.298,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.488,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.488,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.488,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.488,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.568,
+1.58,
+0.3426
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.568,
+1.58,
+0.2626
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.568,
+1.58,
+0.1826
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_wit",
+"name": "Jumbo witte chocopasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.568,
+1.58,
+0.1026
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6555,
+1.5825,
+0.3401
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6555,
+1.5825,
+0.2551
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6555,
+1.5825,
+0.1701
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6555,
+1.5825,
+0.0851
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7405,
+1.5825,
+0.3401
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7405,
+1.5825,
+0.2551
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7405,
+1.5825,
+0.1701
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_bio",
+"name": "Jumbo Bio chocopasta hazelnoot",
+"kind": "jar",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7405,
+1.5825,
+0.0851
+],
+"size_m": [
+0.085,
+0.125,
+0.085
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.058,
+1.37,
+0.3169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.058,
+1.37,
+0.2369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.138,
+1.37,
+0.3169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.138,
+1.37,
+0.2369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.318,
+1.37,
+0.3769
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.318,
+1.37,
+0.2969
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.318,
+1.37,
+0.2169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.318,
+1.37,
+0.1369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.398,
+1.37,
+0.3769
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.398,
+1.37,
+0.2969
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.398,
+1.37,
+0.2169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.398,
+1.37,
+0.1369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.478,
+1.37,
+0.3769
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.478,
+1.37,
+0.2969
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.478,
+1.37,
+0.2169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.478,
+1.37,
+0.1369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.558,
+1.37,
+0.3769
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.558,
+1.37,
+0.2969
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.558,
+1.37,
+0.2169
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_hazel",
+"name": "Jumbo hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.558,
+1.37,
+0.1369
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.658,
+1.38,
+0.3619
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.658,
+1.38,
+0.2519
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.658,
+1.38,
+0.1419
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.768,
+1.38,
+0.3619
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.768,
+1.38,
+0.2519
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "jb_duopasta",
+"name": "Jumbo Duo pasta hazelnoot & wit",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.768,
+1.38,
+0.1419
+],
+"size_m": [
+0.11,
+0.14,
+0.11
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.0655,
+1.1775,
+0.3988
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.0655,
+1.1775,
+0.2938
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.0655,
+1.1775,
+0.1888
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.1705,
+1.1775,
+0.3988
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.1705,
+1.1775,
+0.2938
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.1705,
+1.1775,
+0.1888
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_630",
+"name": "Nutella 630 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.273,
+1.1725,
+0.4013
+],
+"size_m": [
+0.1,
+0.145,
+0.1
+]
+},
+{
+"product": "nut_630",
+"name": "Nutella 630 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.273,
+1.1725,
+0.3013
+],
+"size_m": [
+0.1,
+0.145,
+0.1
+]
+},
+{
+"product": "nut_630",
+"name": "Nutella 630 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.273,
+1.1725,
+0.2013
+],
+"size_m": [
+0.1,
+0.145,
+0.1
+]
+},
+{
+"product": "nut_630",
+"name": "Nutella 630 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.273,
+1.1725,
+0.1013
+],
+"size_m": [
+0.1,
+0.145,
+0.1
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.3785,
+1.1775,
+0.3988
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.3785,
+1.1775,
+0.2938
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_750",
+"name": "Nutella 750 g",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.3785,
+1.1775,
+0.1888
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.4835,
+1.1775,
+0.3988
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.4835,
+1.1775,
+0.2938
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.4835,
+1.1775,
+0.1888
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.5885,
+1.1775,
+0.3988
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.5885,
+1.1775,
+0.2938
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_blue",
+"name": "Nutella (blauwe sticker)",
+"kind": "bigjar",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.5885,
+1.1775,
+0.1888
+],
+"size_m": [
+0.105,
+0.155,
+0.105
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.6885,
+1.1475,
+0.4088
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.6885,
+1.1475,
+0.3238
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.6885,
+1.1475,
+0.2388
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.6885,
+1.1475,
+0.1538
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.7735,
+1.1475,
+0.4088
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.7735,
+1.1475,
+0.3238
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.7735,
+1.1475,
+0.2388
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_cup1",
+"name": "Nutella glas (klein)",
+"kind": "cup",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.7735,
+1.1475,
+0.1538
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "nut_box",
+"name": "Nutella cups doos (6 porties)",
+"kind": "box",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.876,
+1.1425,
+0.3963
+],
+"size_m": [
+0.11,
+0.085,
+0.11
+]
+},
+{
+"product": "nut_box",
+"name": "Nutella cups doos (6 porties)",
+"kind": "box",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.876,
+1.2275,
+0.3963
+],
+"size_m": [
+0.11,
+0.085,
+0.11
+]
+},
+{
+"product": "nut_box",
+"name": "Nutella cups doos (6 porties)",
+"kind": "box",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.876,
+1.1425,
+0.2863
+],
+"size_m": [
+0.11,
+0.085,
+0.11
+]
+},
+{
+"product": "nut_box",
+"name": "Nutella cups doos (6 porties)",
+"kind": "box",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.876,
+1.2275,
+0.2863
+],
+"size_m": [
+0.11,
+0.085,
+0.11
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.058,
+0.98,
+0.4407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.058,
+0.98,
+0.3607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.058,
+0.98,
+0.2807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.058,
+0.98,
+0.2007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.058,
+0.98,
+0.1207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.138,
+0.98,
+0.4407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.138,
+0.98,
+0.3607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.138,
+0.98,
+0.2807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.138,
+0.98,
+0.2007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.138,
+0.98,
+0.1207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.278,
+0.98,
+0.4407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.278,
+0.98,
+0.3607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.278,
+0.98,
+0.2807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.278,
+0.98,
+0.2007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.278,
+0.98,
+0.1207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.358,
+0.98,
+0.4407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.358,
+0.98,
+0.3607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.358,
+0.98,
+0.2807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.358,
+0.98,
+0.2007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "nut_400",
+"name": "Nutella 400 g",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.358,
+0.98,
+0.1207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.518,
+0.98,
+0.4207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.518,
+0.98,
+0.3407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.518,
+0.98,
+0.2607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.518,
+0.98,
+0.1807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.518,
+0.98,
+0.1007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.598,
+0.98,
+0.4207
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.598,
+0.98,
+0.3407
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.598,
+0.98,
+0.2607
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.598,
+0.98,
+0.1807
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "bonne",
+"name": "Bonne Maman hazelnootpasta",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.598,
+0.98,
+0.1007
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "sv_dark",
+"name": "So Vegan So Fine (donker)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.718,
+0.97,
+0.4407
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_dark",
+"name": "So Vegan So Fine (donker)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.718,
+0.97,
+0.3607
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_dark",
+"name": "So Vegan So Fine (donker)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.718,
+0.97,
+0.2807
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_dark",
+"name": "So Vegan So Fine (donker)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.718,
+0.97,
+0.2007
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_dark",
+"name": "So Vegan So Fine (donker)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.718,
+0.97,
+0.1207
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_wit",
+"name": "So Vegan So Fine (paars)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.803,
+0.97,
+0.4407
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_wit",
+"name": "So Vegan So Fine (paars)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.803,
+0.97,
+0.3607
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_wit",
+"name": "So Vegan So Fine (paars)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.803,
+0.97,
+0.2807
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_wit",
+"name": "So Vegan So Fine (paars)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.803,
+0.97,
+0.2007
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_wit",
+"name": "So Vegan So Fine (paars)",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.803,
+0.97,
+0.1207
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_pist",
+"name": "So Vegan So Fine pistache",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.888,
+0.97,
+0.4407
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_pist",
+"name": "So Vegan So Fine pistache",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.888,
+0.97,
+0.3607
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_pist",
+"name": "So Vegan So Fine pistache",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.888,
+0.97,
+0.2807
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_pist",
+"name": "So Vegan So Fine pistache",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.888,
+0.97,
+0.2007
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "sv_pist",
+"name": "So Vegan So Fine pistache",
+"kind": "jar",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.888,
+0.97,
+0.1207
+],
+"size_m": [
+0.08,
+0.1,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.053,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.053,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.053,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.053,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.053,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.133,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.133,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.133,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.133,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.133,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.213,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.213,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.213,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.213,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.213,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.293,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.293,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.293,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.293,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.293,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.403,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.403,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.403,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.403,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_van",
+"name": "Duo Penotti hazelnoot & vanille",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.403,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.471
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.396
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.321
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.246
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.171
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5105,
+0.81,
+0.096
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.471
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.396
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.321
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.246
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.171
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.5855,
+0.81,
+0.096
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.471
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.396
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.321
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.246
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.171
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_cream",
+"name": "Duo Penotti (blauwe deksel)",
+"kind": "jar",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.6605,
+0.81,
+0.096
+],
+"size_m": [
+0.075,
+0.12,
+0.075
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.778,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.778,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.778,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.778,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.778,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.858,
+0.82,
+0.4685
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.858,
+0.82,
+0.3885
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.858,
+0.82,
+0.3085
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.858,
+0.82,
+0.2285
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "pen_spec",
+"name": "Duo Penotti & speculoos",
+"kind": "tall",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.858,
+0.82,
+0.1485
+],
+"size_m": [
+0.08,
+0.14,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.4963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.4163
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.3363
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.2563
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.1763
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.068,
+0.64,
+0.0963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.4963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.4163
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.3363
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.2563
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.1763
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.148,
+0.64,
+0.0963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.4963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.4163
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.3363
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.2563
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.1763
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.228,
+0.64,
+0.0963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.4963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.4163
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.3363
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.2563
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.1763
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "hz_spread",
+"name": "Hazelnut spread",
+"kind": "jar",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.318,
+0.64,
+0.0963
+],
+"size_m": [
+0.08,
+0.12,
+0.08
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.4505,
+0.63,
+0.4938
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.4505,
+0.63,
+0.4088
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.4505,
+0.63,
+0.3238
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.4505,
+0.63,
+0.2388
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.4505,
+0.63,
+0.1538
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.5355,
+0.63,
+0.4938
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.5355,
+0.63,
+0.4088
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.5355,
+0.63,
+0.3238
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.5355,
+0.63,
+0.2388
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.5355,
+0.63,
+0.1538
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.6205,
+0.63,
+0.4938
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.6205,
+0.63,
+0.4088
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.6205,
+0.63,
+0.3238
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.6205,
+0.63,
+0.2388
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko",
+"name": "OriNoko",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.6205,
+0.63,
+0.1538
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.7155,
+0.63,
+0.4938
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.7155,
+0.63,
+0.4088
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.7155,
+0.63,
+0.3238
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.7155,
+0.63,
+0.2388
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.7155,
+0.63,
+0.1538
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.8005,
+0.63,
+0.4938
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.8005,
+0.63,
+0.4088
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.8005,
+0.63,
+0.3238
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.8005,
+0.63,
+0.2388
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "orinoko_b",
+"name": "OriNoko (blauwe rand)",
+"kind": "tub",
+"bay": "R",
+"shelf": 7,
+"center_m": [
+1.8005,
+0.63,
+0.1538
+],
+"size_m": [
+0.085,
+0.1,
+0.085
+]
+},
+{
+"product": "jb_rinse",
+"name": "Jumbo rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.053,
+0.42,
+0.529
+],
+"size_m": [
+0.08,
+0.08,
+0.08
+]
+},
+{
+"product": "jb_rinse",
+"name": "Jumbo rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.053,
+0.5,
+0.529
+],
+"size_m": [
+0.08,
+0.08,
+0.08
+]
+},
+{
+"product": "jb_rinse",
+"name": "Jumbo rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.053,
+0.42,
+0.449
+],
+"size_m": [
+0.08,
+0.08,
+0.08
+]
+},
+{
+"product": "jb_rinse",
+"name": "Jumbo rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.053,
+0.5,
+0.449
+],
+"size_m": [
+0.08,
+0.08,
+0.08
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.2715
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.2715
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.1865
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.1865
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.42,
+0.1015
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.1855,
+0.5,
+0.1015
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.2715
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.2715
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.1865
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.1865
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.42,
+0.1015
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_groen",
+"name": "Stroop (groene deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.2705,
+0.5,
+0.1015
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.42,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.5,
+0.5265
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.42,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.5,
+0.4415
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.42,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "cs_rood",
+"name": "Stroop (rode deksel)",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.3555,
+0.5,
+0.3565
+],
+"size_m": [
+0.085,
+0.08,
+0.085
+]
+},
+{
+"product": "frutesse",
+"name": "Frutesse",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.4405,
+0.4275,
+0.5265
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "frutesse",
+"name": "Frutesse",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.4405,
+0.4275,
+0.4415
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "frutesse",
+"name": "Frutesse",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.4405,
+0.4275,
+0.3565
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "timson",
+"name": "Timson rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.5255,
+0.4275,
+0.5265
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "timson",
+"name": "Timson rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.5255,
+0.4275,
+0.4415
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "timson",
+"name": "Timson rinse appelstroop",
+"kind": "tub",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.5255,
+0.4275,
+0.3565
+],
+"size_m": [
+0.085,
+0.095,
+0.085
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.4225,
+0.524
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.5075,
+0.524
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.4225,
+0.434
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.5075,
+0.434
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.4225,
+0.344
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.5075,
+0.344
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.4225,
+0.254
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.5075,
+0.254
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.4225,
+0.164
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.618,
+0.5075,
+0.164
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.4225,
+0.524
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.5075,
+0.524
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.4225,
+0.434
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.5075,
+0.434
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.4225,
+0.344
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.5075,
+0.344
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.4225,
+0.254
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.5075,
+0.254
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.4225,
+0.164
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_geel",
+"name": "Rinse appelstroop (gele blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.708,
+0.5075,
+0.164
+],
+"size_m": [
+0.09,
+0.085,
+0.09
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.4225,
+0.5215
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.5075,
+0.5215
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.4225,
+0.4265
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.5075,
+0.4265
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.4225,
+0.3315
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.5075,
+0.3315
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.4225,
+0.2365
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.5075,
+0.2365
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.4225,
+0.1415
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.8305,
+0.5075,
+0.1415
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.4225,
+0.5215
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.5075,
+0.5215
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.4225,
+0.4265
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.5075,
+0.4265
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.4225,
+0.3315
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.5075,
+0.3315
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.4225,
+0.2365
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.5075,
+0.2365
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.4225,
+0.1415
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "tin_rood",
+"name": "Stroop (rood blik)",
+"kind": "tin",
+"bay": "R",
+"shelf": 8,
+"center_m": [
+1.9255,
+0.5075,
+0.1415
+],
+"size_m": [
+0.095,
+0.085,
+0.095
+]
+},
+{
+"product": "kokos_w",
+"name": "Kokosbrood",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.068,
+0.225,
+0.61
+],
+"size_m": [
+0.11,
+0.13,
+0.03
+]
+},
+{
+"product": "kokos_w",
+"name": "Kokosbrood",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.068,
+0.225,
+0.58
+],
+"size_m": [
+0.11,
+0.13,
+0.03
+]
+},
+{
+"product": "kokos_w",
+"name": "Kokosbrood",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.068,
+0.225,
+0.55
+],
+"size_m": [
+0.11,
+0.13,
+0.03
+]
+},
+{
+"product": "kokos_r",
+"name": "Kokosbrood (rood)",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.178,
+0.2025,
+0.61
+],
+"size_m": [
+0.11,
+0.085,
+0.03
+]
+},
+{
+"product": "kokos_r",
+"name": "Kokosbrood (rood)",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.178,
+0.2025,
+0.58
+],
+"size_m": [
+0.11,
+0.085,
+0.03
+]
+},
+{
+"product": "kokos_r",
+"name": "Kokosbrood (rood)",
+"kind": "bag",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.178,
+0.2025,
+0.55
+],
+"size_m": [
+0.11,
+0.085,
+0.03
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.2,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.298,
+0.28,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.2,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_swirl",
+"name": "Pot fruitstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.368,
+0.28,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.2,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_appel",
+"name": "100% appel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.438,
+0.28,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.59
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.52
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.45
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.38
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.31
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.24
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.17
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.2,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "pot_dadel",
+"name": "100% dadel",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.508,
+0.28,
+0.1
+],
+"size_m": [
+0.07,
+0.08,
+0.07
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.5875
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.5875
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.5125
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.5125
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.4375
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.4375
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.3625
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.3625
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.2875
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.2875
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.2125
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.2125
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2025,
+0.1375
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "jb_bio_st",
+"name": "Jumbo Bio appelstroop",
+"kind": "cup",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6105,
+0.2875,
+0.1375
+],
+"size_m": [
+0.075,
+0.085,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.5875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.5125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.4375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.3625
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.2875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.2125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.6955,
+0.2125,
+0.1375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.5875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.5125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.4375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.3625
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.2875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.2125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.7705,
+0.2125,
+0.1375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.5875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.5125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.4375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.3625
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.2875
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.2125
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "hero",
+"name": "Hero appelstroop",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.8455,
+0.2125,
+0.1375
+],
+"size_m": [
+0.075,
+0.105,
+0.075
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.595
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.595
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.535
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.535
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.475
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.475
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.415
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.415
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.355
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.355
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.295
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.295
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.235
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.235
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.175
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.175
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.2075,
+0.115
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+},
+{
+"product": "marmite",
+"name": "Marmite",
+"kind": "jar",
+"bay": "R",
+"shelf": 9,
+"center_m": [
+1.943,
+0.3025,
+0.115
+],
+"size_m": [
+0.06,
+0.095,
+0.06
+]
+}
+]
+}

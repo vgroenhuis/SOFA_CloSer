@@ -194,7 +194,7 @@ function sceneCard(scene) {
 // Groups open or closed as this browser last left them; Playground and
 // Archive start closed (not part of the current CloSer work).
 // The most extensive simulations first.
-const GROUP_ORDER = ["stocking", "closer", "finger", "gripper", "pneumatics", "playground", "archive", "other"];
+const GROUP_ORDER = ["stocking", "closer", "gripper", "finger", "pneumatics", "playground", "archive", "other"];
 const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
 // Within a group, the most extensive first: a series' latest version
 // (Gripper 7, 6, 5, ...; Finger 10 before Finger 9), the rest by title.

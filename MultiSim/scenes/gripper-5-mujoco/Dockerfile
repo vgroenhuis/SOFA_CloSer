@@ -3,7 +3,7 @@
 # describes its telemetry, parameters and controls for the web viewer.
 FROM msd-sofa-base
 
-RUN pip3 install --no-cache-dir "mujoco>=3.3"
+RUN pip3 install --no-cache-dir "mujoco==4.0.1"
 
 WORKDIR /app
 COPY original/ ./original/

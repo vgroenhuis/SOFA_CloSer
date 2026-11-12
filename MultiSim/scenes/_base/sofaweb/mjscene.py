@@ -78,6 +78,25 @@ class MjVisual:
         return self._path
 
 
+class MjDynamicVisual(MjVisual):
+    """A mesh whose points the scene computes each frame (a deformable item: a MuJoCo flex, strings between
+    bodies): `compute(data)` -> world positions (n x 3). `points` are the same points at rest, the frame a texture
+    or a label is mapped in (they move with the material)."""
+
+    def __init__(self, scene: "MjScene", path: str, compute: Callable, points, triangles, **kwargs) -> None:
+        super().__init__(scene, path, points, triangles, 0, **kwargs)
+        self._compute = compute
+        self._time: Optional[float] = None
+
+    @property
+    def position(self) -> Value:
+        t = float(self._scene.data.time)
+        if self._cached is None or self._time != t:
+            self._time = t
+            self._cached = Value(np.asarray(self._compute(self._scene.data), dtype=np.float64).reshape(-1, 3))
+        return self._cached
+
+
 class VisualRecord:
     def __init__(self, obj: MjVisual, color: list[float], line_width: float = 1.0) -> None:
         self.obj, self.color, self.line_width = obj, color, line_width
@@ -120,6 +139,17 @@ class MjScene:
         visual = MjVisual(self, path, points, triangles, bodies, texture, texture_scale, label, image, uv)
         if visual.uv is not None and len(visual.uv) != len(visual.local):
             raise ValueError(f"add_visual({path!r}): {len(visual.uv)} texture coordinates for {len(visual.local)} points")
+        rgba = list(color) + [1.0] * (4 - len(color))
+        self.visuals.append(VisualRecord(visual, [float(c) for c in rgba[:4]]))
+        return visual
+
+    def add_dynamic_visual(self, path: str, compute: Callable, points, triangles, color=(1.0, 1.0, 1.0, 1.0),
+                           texture: Optional[str] = None, texture_scale: Optional[float] = None,
+                           label: Optional[dict] = None) -> MjDynamicVisual:
+        """A mesh that deforms: `compute(data)` gives its points' world positions each frame (see MjDynamicVisual);
+        `points` are where they are at rest (for the texture and the label)."""
+        visual = MjDynamicVisual(self, path, compute, points, triangles, texture=texture, texture_scale=texture_scale,
+                                 label=label)
         rgba = list(color) + [1.0] * (4 - len(color))
         self.visuals.append(VisualRecord(visual, [float(c) for c in rgba[:4]]))
         return visual

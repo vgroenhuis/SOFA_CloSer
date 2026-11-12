@@ -1,0 +1,36 @@
+{
+  "_about": [
+    "Placeholder physics for the Hagelslag shelf's packages (hagelslag_shelf/placements.json): estimates, not measured.",
+    "A package's mass = density x the volume of its bounding box (placements.json's size_m), so a bigger package of a",
+    "kind weighs more. 'density' is in kg per litre of that box: the contents and the packaging, divided by the box.",
+    "'friction' is MuJoCo's sliding friction coefficient. MuJoCo takes the larger of the two touching surfaces' values,",
+    "so the gripper's own friction (the scene's 'friction' parameter, 0.8) decides grasps; these decide how packages",
+    "slide on the shelf and on each other.",
+    "'shape' is the collision shape: 'box' (placements.json's box; a bag's untilted box) or 'cylinder' (upright, its",
+    "diameter the smaller of the box's width and depth).",
+    "'products' overrides a kind's values for one product (its id in placements.json), e.g.",
+    "  \"nut_750\": {\"mass\": 1.05, \"friction\": 0.35}   (mass in kg)",
+    "'fixtures': the friction of the shelf's parts (shelf.glb's fx_* nodes)."
+  ],
+  "kinds": {
+    "box":    {"density": 0.40, "friction": 0.50, "shape": "box",      "_note": "hagelslag, vlokken: cardboard"},
+    "carton": {"density": 0.15, "friction": 0.50, "shape": "box",      "_note": "Schuddebuikjes: cardboard, gable top ignored"},
+    "block":  {"density": 0.08, "friction": 0.40, "shape": "box",      "_note": "Matinettes stack: film-wrapped"},
+    "bag":    {"density": 0.50, "friction": 0.40, "shape": "box",      "_note": "kokosbrood, korrels: plastic film"},
+    "jar":    {"density": 0.78, "friction": 0.40, "shape": "cylinder", "_note": "350-400 g spread + glass"},
+    "bigjar": {"density": 0.60, "friction": 0.40, "shape": "cylinder", "_note": "Nutella 630/750 g: glass"},
+    "tall":   {"density": 0.60, "friction": 0.35, "shape": "cylinder", "_note": "Penotti duo: plastic"},
+    "cup":    {"density": 0.75, "friction": 0.40, "shape": "cylinder", "_note": "small glass pots"},
+    "tub":    {"density": 0.85, "friction": 0.35, "shape": "cylinder", "_note": "stroop: plastic tub"},
+    "tin":    {"density": 0.80, "friction": 0.30, "shape": "cylinder", "_note": "stroop: metal tin"}
+  },
+  "products": {},
+  "fixtures": {
+    "wire": 0.30,
+    "glass": 0.20,
+    "panel": 0.40,
+    "rail": 0.30
+  },
+  "clearance_mm": 1.0,
+  "_clearance": "each package's collision shape is this much smaller than its box (half on each side), so neighbours don't start touching"
+}
