@@ -21,7 +21,13 @@
 //    and turn buttons (keys , and .): deadman sliders, sent again while held,
 //    zero when let go.
 //  - `reach`: a scalar that is 0 while the target can't be reached (the
-//    marker turns red).
+//    marker turns red). Grabbing the end-effector then first puts the target
+//    where the end-effector is (the scene's scalars of the same names as the
+//    position and rotation controls: its actual pose), so dragging moves it
+//    at once instead of the far-away target.
+//  - Home (key H): the target back to its controls' defaults; with `home`
+//    (a button control) the scene does it itself (e.g. an arm going back to
+//    its start configuration in joint space, whatever pose it's stuck in).
 //  - `pick`: one click (or tap) on a model it names (e.g. a grocery item)
 //    sends the clicked point to its x, y, z controls and presses its `go`
 //    button (the scene acts on what's there, e.g. stocks the item); a
@@ -181,6 +187,8 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	const levelBtn = rotKeys.length === 3 ? button("⤓ Point down", spec.levelTitle || "No roll or pitch: the gripper points straight down (keeps its yaw)", () => {
 		setValues({ [rotKeys[0]]: 0, [rotKeys[1]]: 0 });
 	}) : null;
+	const homeKey = spec.home && byKey.get(spec.home)?.type === "button" ? spec.home : null;
+	const homeBtn = button("⌂ Home", spec.homeTitle || "Back to the start pose (keyboard: H)", goHome);
 	const gripBtn = grip ? button(grip.label || "Grip", "Close the fingers / let go (keyboard: Space)", toggleGrip, "") : null;
 	// The scene's own buttons (button controls, e.g. a repair): one press each.
 	for (const b of spec.buttons || []) {
@@ -194,7 +202,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	const reachNote = document.createElement("span");
 	reachNote.className = "manip-reach hidden";
 	reachNote.textContent = "Out of reach";
-	reachNote.title = "The arm can't reach the target: the gripper waits where it got to (the red dot is the target)";
+	reachNote.title = "The arm can't reach the target: the gripper waits where it got to (the red dot is the target). Drag the gripper to go on from where it is, or press Home.";
 	bar.appendChild(reachNote);
 	const helpBtn = button("?", "How to steer the gripper", () => hint.classList.toggle("hidden"));
 	helpBtn.classList.add("manip-help");
@@ -203,7 +211,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	hint.className = "panel owner-only hidden";
 	hint.innerHTML = coarse
 		? "<b>Drag the gripper</b> with a finger to move it over the floor; with <b>↕ Height</b> on, up and down (or use the slider on the left). <b>Double-tap</b> a spot: the gripper goes above it. <b>✥ Axes</b> and <b>⟳ Turn</b> show a gizmo: drag its arrows to move along an axis, its rings to turn. Drag anywhere else to turn the view, pinch to zoom. The orange dot is where the gripper is heading."
-		: "<b>Drag the gripper</b> to move it over the floor, <b>Shift-drag</b> to move it up and down. <b>Double-click</b> a spot: the gripper goes above it. <b>✥ Axes</b> and <b>⟳ Turn</b> show a gizmo: its arrows and squares move it, its rings turn it. Keys: <b>arrows / WASD</b> move (as seen from the camera), <b>R / F</b> up / down, <b>Q / E</b> turn, <b>Space</b> grip, <b>T</b> next mode. The orange dot is where the gripper is heading.";
+		: "<b>Drag the gripper</b> to move it over the floor, <b>Shift-drag</b> to move it up and down. <b>Double-click</b> a spot: the gripper goes above it. <b>✥ Axes</b> and <b>⟳ Turn</b> show a gizmo: its arrows and squares move it, its rings turn it. Keys: <b>arrows / WASD</b> move (as seen from the camera), <b>R / F</b> up / down, <b>Q / E</b> turn, <b>Space</b> grip, <b>T</b> next mode, <b>H</b> home. The orange dot is where the gripper is heading.";
 	const height = document.createElement("div");
 	height.id = "manip-height";
 	height.className = "panel owner-only hidden";
@@ -304,6 +312,42 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		marker.visible = usable;
 	}
 
+	// Home: the position and rotation controls' defaults. A scene with its own home button moves there itself
+	// and reports the new targets in its status (its control sync).
+	function goHome() {
+		if (!usable) return;
+		const defaults = {};
+		for (const key of [...posKeys, ...rotKeys]) {
+			const c = byKey.get(key);
+			if (c) defaults[key] = clampValue(key, Number(c.default ?? 0));
+		}
+		if (!homeKey) {
+			setValues(defaults);
+			return;
+		}
+		// (the scene's home can differ from the defaults, e.g. raised with the arm: its status brings the targets)
+		sentAt.clear();
+		pending = null;
+		ctx.post({ [homeKey]: null });
+		homeBtn.classList.add("active");
+		setTimeout(() => homeBtn.classList.remove("active"), 200);
+	}
+
+	function outOfReach() {
+		if (!spec.reach) return false;
+		const r = Number((ctx.scalars() || {})[spec.reach]);
+		return Number.isFinite(r) && r < 0.5;
+	}
+
+	// The target to where the end-effector actually is (its pose in the scene's scalars), e.g. when it's stuck
+	// short of an unreachable target.
+	function targetToActual() {
+		const sc = ctx.scalars() || {};
+		const changes = {};
+		for (const key of [...posKeys, ...rotKeys]) if (Number.isFinite(Number(sc[key]))) changes[key] = Number(sc[key]);
+		setValues(changes);
+	}
+
 	function gripOn() {
 		return grip && values[grip.key] > (Number(grip.on) + Number(grip.off ?? 0)) / 2;
 	}
@@ -361,9 +405,11 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		if (!usable || drag || (event.pointerType === "mouse" && event.button !== 0)) return;
 		toNdc(event);
 		if (overGizmo()) return; // the gizmo's own drag
-		const target = proxy.getWorldPosition(new THREE.Vector3());
 		const found = raycaster.intersectObjects(meshes(true), false)[0];
 		if (!found) return;
+		// Stuck short of an unreachable target: go on from where the end-effector is, not from the far target.
+		if (outOfReach()) targetToActual();
+		const target = proxy.getWorldPosition(new THREE.Vector3());
 		event.stopPropagation(); // not a camera move
 		event.preventDefault();
 		const orbit = ctx.orbit();
@@ -501,6 +547,8 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		} else if (key === " " && grip && !event.repeat) {
 			toggleGrip();
 			event.preventDefault();
+		} else if (key === "h" && !event.repeat) {
+			goHome();
 		} else if (key === "t" && !event.repeat) {
 			const modes = ["drag", "translate", ...(turnBtn ? ["rotate"] : [])];
 			setMode(modes[(modes.indexOf(mode) + 1) % modes.length]);
@@ -612,8 +660,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 		gizmo.camera = ctx.camera();
 		placeFrame();
 		if (spec.reach) {
-			const r = Number((ctx.scalars() || {})[spec.reach]);
-			const out = Number.isFinite(r) && r < 0.5;
+			const out = outOfReach();
 			marker.material.color.setHex(out ? 0xe02424 : 0xff8a1f);
 			reachNote.classList.toggle("hidden", !out);
 		}

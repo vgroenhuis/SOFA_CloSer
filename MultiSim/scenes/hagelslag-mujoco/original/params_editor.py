@@ -76,6 +76,8 @@ _DEFAULTS = {
     # -- the arm [mm], UR-like (at zero all links point up; the tool points along the shoulder axis) --
     'arm_mount_x': 250.0,        # where it stands on the platform (UR-like arm): forward of the platform's centre
     'arm_mount_y': 120.0,        #   and to the left (towards the shelves at the start)
+    'arm_column': 0.0,           # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
+                                 # start pose) to reach high shelves; 0: on its 50 mm pedestal
     'arm_base_height': 160.0,    # base joint to shoulder joint
     'arm_shoulder_offset': 135.0,  # sideways
     'arm_upper': 450.0,          # shoulder to elbow
@@ -246,6 +248,7 @@ _FIELDS = [
     ('Gripper plate and adapter mass',         'flange_mass',         1, 3, 'kg'),
     ('Arm: base, forward of the platform centre', 'arm_mount_x',      1, 0, 'mm'),
     ('Arm: base, left of the platform centre', 'arm_mount_y',         1, 0, 'mm'),
+    ('Arm: column under its base (raises the arm)', 'arm_column',     1, 0, 'mm'),
     ('Arm: base joint to shoulder',            'arm_base_height',     1, 0, 'mm'),
     ('Arm: shoulder offset (sideways)',        'arm_shoulder_offset', 1, 0, 'mm'),
     ('Arm: upper arm (shoulder to elbow)',     'arm_upper',           1, 0, 'mm'),

@@ -27,7 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.requests import HTTPConnection
 
-from . import auth, catalog, config
+from . import auth, catalog, config, runs
 from .catalog import Scene
 if config.BACKEND == "docker":
     from .docker_mgr import DockerManager as Manager
@@ -57,6 +57,8 @@ class State:
     # crashed one.
     busy: set[str]
     login_limiter = auth.RateLimiter(max_events=5, window_seconds=300)
+    # One run saved at a time (an export holds the whole recording in memory).
+    save_lock: asyncio.Lock
     reclaim_limiter = auth.RateLimiter(max_events=20, window_seconds=300)
 
 
@@ -403,6 +405,7 @@ async def lifespan(app: FastAPI):
     S.proxy = SimProxy()
     S.secret = config.load_secret_key()
     S.claim_lock = asyncio.Lock()
+    S.save_lock = asyncio.Lock()
     S.busy = set()
     await asyncio.to_thread(S.backend.ensure_network)
     if not config.ADMIN_PASSWORD:
@@ -447,6 +450,14 @@ async def page_lobby() -> HTMLResponse:
 @app.get("/view/{sim_id}", include_in_schema=False)
 async def page_view(sim_id: str) -> HTMLResponse:
     return page("view.html")
+
+
+@app.get("/run/{token}", include_in_schema=False)
+async def page_run(token: str) -> HTMLResponse:
+    path = runs.path_of(token)
+    if path is None or S.store.get_run(token) is None or not path.is_file():
+        return HTMLResponse("<!doctype html><title>Not found</title><p>No such saved run.</p>", status_code=404)
+    return page("run.html")
 
 
 @app.get("/admin", include_in_schema=False)
@@ -687,6 +698,139 @@ async def api_reclaim(body: ReclaimRequest, request: Request) -> JSONResponse:
 
 
 # -- admin API -------------------------------------------------------------
+
+
+# -- saved runs --------------------------------------------------------------
+
+
+class SaveRunRequest(BaseModel):
+    name: str = Field(default="", max_length=120)
+    # The view when saved, for the lobby: a JPEG data URL (the viewer's canvas).
+    thumbnail: Optional[str] = Field(default=None, max_length=600_000)
+
+
+class RunUpdateRequest(BaseModel):
+    name: Optional[str] = Field(default=None, max_length=120)
+    level: Optional[Literal["public", "private", "admin"]] = None
+
+
+def run_info(run: dict, admin: bool = False) -> dict:
+    scene = catalog.get_scene(run["scene_id"])
+    info = {
+        "token": run["token"],
+        "path": f"run/{run['token']}",
+        "sceneId": run["scene_id"],
+        "sceneTitle": run["scene_title"],
+        "group": scene_groups().get(run["scene_id"], "other") if scene else "other",
+        "name": run["name"],
+        "ownerName": run["owner_name"],
+        "createdAt": run["created_at"],
+        "simTime": run["sim_time"],
+        "frames": run["frames"],
+        "bytes": run["bytes"],
+        "visibility": run["level"],
+        "thumbnail": f"run/{run['token']}/thumbnail.jpg" if runs.has_thumbnail(run["token"])
+        else (f"scenes/{run['scene_id']}/thumbnail" if scene and scene.thumbnail else None),
+    }
+    if admin:
+        info["simId"] = run["sim_id"]
+    return info
+
+
+@app.post("/api/sims/{sim_id}/runs")
+async def api_save_run(sim_id: str, body: SaveRunRequest, request: Request) -> dict:
+    """Keeps the owner's stopped run for playback at run/<token> (see runs.py)."""
+    sim = get_visible_sim_or_404(request, sim_id)
+    require_owner(request, sim)
+    if sim.status != "running":
+        raise api_error(409, "The simulation isn't running.")
+    if S.save_lock.locked():
+        raise api_error(429, "Another run is being saved; try again in a moment.")
+    async with S.save_lock:
+        try:
+            response = await S.proxy.fetch(upstream_base(sim) + "/api/export", timeout=900.0)
+        except Exception as exc:
+            log.warning("Exporting the run of %s failed: %s", sim.id, exc)
+            raise api_error(502, "The simulation didn't hand over its run.")
+        if response.status_code == 409:
+            message = (response.json().get("detail") or {}).get("message", "Stop the simulation first.")
+            raise api_error(409, message)
+        if response.status_code != 200:
+            raise api_error(502, f"The simulation couldn't export its run ({response.status_code}).")
+        data = response.content
+        try:
+            meta = await asyncio.to_thread(runs.check_bundle, data)
+        except ValueError as exc:
+            raise api_error(502, f"The exported run isn't usable: {exc}.")
+        token = runs.new_token()
+        await asyncio.to_thread(runs.store_bundle, token, data)
+        if body.thumbnail:
+            await asyncio.to_thread(runs.store_thumbnail, token, body.thumbnail)
+    scene = catalog.get_scene(sim.scene_id)
+    run = {
+        "token": token,
+        "scene_id": sim.scene_id,
+        "scene_title": scene.title if scene else meta.get("title", sim.scene_id),
+        "name": body.name.strip(),
+        "owner_name": sim.owner_name,
+        "level": scene_levels().get(sim.scene_id, "public"),
+        "created_at": time.time(),
+        "sim_time": float(meta.get("simTime") or 0.0),
+        "frames": int(meta.get("frames") or 0),
+        "bytes": len(data),
+        "sim_id": sim.id,
+    }
+    S.store.insert_run(run)
+    S.store.log("run_saved", sim.id, f"{token} ({len(data) >> 10} kB, {run['sim_time']:.1f} s)")
+    return run_info(run)
+
+
+@app.get("/api/runs")
+async def api_runs(request: Request) -> list[dict]:
+    """The saved runs the lobby lists: those of a level the visitor may see."""
+    admin = is_admin(request)
+    return [run_info(r, admin) for r in S.store.list_runs() if may_see_level(request, r["level"])]
+
+
+@app.get("/api/runs/{token}")
+async def api_run(token: str, request: Request) -> dict:
+    """One run, for its page: anyone with the token (it's the share link)."""
+    run = S.store.get_run(token) if runs.TOKEN.match(token) else None
+    if run is None:
+        raise api_error(404, "No such saved run.")
+    return {**run_info(run, is_admin(request)), "admin": is_admin(request)}
+
+
+@app.api_route("/run/{token}/v/{path:path}", methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"],
+               include_in_schema=False)
+async def run_http(token: str, path: str, request: Request) -> Response:
+    if not runs.TOKEN.match(token) or S.store.get_run(token) is None:
+        return Response("No such saved run.", status_code=404, media_type="text/plain")
+    if request.method not in ("GET", "HEAD"):
+        return JSONResponse({"detail": {"message": "A saved run only plays back."}}, status_code=403)
+    return await runs.serve(token, path, dict(request.query_params))
+
+
+@app.get("/run/{token}/thumbnail.jpg", include_in_schema=False)
+async def run_thumbnail(token: str) -> Response:
+    path = runs.thumbnail_path(token)
+    if path is None or not path.is_file():
+        return Response(status_code=404)
+    return FileResponse(path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.get("/run/{token}/v", include_in_schema=False)
+async def run_root_redirect(token: str, request: Request) -> RedirectResponse:
+    target = f"{config.BASE_PATH}run/{token}/v/" + (f"?{request.url.query}" if request.url.query else "")
+    return RedirectResponse(target, status_code=307)
+
+
+@app.websocket("/run/{token}/v/ws/sim")
+async def run_ws(websocket: WebSocket, token: str) -> None:
+    if not runs.TOKEN.match(token) or S.store.get_run(token) is None:
+        await websocket.close(code=1008)
+        return
+    await runs.websocket(websocket, token)
 
 
 def require_admin(request: Request) -> None:
@@ -1010,6 +1154,23 @@ async def admin_set_visibility(scene_id: str, body: VisibilityRequest) -> dict:
     return {"ok": True, "visibility": body.visibility}
 
 
+@app.put("/admin/api/runs/{token}", dependencies=[Depends(require_admin)])
+async def admin_update_run(token: str, body: RunUpdateRequest) -> dict:
+    changes = {k: v for k, v in (("name", body.name), ("level", body.level)) if v is not None}
+    if not S.store.update_run(token, **changes):
+        raise api_error(404, "No such saved run.")
+    return run_info(S.store.get_run(token), admin=True)
+
+
+@app.delete("/admin/api/runs/{token}", dependencies=[Depends(require_admin)])
+async def admin_delete_run(token: str) -> dict:
+    if not runs.TOKEN.match(token) or not S.store.delete_run(token):
+        raise api_error(404, "No such saved run.")
+    await asyncio.to_thread(runs.remove_bundle, token)
+    S.store.log("run_deleted", "", token)
+    return {"ok": True}
+
+
 @app.post("/admin/api/scenes/{scene_id}/build", dependencies=[Depends(require_admin)])
 async def admin_build_scene(scene_id: str) -> dict:
     scene = catalog.get_scene(scene_id)
@@ -1050,6 +1211,9 @@ async def sim_http(sim_id: str, path: str, request: Request) -> Response:
             sim_id, path, h.get("upgrade"), h.get("connection"), "sec-websocket-key" in h,
             h.get("via"), h.get("x-forwarded-for"), h.get("x-forwarded-proto"), h.get("host"), h.get("x-orig-upgrade"),
         )
+    if posixpath.normpath("/" + path).lower() == "/api/export":
+        # The whole run, for "Save run" (POST api/sims/<id>/runs): the orchestrator's alone.
+        raise api_error(403, "Save the run with Save run.")
     if request.method not in READ_ONLY_METHODS:
         if posixpath.normpath("/" + path).lower() == "/api/defaults":
             # Only the orchestrator itself hands defaults to a container

@@ -118,6 +118,8 @@ _DEFAULT_PARAMS = {
     # -- the arm [mm], UR-like (at zero all links point up; the tool points along the shoulder axis) --
     'arm_mount_x': 250.0,        # where it stands on the platform: forward of the platform's centre
     'arm_mount_y': 120.0,        #   and to the left (towards the shelves at the start)
+    'arm_column': 0.0,           # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
+                                 # start pose) to reach high shelves; 0: on its 50 mm pedestal
     'arm_base_height': 160.0,    # base joint to shoulder joint
     'arm_shoulder_offset': 135.0,  # sideways
     'arm_upper': 450.0,          # shoulder to elbow
@@ -898,9 +900,27 @@ class ArmController:
         self.reachable = True
         self.elapsed = 0.0
         self.period = 1.0 / max(rate, 1.0)
+        self.q_home, self.home = None, None
+        self._reconf = None  # (from, to, elapsed, duration, goal position, goal quaternion): a move in joint space  # (set once built: the start configuration, the start pose)
 
     def __call__(self, scene, h):
         self.elapsed += h
+        if self._reconf is not None:  # going to a fresh solution in joint space
+            q_from, q_to, t, dur, goal, gq = self._reconf
+            t += h
+            f = min(1.0, t / dur)
+            f = f * f * (3 - 2 * f)
+            scene.data.ctrl[self.actuators] = q_from + (q_to - q_from) * f
+            self._reconf = (q_from, q_to, t, dur, goal, gq)
+            self.reachable = True
+            if t >= dur:
+                self._reconf = None
+                self.q_prev = self.q_next = q_to.copy()
+                m = self.motion
+                m.position, m.quat = [float(c) for c in goal], np.array(gq, float)
+                m.velocity, m.omega = [0.0, 0.0, 0.0], 0.0
+                self.good = (list(m.position), m.quat.copy())
+            return
         if self.elapsed >= self.period - 1e-9:
             self.elapsed = 0.0
             q = self.ik.solve(self.motion.position, self.motion.quat, self.q_next)
@@ -917,8 +937,23 @@ class ArmController:
         frac = min(1.0, self.elapsed / self.period)
         scene.data.ctrl[self.actuators] = self.q_prev + (self.q_next - self.q_prev) * frac
 
+    def go_home(self):
+        """Home (the viewer's Home button): the target back to its start pose and the arm there in joint space, to its
+        start configuration -- from whatever pose it's in (stuck short of an unreachable target, a straight path back
+        can be out of reach too)."""
+        if self.q_home is None or self.home is None:
+            return
+        pos, quat = self.home
+        m = self.motion
+        m.targetX, m.targetY, m.targetZ = (float(c) for c in pos)
+        m.roll = m.pitch = m.yaw = 0.0
+        span = float(np.max(np.abs(self.q_home - self.q_next)))
+        self._reconf = (self.q_next.copy(), self.q_home.copy(), 0.0, max(0.5, span / 0.8),
+                        np.array(pos, dtype=np.float64), np.array(quat, dtype=np.float64))
+
     def hold(self, scene, qpos):
         """Back on its current solution (Repair): the joints at it, at rest."""
+        self._reconf = None
         self.q_prev = self.q_next.copy()
         scene.data.ctrl[self.actuators] = self.q_next
         scene.data.qpos[qpos] = self.q_next
@@ -1185,7 +1220,8 @@ def createScene():
     mount = np.array([float(P['arm_mount_x']) * MM, float(P['arm_mount_y']) * MM, PH])
     A = {k: max(float(P[f'arm_{k}']), 1.0) * MM for k in ('base_height', 'shoulder_offset', 'upper', 'elbow_offset',
                                                            'fore', 'wrist1', 'wrist2', 'wrist3')}
-    pedestal = 0.05
+    column = max(float(P.get('arm_column', 0.0)), 0.0) * MM  # (a column under the arm: its pedestal, taller)
+    pedestal = 0.05 + column
 
     finger_bits = 'contype="2" conaffinity="3"' if P['finger_collisions'] else 'contype="2" conaffinity="1"'
     other_bits = 'contype="1" conaffinity="3"'
@@ -1677,7 +1713,7 @@ def createScene():
     arm_qpos = [int(model.jnt_qposadr[jnt(n)]) for n in arm_joints]
     arm_dofs = [int(model.jnt_dofadr[jnt(n)]) for n in arm_joints]
     ik = ArmIK(ik_model, limits)
-    tcp_start = np.array([c * MM for c in TCP_START])
+    tcp_start = np.array([c * MM for c in TCP_START]) + np.array([0.0, 0.0, column])  # (raised with the arm)
     q0 = ik.home(tcp_start, euler_to_quat(0.0, 0.0, 0.0))
     if q0 is None:
         raise RuntimeError("the arm can't reach its start pose: check the arm's dimensions and TCP_START")
@@ -1691,6 +1727,7 @@ def createScene():
                               angular_speed=math.radians(float(P['angular_speed'])))
     arm = ArmController(motion, ik, [act(n) for n in arm_joints], q0, rate=float(P['ik_rate']),
                         max_jump=math.radians(float(P['ik_max_jump'])))
+    arm.q_home, arm.home = np.array(q0, dtype=np.float64), (tcp_start.copy(), euler_to_quat(0.0, 0.0, 0.0))
     drive = DriveController([act('drive_x'), act('drive_y'), act('drive_yaw')],
                             [int(model.jnt_qposadr[jnt(n)]) for n in ('base_x', 'base_y', 'base_yaw')],
                             lead=(2 * math.sqrt(m_total / kp_lin), 2 * math.sqrt(i_total / kp_yaw)), speed=float(P['drive_speed']), acceleration=float(P['drive_acceleration']),

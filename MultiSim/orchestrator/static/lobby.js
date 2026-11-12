@@ -1,4 +1,4 @@
-import { api, el, fmtTime, now, openModal, syncClock } from "./common.js";
+import { api, copyText, el, fmtTime, now, openModal, syncClock } from "./common.js";
 
 // One collapsible group per scene.json "group" (CloSer project, Playground, ...).
 const sceneGroups = document.getElementById("scene-groups");
@@ -194,7 +194,7 @@ function sceneCard(scene) {
 // Groups open or closed as this browser last left them; Playground and
 // Archive start closed (not part of the current CloSer work).
 // The most extensive simulations first.
-const GROUP_ORDER = ["stocking", "closer", "gripper", "finger", "pneumatics", "playground", "archive", "other"];
+const GROUP_ORDER = ["realshelves", "stocking", "closer", "gripper", "finger", "pneumatics", "playground", "archive", "other"];
 const GROUPS_CLOSED_BY_DEFAULT = new Set(["playground", "archive"]);
 // Within a group, the most extensive first: a series' latest version
 // (Gripper 7, 6, 5, ...; Finger 10 before Finger 9), the rest by title.
@@ -294,6 +294,116 @@ if (fragment.get("reclaim")) {
 	reclaim(key);
 }
 
+// -- saved runs: played back at run/<token>, listed per visibility level ----
+
+const runsSection = document.getElementById("runs-section");
+const runsList = document.getElementById("runs-list");
+const runsMore = document.getElementById("runs-more");
+const RUNS_SHOWN = 8; // the newest; "Show all" for the rest
+let runs = [];
+let runsAll = false;
+let isAdmin = false;
+
+function fmtDate(epoch) {
+	return new Date(epoch * 1000).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+}
+
+function fmtSize(bytes) {
+	return bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} kB`;
+}
+
+function runCard(run) {
+	const href = run.path;
+	const title = run.name || run.sceneTitle;
+	const share = el("button", {
+		class: "secondary small",
+		title: "Copy this run's link",
+		onclick: async (event) => {
+			const ok = await copyText(new URL(href, document.baseURI).href);
+			event.target.textContent = ok ? "Copied" : "Copy failed";
+			setTimeout(() => (event.target.textContent = "Copy link"), 2500);
+		},
+	}, "Copy link");
+	const actions = [el("a", { class: "button small", href }, "Play back"), share];
+	if (isAdmin) {
+		const level = el("select", { class: "small", title: "Who sees this run in the lobby (anyone with the link can watch it)" },
+			["public", "private", "admin"].map((v) => el("option", { value: v, selected: v === run.visibility }, v === "admin" ? "admin only" : v)));
+		level.addEventListener("change", async () => {
+			try {
+				await api(`admin/api/runs/${run.token}`, { method: "PUT", body: { level: level.value } });
+				await loadRuns();
+			} catch (err) {
+				alert(err.message);
+			}
+		});
+		actions.push(
+			level,
+			el("button", {
+				class: "secondary small",
+				onclick: async () => {
+					const name = prompt("Name of this saved run:", run.name || "");
+					if (name === null) return;
+					try {
+						await api(`admin/api/runs/${run.token}`, { method: "PUT", body: { name: name.trim() } });
+						await loadRuns();
+					} catch (err) {
+						alert(err.message);
+					}
+				},
+			}, "Rename"),
+			el("button", {
+				class: "danger small",
+				onclick: async () => {
+					if (!confirm(`Delete the saved run "${title}"? Its link stops working.`)) return;
+					try {
+						await api(`admin/api/runs/${run.token}`, { method: "DELETE" });
+						await loadRuns();
+					} catch (err) {
+						alert(err.message);
+					}
+				},
+			}, "Delete")
+		);
+	}
+	const meta = [run.name ? run.sceneTitle : null, `${run.simTime.toFixed(1)} s`, fmtDate(run.createdAt), run.ownerName ? `by ${run.ownerName}` : null]
+		.filter(Boolean).join(" · ");
+	return el(
+		"div",
+		{ class: "card scene-card run-card" },
+		el("a", { class: "scene-thumb", href, title: `Play back "${title}"`, style: run.thumbnail ? { backgroundImage: `url("${run.thumbnail}")` } : {} }),
+		el(
+			"div",
+			{ class: "scene-body" },
+			el("h3", {}, title, visibilityBadge(run.visibility)),
+			el("p", {}, meta, isAdmin ? el("span", { class: "muted" }, ` · ${fmtSize(run.bytes)}`) : null),
+			el("div", { class: "actions" }, actions)
+		)
+	);
+}
+
+function renderRuns() {
+	runsSection.classList.toggle("hidden", !runs.length);
+	const shown = runsAll ? runs : runs.slice(0, RUNS_SHOWN);
+	runsList.replaceChildren(...shown.map(runCard));
+	runsMore.classList.toggle("hidden", runs.length <= RUNS_SHOWN);
+	runsMore.textContent = runsAll ? "Show fewer" : `Show all ${runs.length} saved runs`;
+}
+runsMore.addEventListener("click", () => {
+	runsAll = !runsAll;
+	renderRuns();
+});
+
+async function loadRuns() {
+	try {
+		const [list, session] = await Promise.all([api("api/runs"), api("api/admin-session").catch(() => ({ admin: false }))]);
+		runs = list;
+		isAdmin = !!session.admin;
+	} catch {
+		runs = [];
+	}
+	renderRuns();
+}
+
 // -- private scenes: unlocked per browser with the access password --------
 
 const accessSection = document.getElementById("access-section");
@@ -315,6 +425,7 @@ async function reloadAll() {
 	}
 	await refresh();
 	renderScenes();
+	await loadRuns();
 }
 
 document.getElementById("access-form").addEventListener("submit", async (event) => {
@@ -365,7 +476,9 @@ async function init() {
 	}
 	await refresh();
 	renderScenes();
+	loadRuns();
 	setInterval(refresh, 5000);
+	setInterval(loadRuns, 60000);
 }
 
 // A link back to the site's home page, when MultiSim is part of a bigger site.

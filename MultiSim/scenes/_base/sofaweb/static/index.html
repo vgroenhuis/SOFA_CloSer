@@ -15,6 +15,7 @@
 			<h1 id="title">SOFA Simulation</h1>
 			<button id="play-btn" class="icon-btn owner-only" title="Pause" aria-label="Pause"></button>
 			<button id="stop-btn" class="icon-btn owner-only" title="Stop: rebuild the scene at its start, paused" aria-label="Stop"></button>
+			<button id="save-run-btn" class="owner-only hidden" type="button">Save run</button>
 			<button id="hud-toggle" class="secondary icon-btn" type="button" title="More: download, reset view, console, info" aria-label="More" aria-expanded="false">&#8943;</button>
 			<div id="hud-more">
 				<button id="download-btn" title="Probe values per frame, as CSV">Download data</button>
@@ -134,6 +135,23 @@
 		<div class="dialog-buttons">
 			<button type="button" class="secondary" id="import-cancel">Cancel</button>
 			<button type="button" id="import-go">Import</button>
+		</div>
+	</dialog>
+	<dialog id="save-dialog" aria-labelledby="save-title">
+		<h3 id="save-title">Save this run</h3>
+		<div id="save-pick">
+			<div class="import-row"><label for="save-name">Name</label><input id="save-name" maxlength="120" placeholder="optional, e.g. the egg upside down" autocomplete="off" /></div>
+			<p class="import-hint">The run is kept on the server as it was recorded. You get a link: anyone who has it can play the run back with the timeline, look around and change the display, without a password, even for a private scene; they can't run the simulation from it. The lobby lists it for whoever may see this scene.</p>
+		</div>
+		<div id="save-result" class="hidden">
+			<p class="import-ok">Saved. Its link:</p>
+			<div class="import-row"><input id="save-link" readonly /><button type="button" class="secondary" id="save-copy">Copy</button></div>
+			<p class="import-hint"><a id="save-open" target="_blank" rel="noopener">Open it in a new tab</a></p>
+		</div>
+		<p id="save-error" class="import-hint"></p>
+		<div class="dialog-buttons">
+			<button type="button" class="secondary" id="save-cancel">Cancel</button>
+			<button type="button" id="save-go">Save</button>
 		</div>
 	</dialog>
 	<script type="importmap">

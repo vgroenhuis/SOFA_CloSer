@@ -91,6 +91,20 @@ def _control_angle(name):
     return apply
 
 
+def _sync(root, module):
+    """The controls the scene moves by itself (Home, the start pose raised with the arm's column): the tool point's
+    target and its turn."""
+    f = root.getObject("Flange")
+    return {"tcp_x": f.targetX * 1000.0, "tcp_y": f.targetY * 1000.0, "tcp_z": f.targetZ * 1000.0,
+            "roll": math.degrees(f.roll), "pitch": math.degrees(f.pitch), "yaw": math.degrees(f.yaw)}
+
+
+def _control_home(root):
+    """The Home button (the manipulator's ⌂ Home, key H): the arm back to its start pose in joint space, the target
+    with it -- also when it's stuck short of an unreachable target."""
+    root.getObject("Arm").go_home()
+
+
 def _control_repair(root):
     """The Repair button: straight fingers, the end-effector on its target, everything at rest."""
     root.getObject("Repair")(root)
@@ -138,7 +152,7 @@ _DEFAULT = {
     "channel_separation": 2.0, "tips_enabled": True, "tip_length": 14.0, "tip_width": 3.0, "tip_thickness": 2.0,
     "joint_stiffness": 0.34, "joint_damping": 0.01, "joint_open_limit": 90.0, "side_stiffness": 5.0,
     "side_limit": 20.0, "joint_armature": 2e-06, "limit_timeconst": 0.002, "pressure_torque_gain": 1.0,
-    "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0, "arm_base_height": 160.0,
+    "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0, "arm_column": 0.0, "arm_base_height": 160.0,
     "arm_shoulder_offset": 135.0, "arm_upper": 450.0, "arm_elbow_offset": 120.0, "arm_fore": 400.0,
     "arm_wrist1": 100.0, "arm_wrist2": 100.0, "arm_wrist3": 100.0, "arm_gain": 3000.0, "ik_rate": 100.0,
     "ik_max_jump": 30.0, "platform_length": 1000.0, "platform_width": 700.0, "platform_height": 250.0,
@@ -214,7 +228,7 @@ _LIMITS = {
     "limit_timeconst": (0.0005, 0.5), "pressure_torque_gain": (0.0, 10.0), "tcp_depth": (0.0, 200.0),
     "flange_acceleration": (0.005, 10.0), "flange_speed": (0.005, 2.0), "angular_acceleration": (1.0, 10000.0),
     "angular_speed": (1.0, 1000.0), "flange_mass": (0.01, 5.0),
-    "arm_mount_x": (-500.0, 500.0), "arm_mount_y": (-400.0, 400.0), "arm_base_height": (20.0, 600.0),
+    "arm_mount_x": (-500.0, 500.0), "arm_mount_y": (-400.0, 400.0), "arm_column": (0.0, 1500.0), "arm_base_height": (20.0, 600.0),
     "arm_shoulder_offset": (0.0, 400.0), "arm_upper": (100.0, 1200.0), "arm_elbow_offset": (0.0, 400.0),
     "arm_fore": (100.0, 1200.0), "arm_wrist1": (10.0, 300.0), "arm_wrist2": (10.0, 300.0), "arm_wrist3": (10.0, 300.0),
     "arm_gain": (10.0, 1e5), "ik_rate": (10.0, 500.0), "ik_max_jump": (1.0, 180.0),
@@ -247,7 +261,7 @@ CONFIG = SceneConfig(
         ("Platform (omniwheels)", ["platform_length", "platform_width", "platform_height", "platform_mass",
                                    "start_x", "start_y", "drive_speed", "drive_acceleration", "turn_speed",
                                    "turn_acceleration"]),
-        ("Arm (6 axes)", ["arm_mount_x", "arm_mount_y", "arm_base_height", "arm_shoulder_offset", "arm_upper",
+        ("Arm (6 axes)", ["arm_mount_x", "arm_mount_y", "arm_column", "arm_base_height", "arm_shoulder_offset", "arm_upper",
                           "arm_elbow_offset", "arm_fore", "arm_wrist1", "arm_wrist2", "arm_wrist3", "arm_gain",
                           "ik_rate", "ik_max_jump"]),
         ("Tool point motion", ["tcp_depth", "flange_acceleration", "flange_speed", "angular_acceleration",
@@ -291,7 +305,7 @@ CONFIG = SceneConfig(
          "step": 1, "default": TCP_START[1], "unit": "mm", "digits": 0, "apply": _control_position("Y"),
          "description": "The tool point to the left of the platform's centre line (the shelves are on its left at the "
                         "start)."},
-        {"key": "tcp_z", "label": "Gripper z (height)", "type": "slider", "wide": True, "min": 0, "max": 1500,
+        {"key": "tcp_z", "label": "Gripper z (height)", "type": "slider", "wide": True, "min": 0, "max": 3000,
          "step": 1, "default": TCP_START[2], "unit": "mm", "digits": 0, "apply": _control_position("Z"),
          "description": "Height of the tool point above the floor. The platform's deck is at 250 mm, the shelves at "
                         "100, 380 and 660 mm."},
@@ -308,6 +322,9 @@ CONFIG = SceneConfig(
         {"key": "repair", "label": "Repair the gripper", "type": "button", "apply": _control_repair,
          "description": "Straightens every finger and puts the arm back on its last solution, at rest: for a finger "
                         "jammed by a hard push."},
+        {"key": "home", "label": "Home", "type": "button", "apply": _control_home,
+         "description": "The arm back to its start pose (moving its joints, not the gripper in a straight line), the "
+                        "gripper's target with it: also when it's stuck short of a target it can't reach."},
     ],
     manipulator={
         "position": ["tcp_x", "tcp_y", "tcp_z"], "scale": 1e-3,
@@ -315,6 +332,7 @@ CONFIG = SceneConfig(
         "frame": {"x": "base_x", "y": "base_y", "yaw": "base_yaw", "scale": 1e-3},
         "drive": {"forward": "drive_forward", "sideways": "drive_sideways", "turn": "drive_turn"},
         "reach": "ik_ok",
+        "home": "home",
         "grip": {"key": "pressure", "on": 80, "off": 0, "label": "Grip", "releaseLabel": "Let go"},
         "models": r"(^|/)bodies/(visu|base_layer|tips|joint_marks|trunk)/visual$",
         "jogSpeed": 150, "jogTurn": 60,
@@ -339,6 +357,7 @@ CONFIG = SceneConfig(
     ],
     presets=PRESETS,
     live_params=LIVE,
+    control_sync=_sync,
     probes=_Probes(),
     charts=[
         {"title": "Stocking", "unit": "items",

@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import io
+import json
 import logging
+import zipfile
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
@@ -16,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import SceneConfig
+from .recording import FORMAT_VERSION as RECORDING_FORMAT
 from .runner import Runner
 
 # The choice gallery's picture types (SceneConfig.choice_gallery)
@@ -123,6 +127,9 @@ def create_app(config_path: Path) -> FastAPI:
 
     @app.get("/api/scene")
     async def scene() -> dict:
+        return scene_info()
+
+    def scene_info() -> dict:
         return {
             "title": config.title,
             "about": config.about,
@@ -197,6 +204,58 @@ def create_app(config_path: Path) -> FastAPI:
             return Response(status_code=404)
         return FileResponse(path, media_type=GALLERY_TYPES[path.suffix.lower()],
                             headers={"Cache-Control": "public, max-age=3600"})
+
+    @app.get("/api/export")
+    def export() -> Response:
+        """The stopped run as a zip, to keep as a shared run (the orchestrator's POST api/sims/<id>/runs; its
+        proxy keeps browsers away from this path): everything its playback needs, none of the scene's code.
+        409 while it's running or nothing was recorded."""
+        parts = runner.export_parts()
+        if parts is None:
+            return JSONResponse({"detail": {"message": "Pause or stop the simulation first (with a recorded run)."}},
+                                status_code=409)
+        scene_json = {**scene_info(), "imports": [], "choiceGallery": None}
+        rec = parts["recording"]
+        meta = {
+            "format": 1,
+            "recordingFormat": RECORDING_FORMAT,
+            "title": config.title,
+            "simTime": parts["sim_time"],
+            "endReason": parts["end_reason"],
+            "frames": rec["frames"],
+            "params": parts["params"],
+            "effective": parts["effective"],
+        }
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+            def put(name: str, value: Any) -> None:
+                z.writestr(name, json.dumps(value, separators=(",", ":"), default=str))
+            put("meta.json", meta)
+            put("scene.json", scene_json)
+            put("info.json", parts["info"])
+            put("params.json", parts["params"])
+            put("console.json", parts["console"])
+            z.writestr("data.csv", parts["csv"])
+            order = []
+            for i, message in enumerate(parts["messages"]):
+                if isinstance(message, bytes):
+                    z.writestr(f"messages/{i:03d}.bin", message)
+                    order.append(f"messages/{i:03d}.bin")
+                else:
+                    z.writestr(f"messages/{i:03d}.json", message)
+                    order.append(f"messages/{i:03d}.json")
+            put("messages.json", order)
+            put("recording.json", {"generation": rec["generation"], "serial": rec["serial"], "start": 0,
+                                   "frames": rec["frames"]})
+            z.writestr(zipfile.ZipInfo("recording.gz"), rec["data"], compress_type=zipfile.ZIP_STORED)
+            media = {}
+            for name, (media_type, data) in parts["images"].items():
+                if "/" in name or "\\" in name or name.startswith("."):
+                    continue
+                media[name] = media_type
+                z.writestr(zipfile.ZipInfo(f"images/{name}"), data, compress_type=zipfile.ZIP_STORED)
+            put("images.json", media)
+        return Response(buffer.getvalue(), media_type="application/zip", headers={"Cache-Control": "no-store"})
 
     @app.get("/api/info")
     async def info() -> dict:

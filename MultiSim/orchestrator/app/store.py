@@ -67,6 +67,24 @@ CREATE TABLE IF NOT EXISTS scene_group (
     grp        TEXT NOT NULL,
     updated_at REAL NOT NULL
 );
+-- Saved runs ("Save run" on a stopped simulation): a recording that plays
+-- back at /run/<token> without the scene's code (the run's files in
+-- DATA_DIR/runs/<token>.zip). Anyone with the token's URL may watch it; the
+-- lobby lists it to whoever may see its level (the scene's when saved).
+CREATE TABLE IF NOT EXISTS runs (
+    token       TEXT PRIMARY KEY,
+    scene_id    TEXT NOT NULL,
+    scene_title TEXT NOT NULL,
+    name        TEXT NOT NULL DEFAULT '',
+    owner_name  TEXT NOT NULL DEFAULT '',
+    level       TEXT NOT NULL,             -- public | private | admin
+    created_at  REAL NOT NULL,
+    sim_time    REAL NOT NULL DEFAULT 0,   -- the run's length [simulated s]
+    frames      INTEGER NOT NULL DEFAULT 0,
+    bytes       INTEGER NOT NULL DEFAULT 0,
+    sim_id      TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS runs_created ON runs(created_at);
 """
 
 VISIBILITY_LEVELS = ("public", "private", "admin")
@@ -260,6 +278,31 @@ class Store:
             "ON CONFLICT(scene_id) DO UPDATE SET grp = excluded.grp, updated_at = excluded.updated_at",
             (scene_id, group, time.time()),
         )
+
+    # -- saved runs -----------------------------------------------------
+
+    def insert_run(self, run: dict) -> None:
+        keys = ("token", "scene_id", "scene_title", "name", "owner_name", "level", "created_at", "sim_time",
+                "frames", "bytes", "sim_id")
+        self._execute(f"INSERT INTO runs ({', '.join(keys)}) VALUES ({', '.join('?' for _ in keys)})",
+                      tuple(run[k] for k in keys))
+
+    def list_runs(self) -> list[dict]:
+        return [dict(row) for row in self._query("SELECT * FROM runs ORDER BY created_at DESC")]
+
+    def get_run(self, token: str) -> Optional[dict]:
+        rows = self._query("SELECT * FROM runs WHERE token = ?", (token,))
+        return dict(rows[0]) if rows else None
+
+    def update_run(self, token: str, **changes: str) -> bool:
+        allowed = {k: v for k, v in changes.items() if k in ("name", "level")}
+        if not allowed:
+            return False
+        sets = ", ".join(f"{k} = ?" for k in allowed)
+        return self._execute(f"UPDATE runs SET {sets} WHERE token = ?", (*allowed.values(), token)) > 0
+
+    def delete_run(self, token: str) -> bool:
+        return self._execute("DELETE FROM runs WHERE token = ?", (token,)) > 0
 
     # -- event log ------------------------------------------------------
 

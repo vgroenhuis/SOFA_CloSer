@@ -11,6 +11,9 @@ import { texturedMaterial, imageMaterial, setAnisotropy } from "./textures.js";
 
 const isViewer = new URLSearchParams(location.search).get("role") === "viewer";
 if (isViewer) document.body.classList.add("viewer");
+// A saved run (the orchestrator's run/<token>): the recording only, no simulation behind it.
+const isSavedRun = isViewer && new URLSearchParams(location.search).get("saved") === "1";
+if (isSavedRun) document.body.classList.add("saved-run");
 
 const $ = (id) => document.getElementById(id);
 
@@ -1173,6 +1176,7 @@ function renderStatus() {
 	let cls = "connected";
 	if (s.status === "building") [text, cls] = ["building...", "building"];
 	else if (s.status === "error") [text, cls] = ["error", "error"];
+	else if (s.recording?.shared) [text, cls] = ["saved run", "finished"];
 	else if (s.recording?.cached) [text, cls] = ["recorded run", "finished"];
 	else if (s.finished) [text, cls] = ["finished", "finished"];
 	else if (s.paused) [text, cls] = ["paused", "paused"];
@@ -1189,6 +1193,8 @@ function renderStatus() {
 	if (s.error) {
 		message = s.error;
 		banner.className = "error";
+	} else if (s.recording?.shared) {
+		message = "A saved run: play it back with the timeline below. Look around, and change the display and lighting as you like.";
 	} else if (s.recording?.cached) {
 		if (recordedHintSince === null) {
 			recordedHintSince = performance.now();
@@ -3208,6 +3214,7 @@ function updateTimeline() {
 	if (!available) {
 		goLive();
 		updateTransport();
+		updateSaveButton();
 		return;
 	}
 	const status = lastStatus.recording;
@@ -3224,14 +3231,18 @@ function updateTimeline() {
 	$("scrub").disabled = frames < 2;
 	$("replay-btn").disabled = frames < 2;
 	if (!frames) $("replay-time").textContent = replay.loadingText || "loading the recording...";
-	$("simulate-btn").classList.toggle("hidden", !status.cached);
+	$("simulate-btn").classList.toggle("hidden", !status.cached || !!status.shared);
+	updateSaveButton();
 	let note = "this session only";
-	if (status.previous) note = "the run before ■ (until ▶)";
+	if (status.shared) note = "saved run";
+	else if (status.previous) note = "the run before ■ (until ▶)";
 	else if (status.cached) note = "recorded run of a preset";
 	else if (status.saved) note = "saved for this preset";
 	else if (status.truncated) note = "recording stopped: too long";
 	$("timeline-note").textContent = note;
-	$("timeline-note").title = status.previous
+	$("timeline-note").title = status.shared
+		? "Kept on the server: anyone with this page's link can play it back"
+		: status.previous
 		? "The run that was stopped: kept for playback until the simulation runs again or the parameters change"
 		: status.cached || status.saved
 		? "Kept on the server: simulations of these preset parameters play it back instead of simulating"
@@ -3447,6 +3458,112 @@ new MutationObserver((records) => {
 	for (const record of records) for (const node of record.addedNodes) if (node.nodeType === 1) noAutofill(node);
 }).observe(document.body, { childList: true, subtree: true });
 
+// ---------------------------------------------------------------------------
+// Save run: the owner keeps a stopped run (paused or finished) for playback at
+// the orchestrator's run/<token>, a link anyone can open (no password, no
+// simulation: it plays back the recording). Behind the orchestrator only.
+// ---------------------------------------------------------------------------
+
+function updateSaveButton() {
+	const button = $("save-run-btn");
+	const s = lastStatus;
+	const can = !isViewer && !!simIdMatch && timelineAvailable() && !s.recording?.shared;
+	button.classList.toggle("hidden", !can);
+	if (!can) return;
+	const loaded = replay.rec && replay.rec.id === s.recording.id && replay.rec.frames.length >= s.recording.frames;
+	button.disabled = !loaded;
+	button.title = loaded
+		? "Keep this run on the server and get a link: anyone with it can play it back (no password needed)"
+		: "Wait until the recording has loaded";
+}
+
+// The view as it is now, for the lobby's card: a 640 x 360 JPEG data URL, cropped to fill (null if that fails).
+async function viewThumbnail() {
+	try {
+		renderer.render(scene, camera); // (the drawing buffer is only valid right after a render)
+		const source = renderer.domElement;
+		const canvas = document.createElement("canvas");
+		canvas.width = 640;
+		canvas.height = 360;
+		const k = Math.max(640 / source.width, 360 / source.height);
+		const w = 640 / k, h = 360 / k;
+		canvas.getContext("2d").drawImage(source, (source.width - w) / 2, (source.height - h) / 2, w, h, 0, 0, 640, 360);
+		// (toBlob, not toDataURL: encoding doesn't block the page)
+		const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+		if (!blob) return null;
+		return await new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = () => resolve(null);
+			reader.readAsDataURL(blob);
+		});
+	} catch {
+		return null;
+	}
+}
+
+function openSaveDialog() {
+	const dialog = $("save-dialog");
+	$("save-pick").classList.remove("hidden");
+	$("save-result").classList.add("hidden");
+	$("save-error").textContent = "";
+	$("save-go").classList.remove("hidden");
+	$("save-go").disabled = false;
+	$("save-cancel").textContent = "Cancel";
+	const name = $("save-name");
+	if (!name.value) name.value = "";
+	dialog.showModal();
+	name.focus();
+}
+
+async function saveRun() {
+	$("save-go").disabled = true;
+	$("save-error").textContent = "Saving the run...";
+	const thumbnail = await viewThumbnail();
+	try {
+		const response = await fetch(`${orchestratorRoot}api/sims/${simIdMatch[2]}/runs`, {
+			method: "POST",
+			credentials: "same-origin",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name: $("save-name").value.trim(), thumbnail }),
+		});
+		const data = await response.json().catch(() => ({}));
+		if (!response.ok) throw new Error(data?.detail?.message || `saving failed (HTTP ${response.status})`);
+		const url = new URL(`${orchestratorRoot}${data.path}`, location.href).href;
+		$("save-link").value = url;
+		$("save-open").href = url;
+		$("save-pick").classList.add("hidden");
+		$("save-result").classList.remove("hidden");
+		$("save-go").classList.add("hidden");
+		$("save-cancel").textContent = "Close";
+		$("save-error").textContent = "";
+		$("save-name").value = "";
+		$("save-link").select();
+	} catch (err) {
+		$("save-error").textContent = `Couldn't save it: ${err.message}`;
+		$("save-go").disabled = false;
+	}
+}
+
+$("save-run-btn").addEventListener("click", openSaveDialog);
+$("save-go").addEventListener("click", saveRun);
+$("save-name").addEventListener("keydown", (event) => {
+	if (event.key === "Enter" && !$("save-go").disabled) saveRun();
+});
+$("save-cancel").addEventListener("click", () => $("save-dialog").close());
+$("save-copy").addEventListener("click", async () => {
+	const link = $("save-link");
+	try {
+		await navigator.clipboard.writeText(link.value);
+		$("save-copy").textContent = "Copied";
+	} catch {
+		link.select();
+		document.execCommand?.("copy");
+		$("save-copy").textContent = "Copied";
+	}
+	setTimeout(() => ($("save-copy").textContent = "Copy"), 2500);
+});
+
 async function init() {
 	try {
 		sceneInfo = await (await fetch("api/scene")).json();
@@ -3481,7 +3598,8 @@ async function init() {
 	if (!displaySpec.length) $("display-panel").classList.add("hidden");
 	buildCharts(sceneInfo);
 	await loadParams();
-	if (isViewer) setInterval(loadParams, 3000);
+	if (isViewer && !isSavedRun) setInterval(loadParams, 3000);
+	if (isSavedRun) $("viewer-note").textContent = "playback only";
 	connect();
 }
 init();

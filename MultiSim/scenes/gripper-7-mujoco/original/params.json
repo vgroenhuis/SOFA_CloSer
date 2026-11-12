@@ -44,6 +44,7 @@
   "tcp_depth": 50.0,
   "arm_mount_x": 250.0,
   "arm_mount_y": 120.0,
+  "arm_column": 0.0,
   "arm_base_height": 160.0,
   "arm_shoulder_offset": 135.0,
   "arm_upper": 450.0,

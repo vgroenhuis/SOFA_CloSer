@@ -122,6 +122,7 @@ section { margin-bottom: 32px; }
 .badge.starting { background: rgba(232, 179, 60, 0.15); color: var(--warn); }
 .badge.held { background: rgba(126, 166, 255, 0.15); color: #9dbbff; }
 .badge.mine { background: rgba(58, 91, 217, 0.3); color: #c8d4ff; }
+.badge.saved-run { background: rgba(232, 179, 60, 0.15); color: var(--warn); }
 .badge.private { background: rgba(232, 120, 60, 0.18); color: #f0a57a; }
 .badge.admin-only { background: rgba(214, 80, 80, 0.2); color: #f08c8c; }
 select.visibility.private { color: #f0a57a; }
@@ -131,6 +132,7 @@ h3 .badge { margin-left: 8px; vertical-align: middle; }
 .badge.group-finger { background: rgba(58, 120, 214, 0.18); color: #8fb8ef; }
 .badge.group-gripper { background: rgba(214, 130, 40, 0.18); color: #f0b46e; }
 .badge.group-pneumatics { background: rgba(46, 158, 79, 0.18); color: #8fd19e; }
+.badge.group-realshelves { background: rgba(200, 160, 40, 0.18); color: #ecc96a; }
 .badge.group-stocking { background: rgba(214, 64, 42, 0.18); color: #f19a8c; }
 .badge.group-playground { background: rgba(170, 120, 220, 0.18); color: #c9a6f0; }
 .badge.group-archive { background: rgba(150, 150, 150, 0.18); color: #b5b9c0; }
@@ -138,6 +140,7 @@ select.group.group-closer { color: #7fd3d3; }
 select.group.group-finger { color: #8fb8ef; }
 select.group.group-gripper { color: #f0b46e; }
 select.group.group-pneumatics { color: #8fd19e; }
+select.group.group-realshelves { color: #ecc96a; }
 select.group.group-stocking { color: #f19a8c; }
 select.group.group-playground { color: #c9a6f0; }
 select.group.group-archive { color: #b5b9c0; }
@@ -175,6 +178,9 @@ select.group.group-archive { color: #b5b9c0; }
 .scene-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .scene-body p { margin: 0; color: var(--text-2); font-size: 13px; flex: 1; }
 .scene-body .actions { display: flex; gap: 8px; }
+a.scene-thumb { display: block; }
+.run-card .actions { flex-wrap: wrap; align-items: center; }
+.run-card select { font-size: 12px; padding: 3px 6px; }
 
 /* running list */
 .sim-list { display: flex; flex-direction: column; gap: 8px; }

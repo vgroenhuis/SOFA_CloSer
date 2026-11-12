@@ -944,12 +944,24 @@ class Runner:
         return self._control_value(control, control.get("default", control.get("min", 0.0)))
 
     def _init_controls(self) -> None:
-        """Every build starts the controls at their defaults."""
+        """Every build starts the controls at their defaults -- except those the scene reports itself
+        (SceneConfig.control_sync): they start where the built scene has them (e.g. a start pose that depends on
+        the parameters), without applying anything."""
         self.control_values = {}
         self._hold_deadlines = {}
+        synced: dict = {}
+        if self.cfg.control_sync is not None and self._root is not None:
+            try:
+                synced = self.cfg.control_sync(self._root, self._module) or {}
+            except Exception as exc:
+                self.console.note(f"control sync failed: {exc}")
+                synced = {}
         for control in self.cfg.controls:
             kind = control["type"]
             if kind == "button":
+                continue
+            if control["key"] in synced:
+                self.control_values[control["key"]] = self._control_value(control, synced[control["key"]])
                 continue
             value = self._control_value(control, control.get("default", control.get("min", 0.0) if kind == "slider" else False))
             with contextlib.redirect_stdout(self.console):
@@ -1094,7 +1106,7 @@ class Runner:
             serial = self._rec_serial
         if cached is not None:
             return {"generation": generation, "serial": serial, "start": 0, "frames": cached[0].get("frames", 0),
-                    "data": cached[1]}
+                    "end": cached[0].get("end", 0.0), "data": cached[1]}
         if snapshot is None or not len(snapshot):
             return None
         start = max(0, min(start, len(snapshot)))
@@ -1102,7 +1114,47 @@ class Runner:
         if start == 0:
             with self._lock:
                 rec.adopt_encoding(snapshot)
-        return {"generation": generation, "serial": serial, "start": start, "frames": len(snapshot), "data": data}
+        return {"generation": generation, "serial": serial, "start": start, "frames": len(snapshot),
+                "end": snapshot.end_time, "data": data}
+
+    def export_parts(self) -> Optional[dict]:
+        """A stopped run, whole, for saving as a shared run (the orchestrator's /run/<token>): what a newly
+        connected browser gets (setup, status, chart history, a full frame), the recording, the console, the
+        data and the scene's images. Plays back without the scene's code. None while it's running (or not
+        built, or nothing recorded)."""
+        if not (self._root is not None and self.status == "running" and (self.paused or self.finished)
+                and self._setup_json is not None):
+            return None
+        messages = self.snapshot()  # (each of these takes the lock itself)
+        if len(messages) < 2 or not isinstance(messages[1], str):
+            return None
+        info = self.info()
+        visible = self.visible_keys()
+        params = {k: v for k, v in self.params.items() if k in visible}
+        effective = self.effective_params(self.params)
+        blob = self.recording_blob(0)
+        if blob is None or blob["frames"] < 2:
+            return None
+        status = json.loads(messages[1])
+        status.update({"paused": True, "finished": True, "atStart": False, "autoRestart": False, "stopAt": None,
+                       "endReason": status.get("endReason") or "stopped", "controls": status.get("controls"),
+                       "recording": {"id": blob["serial"], "frames": blob["frames"],
+                                     "end": float(blob["end"]), "cached": True, "saved": True,
+                                     "shared": True}})
+        messages[1] = json.dumps(status)
+        images = getattr(self._root, "images", None)
+        return {
+            "messages": messages,  # str (JSON) or bytes (a frame), in order
+            "info": {**info, "status": "running"},
+            "params": params,
+            "effective": effective,
+            "recording": blob,
+            "console": self.console.since(0),
+            "csv": self.csv(),
+            "images": dict(images) if isinstance(images, dict) else {},
+            "sim_time": float(blob["end"]),
+            "end_reason": status["endReason"],
+        }
 
     def _recording_status(self) -> Optional[dict]:
         if self._cached is not None:

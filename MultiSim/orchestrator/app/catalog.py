@@ -21,7 +21,7 @@ _SCENE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,40}$")
 
 # scene.json "group" (or the admin page's choice): the lobby lists scenes
 # per group (in the order of lobby.js GROUP_ORDER). A scene without a (known) group goes under "Other".
-GROUPS = {"stocking": "Stocking shelves", "closer": "CloSer project", "gripper": "Gripper", "finger": "Finger",
+GROUPS = {"realshelves": "Real-world shelves", "stocking": "Stocking shelves", "closer": "CloSer project", "gripper": "Gripper", "finger": "Finger",
           "pneumatics": "Pneumatics",
           "playground": "Playground", "archive": "Archive", "other": "Other"}
 

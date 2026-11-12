@@ -54,6 +54,10 @@ class SimProxy:
         except httpx.HTTPError:
             return False
 
+    async def fetch(self, url: str, timeout: float = 60.0) -> httpx.Response:
+        """A direct GET from a container (not on a browser's behalf), read whole."""
+        return await self._client.get(url, timeout=httpx.Timeout(timeout, connect=5.0))
+
     async def post_json(self, url: str, payload: dict) -> bool:
         """A direct POST to a container (not on a browser's behalf); a
         scene that doesn't implement the endpoint just answers 404."""
