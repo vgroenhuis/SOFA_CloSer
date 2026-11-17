@@ -11,8 +11,9 @@ facing -y as Gripper 7's.
     behind are fixed (they still collide). All 985 free makes the simulation 2 to 10 times slower than real time
     (a lane the robot touches wakes every package in it).
   - Masses and frictions are placeholders, in one file: hagelslag_physics.json.
-  - The cart carries a crate of a few of the shelf's products. No automatic stocking (Gripper 7's): the robot is
-    driven by hand.
+  - The cart carries a crate of a few of the shelf's products (lying on their backs). Stock all (ShelfStocker, a
+    suction cup only): each is swapped in for the front package of a lane of its product, working on the packages'
+    front faces (the lanes are full, the packages edge to edge); or drive the robot by hand.
   - The robot, the gripper and the contacts are Gripper 7's (../../gripper-7-mujoco/original/Gripper7Mj.py).
 
 Units: the scene is SI (metres, kg, s, Pa); params.json takes millimetres for lengths, as labelled.
@@ -33,6 +34,9 @@ import mujoco
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARAMS_FILE = os.path.join(_SCRIPT_DIR, 'params.json')
+
+# A package lying on its back (its front, -y, up; its top, +z, towards +y): a quarter turn about x.
+LYING_QUAT = (math.sqrt(0.5), -math.sqrt(0.5), 0.0, 0.0)
 
 # The platform's crate: some of the shelf's products (placements.json's ids) and how many of each, packed in rows
 # along the platform.
@@ -95,7 +99,7 @@ _DEFAULT_PARAMS = {
     # -- the arm [mm], UR-like (at zero all links point up; the tool points along the shoulder axis) --
     'arm_mount_x': 250.0,        # where it stands on the platform (UR-like arm): forward of the platform's centre
     'arm_mount_y': 120.0,        #   and to the left (towards the shelves at the start)
-    'arm_column': 0.0,           # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
+    'arm_column': 600.0,          # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
                                  # start pose) to reach high shelves; 0: on its 50 mm pedestal
     'arm_base_height': 160.0,    # base joint to shoulder joint
     'arm_shoulder_offset': 135.0,  # sideways
@@ -130,8 +134,8 @@ _DEFAULT_PARAMS = {
     'dynamic_rows': 1,           # how many packages of each lane, from the front, are free bodies (0: all); the
                                  #   ones behind are fixed (they still collide). Masses and frictions:
                                  #   hagelslag_physics.json
-    'crate_length': 440.0,       # the platform's crate, inside, along the platform
-    'crate_width': 500.0,        # inside, across it
+    'crate_length': 520.0,       # the platform's crate, inside, along the platform
+    'crate_width': 600.0,        # inside, across it
     'crate_height': 80.0,
     'crate_wall': 6.0,
     'crate_gap': 30.0,           # [mm] between packages in a crate (room for the fingers)
@@ -962,9 +966,10 @@ def hagelslag_shelf(P):
             'physics': physics}
 
 
-def pack_crate(contents, sizes, cl, cgap):
+def pack_crate(contents, sizes, cl, cgap, corner=None):
     """Packages for a crate of inside length `cl` (along x): rows along x, 30 mm from the walls, centred; `sizes` the
-    products' (x, y) footprints. [{'product', 'centre' (relative to the crate's centre)}]."""
+    products' (x, y) footprints. [{'product', 'centre' (relative to the crate's centre)}]. With `corner` (the crate's
+    inside width): packed from its -x, -y corner instead, leaving the rest of the crate free in one piece."""
     rows, row, row_w = [], [], 0.0
     for product in [p for p, n in contents for _ in range(n)]:
         fx, fy = sizes[product]
@@ -976,10 +981,10 @@ def pack_crate(contents, sizes, cl, cgap):
     if row:
         rows.append(row)
     depths = [max(fy for _, _, fy in r) for r in rows]
-    y = -(sum(depths) + cgap * (len(rows) - 1)) / 2
+    y = -(sum(depths) + cgap * (len(rows) - 1)) / 2 if corner is None else -corner / 2 + 30 * MM
     spots = []
     for r, d in zip(rows, depths):
-        x = -(sum(fx for _, fx, _ in r) + cgap * (len(r) - 1)) / 2
+        x = -(sum(fx for _, fx, _ in r) + cgap * (len(r) - 1)) / 2 if corner is None else -cl / 2 + 30 * MM
         for product, fx, fy in r:
             spots.append({'product': product, 'centre': [x + fx / 2, y + d / 2]})
             x += fx + cgap
@@ -1547,8 +1552,10 @@ def createScene():
         if pk['product'] not in front_of or pk['row'] < front_of[pk['product']]['row']:
             front_of[pk['product']] = pk
     crate_contents = [(p_, n_) for p_, n_ in PLATFORM_CRATE if p_ in front_of]
-    spots = pack_crate(crate_contents, {p_: tuple(front_of[p_]['size'][:2]) for p_, _ in crate_contents}, cl,
-                       max(float(P['crate_gap']), 0.0) * MM)
+    # (lying on their backs, their fronts up and their tops towards the shelf: as the automatic stocking takes them)
+    spots = pack_crate(crate_contents, {p_: (2 * front_of[p_]['half'][0], 2 * front_of[p_]['half'][2])
+                                        for p_, _ in crate_contents}, cl, max(float(P['crate_gap']), 0.0) * MM,
+                       corner=cw)  # (from its back right corner: the room nearest the arm stays free)
     ccx = -max(float(P['platform_length']), 100.0) * MM / 2 + 0.03 + ct + cl / 2
     for spot in spots:
         spot['centre'] = [ccx + spot['centre'][0], spot['centre'][1]]
@@ -1887,8 +1894,9 @@ def createScene():
     for k, spot in enumerate(crate['items']):  # (the platform starts with yaw 0: its frame is the world's, moved)
         pk = front_of[spot['product']]
         key = f'crate{k + 1}'
-        centre = [start[0] + spot['centre'][0], start[1] + spot['centre'][1], PH + pk['half'][2] + 0.3 * MM]
-        world.append(f'<body name="{key}" pos="{_v(centre)}"><freejoint name="{key}"/>'
+        lying_h = 2 * (pk['half'][0] if pk['shape'] == 'cylinder' else pk['half'][1])
+        centre = [start[0] + spot['centre'][0], start[1] + spot['centre'][1], PH + lying_h / 2 + 0.3 * MM]
+        world.append(f'<body name="{key}" pos="{_v(centre)}" quat="{_v(LYING_QUAT)}"><freejoint name="{key}"/>'
                      f'<geom {package_geom(pk, key)} mass="{pk["mass"] * scale:.9g}" class="item"/></body>')
         items.append({'key': key, 'pk': pk, 'centre': np.array(centre), 'origin': 'crate'})
 
@@ -2401,6 +2409,43 @@ def createScene():
     all_hinges = hinge_names + side_names
     repair = Repair([int(model.jnt_qposadr[jnt(n)]) for n in all_hinges],
                     [int(model.jnt_dofadr[jnt(n)]) for n in all_hinges], arm, arm_qpos, arm_dofs)
+    # ---- the automatic stocking (Stock all): its plan
+    fx_lo = np.array([f['lo'] for f in shelf['fixtures']])
+    fx_hi = np.array([f['hi'] for f in shelf['fixtures']])
+    pk_lo = np.array([pk['centre'] - pk['half'] for pk in shelf['packages']])
+    pk_hi = np.array([pk['centre'] + pk['half'] for pk in shelf['packages']])
+    shelf_plan, lanes = {}, {}
+    for k, it in enumerate(items):
+        if it['origin'] != 'shelf' or it['pk']['row'] != 0:
+            continue
+        pk = it['pk']
+        lo, hi = pk['centre'] - pk['half'], pk['centre'] + pk['half']
+        rooms = []
+        for a_lo, a_hi in ((fx_lo, fx_hi), (pk_lo, pk_hi)):
+            over = ((np.minimum(a_hi[:, 0], hi[0]) - np.maximum(a_lo[:, 0], lo[0]) > 0.003)
+                    & (np.minimum(a_hi[:, 1], hi[1]) - np.maximum(a_lo[:, 1], lo[1]) > 0.003)
+                    & (a_lo[:, 2] > hi[2] - 0.003))
+            if over.any():
+                rooms.append(float(a_lo[over, 2].min() - hi[2]))
+        shelf_plan[k] = {'centre': np.array(pk['centre'], float), 'half': np.array(pk['half'], float),
+                         'shape': pk['shape'], 'room': min(rooms) if rooms else 0.3, 'level': f"{pk['bay']}{pk['shelf']}"}
+        lanes.setdefault(pk['product'], []).append(k)
+    front_y = float(fx_lo[:, 1].min())  # (the shelf's foremost part)
+    stock_plan = {
+        'items': [{'body': body(it['key']), 'product': it['pk']['product'], 'origin': it['origin'],
+                   'half': np.array(it['pk']['half'], float), 'shape': it['pk']['shape']} for it in items],
+        'shelf': shelf_plan, 'lanes': lanes, 'names': {pk['product']: pk['name'] for pk in shelf['packages']},
+        'mount': (float(mount[0]), float(mount[1])), 'inner': spec.get('inner', 0.25),
+        'carry': (float(ccx), 0.0, PH + 0.55), 'front': front_y, 'half_diagonal': math.hypot(PL / 2, PW / 2),
+        'lane_y': front_y - 0.05 - PW / 2, 'y_out': front_y - 0.04,
+        'floor_x': (shelf['x0'] - 0.4, shelf['x1'] + 0.4),
+        'crate': {'x0': x0, 'x1': x1, 'y0': y0, 'y1': y1, 'floor': PH + 0.3 * MM},
+        'lift': 0.022, 'side': 0.2, 'mid_x': 0.5 * (shelf['x0'] + shelf['x1']), 'cup_r': cup_r, 'cup_lift': cup_lift, 'suction': gkind in VACUUM_CUPS or gkind == 'suction',
+        'flange_id': flange_id, 'platform_id': platform_id, 'cart': cart,
+    }
+    stocker = ShelfStocker(motion, arm, drive, pressure, vacuum, stock_plan)
+    scene.controllers.append(stocker)
+    scene.objects['Stocker'] = stocker
     scene.objects.update({'Flange': motion, 'Arm': arm, 'Drive': drive, 'PressureRamp': pressure, 'Repair': repair,
                           'Jaws': jaws})
 
@@ -2447,6 +2492,562 @@ def package_states(data):
         else:
             states.append('moved' if moved[i] else 'place')
     return states
+
+
+# ----------------------------------------------------------------------
+# Automatic stocking (Stock all): swapping the crate's packages in at the shelf's front
+# ----------------------------------------------------------------------
+class _Abort(Exception):
+    pass
+
+
+ROLL_IN = math.pi / 2  # the tool pointing into the shelf (+y in the platform's frame, the platform heading +x)
+
+
+class ShelfStocker:
+    """The robot stocking the shelf by itself (Stock all), one package of the platform's crate at a time. Every lane
+    is full, and the packages stand edge to edge with little room above them, so it works on their front faces with
+    a suction cup:
+
+      1. drive along the shelf until the arm is beside a lane of the package's product whose front package has
+         room above it (to lift it over the shelf's front rail);
+      2. take that front package out: the cup pointing into the shelf on its front face, suction, up over the rail
+         and out; then turn the cup down above the crate (the package lies on its back, its front up) and lay it in
+         a free spot of the crate;
+      3. take the crate's package of that product: the cup from above on its front face (it lies on its back, its
+         top towards the shelf), up, and the cup turned to point into the shelf: the package stands upright, facing
+         the aisle;
+      4. slide it into the empty place (over the rail), down onto the shelf, let go, out; back above the crate.
+
+    It steers what the interface does (the tool point's target and turn in the platform's frame, the grip, the
+    drive), as Gripper 7's Stocker; anything the user does stops it. Only grippers with a suction cup can do it."""
+
+    GRIP = 80e3  # [Pa] the grip control it uses (full vacuum)
+
+    def __init__(self, motion, arm, drive, ramp, vacuum, plan):
+        self.motion, self.arm, self.drive, self.ramp, self.vacuum = motion, arm, drive, ramp, vacuum
+        self.plan = plan
+        self.queue, self.task, self.current = [], None, None
+        self.done = self.failed = 0
+        self.tries = {}
+        self.reserved = set()  # shelf packages taken out (their places waiting for a crate package)
+        self.vacant = {}  # product -> [shelf package k]: places emptied whose crate package didn't get there yet
+        self.holding = False
+        self._tick = 0
+        self.data = None
+        self._speeds = None
+
+    # -- requests ------------------------------------------------------------------
+    @property
+    def active(self):
+        return self.task is not None or bool(self.queue)
+
+    def stock_all(self, data):
+        if not self.plan['suction']:
+            print('[auto] stocking this shelf needs a suction cup (its packages stand edge to edge, with little room '
+                  'above them): choose the GripWiq SofTouch ST cup (or another with a cup) in the Robot section')
+            return
+        states = package_states(data)
+        items = self.plan['items']
+        new = [i for i, s in enumerate(states) if s == 'crate' and items[i]['origin'] == 'crate'
+               and i not in self.queue and i != self.current and items[i]['product'] in self.plan['lanes']]
+        self.queue += new
+        print(f'[auto] stock the crate\'s packages: {len(new)}' if new else '[auto] nothing in the crate to stock')
+
+    def cancel(self, why='stopped'):
+        self._gentle(False)
+        if not self.active:
+            return
+        print(f'[auto] {why}: {len(self.queue) + (self.task is not None)} packages left as they are')
+        self.queue.clear()
+        self.task, self.current = None, None
+        self._stop_driving()
+
+    # -- the loop ------------------------------------------------------------------
+    def __call__(self, scene, h):
+        self.data = scene.data
+        self.arm.reconfigure = self.active
+        self._tick += 1
+        if self._tick % 5:  # every 5 ms
+            return
+        if self.task is None:
+            if not self.queue:
+                return
+            self.current = self.queue.pop(0)
+            self.task = self._stock(self.current)
+        try:
+            next(self.task)
+        except StopIteration:
+            self.task, self.current = None, None
+            self._stop_driving()
+        except _Abort as e:
+            name = self._name(self.current) if self.current is not None else 'package'
+            tries = self.tries.get(self.current, 0) + 1
+            self.tries[self.current] = tries
+            if tries < 2 and self.current is not None and 'no ' not in str(e)[:3]:
+                print(f'[auto] the {name}: {e}; trying again later')
+                self.queue.append(self.current)
+            else:
+                print(f'[auto] gave up on the {name}: {e}')
+                self.failed += 1
+            self.current = None
+            self._stop_driving()
+            self.task = self._recover()
+
+    # -- helpers -------------------------------------------------------------------
+    def _name(self, i):
+        return self.plan['names'].get(self.plan['items'][i]['product'], self.plan['items'][i]['product'])
+
+    def _now(self):
+        return float(self.data.time)
+
+    def _pose(self):
+        pid = self.plan['platform_id']
+        R = self.data.xmat[pid].reshape(3, 3)
+        return float(self.data.xpos[pid][0]), float(self.data.xpos[pid][1]), math.atan2(R[1, 0], R[0, 0])
+
+    def _to_local(self, world):
+        x, y, th = self._pose()
+        c, s = math.cos(th), math.sin(th)
+        dx, dy = world[0] - x, world[1] - y
+        return np.array([c * dx + s * dy, -s * dx + c * dy, world[2]])
+
+    def _to_world(self, local):
+        x, y, th = self._pose()
+        c, s = math.cos(th), math.sin(th)
+        return np.array([x + c * local[0] - s * local[1], y + s * local[0] + c * local[1], local[2]])
+
+    def _stop_driving(self):
+        self.drive.forward = self.drive.sideways = self.drive.turn = 0.0
+
+    def _wait(self, seconds):
+        end = self._now() + seconds
+        while self._now() < end:
+            yield
+
+    def _tcp_world(self):
+        return self.data.xpos[self.plan['flange_id']].copy()
+
+    def _gentle(self, on):
+        """Slower, softer moves while a package hangs from the cup (it swings)."""
+        m = self.motion
+        if on and self._speeds is None:
+            self._speeds = (m.speed, m.acceleration, m.angular_speed, m.angular_acceleration)
+            m.speed, m.acceleration = 0.5 * m.speed, 0.3 * m.acceleration
+            m.angular_speed, m.angular_acceleration = 0.5 * m.angular_speed, 0.3 * m.angular_acceleration
+        elif not on and self._speeds is not None:
+            m.speed, m.acceleration, m.angular_speed, m.angular_acceleration = self._speeds
+            self._speeds = None
+
+    def _go_local(self, local, roll, yaw, timeout, what, tol=None):
+        m = self.motion
+        m.targetX, m.targetY, m.targetZ = (float(c) for c in local)
+        m.roll, m.pitch, m.yaw = float(roll), 0.0, float(_wrap(yaw))
+        start, unreachable, last = self._now(), 0.0, self._now()
+        goal = np.array(local, float)
+        while True:
+            now = self._now()
+            if not self.arm.reachable:
+                unreachable += now - last
+            last = now
+            if unreachable > 0.5:
+                raise _Abort(f'{what}: out of the arm\'s reach')
+            if now - start > timeout:
+                raise _Abort(f'{what}: took too long')
+            if tol is not None and np.linalg.norm(np.array(m.position) - goal) < tol:
+                return
+            turned = abs(float(np.dot(m.quat, m.goal_quat()))) > math.cos(math.radians(0.5) / 2)
+            if (np.linalg.norm(np.array(m.position) - goal) < 0.002 and m.omega < 1e-3 and turned
+                    and np.linalg.norm(m.velocity) < 0.005):
+                if np.linalg.norm(self._tcp_world() - self._to_world(goal)) < 0.008 or now - start > timeout - 1.0:
+                    return
+            yield
+
+    def _move_local(self, local, roll, yaw, timeout=12.0, what='move'):
+        """As Gripper 7's: a move round the arm's base goes along an arc about it (through waypoints)."""
+        start, goal = np.array(self.motion.position, float), np.array(local, float)
+        base = np.array(self.plan['mount'])
+        a, b = start[:2] - base, goal[:2] - base
+        ra, rb = np.linalg.norm(a), np.linalg.norm(b)
+        if min(ra, rb) > 0.12:
+            pa, pb = math.atan2(a[1], a[0]), math.atan2(b[1], b[0])
+            dphi = _wrap(pb - pa)
+            if abs(dphi) > math.radians(25):
+                n = max(2, int(math.ceil(abs(dphi) / 0.3)))
+                r0, y0 = float(self.motion.roll), float(self.motion.yaw)
+                dyaw = _wrap(yaw - y0)
+                for k in range(1, n):
+                    f = k / n
+                    phi = pa + f * dphi
+                    r = max(ra + f * (rb - ra), self.plan['inner'])
+                    way = (base[0] + r * math.cos(phi), base[1] + r * math.sin(phi), start[2] + f * (goal[2] - start[2]))
+                    yield from self._go_local(way, r0 + f * (roll - r0), y0 + f * dyaw, timeout, what, tol=0.03)
+        yield from self._go_local(local, roll, yaw, timeout, what)
+
+    def _move(self, world, roll, yaw=0.0, **kw):
+        """To a world point, the tool turned by `yaw` about the vertical in the world (the platform's heading may be
+        off a little)."""
+        _, _, th = self._pose()
+        yield from self._move_local(self._to_local(world), roll, _wrap(yaw - th), **kw)
+
+    def _grip(self, on):
+        self.ramp.targetPressure = self.GRIP if on else 0.0
+        self._gentle(on)
+        start = self._now()
+        while abs(self.ramp.current_pressure - self.ramp.goal()) > 500.0 and self._now() - start < 3.0:
+            yield
+        yield from self._wait(0.4 if on else 0.6)
+        self.holding = on
+
+    def _held(self, body):
+        """Whether the cup holds that body (a suction cup's seal; the plain cup: it's lifted with it)."""
+        if self.vacuum is not None:
+            return self.vacuum.held == body
+        return True
+
+    def _carry(self, roll=None):
+        c = self.plan['carry']
+        yield from self._move_local(c, float(self.motion.roll) if roll is None else roll, 0.0, what='back to the crate')
+
+    def _recover(self):
+        """After a failure: what it holds put down in the crate if it can, the cup off, above the crate."""
+        try:
+            if self.holding:
+                cx_, cy_, cz_ = self.plan['carry']
+                yield from self._move_local((cx_, cy_, cz_), float(self.motion.roll), float(self.motion.yaw),
+                                            what='back over the crate')
+                yield from self._move_local((cx_, cy_, cz_), 0.0, float(self.motion.yaw), what='turning it down')
+                yield from self._move_local((cx_, cy_, self.plan['crate']['floor'] + 0.3), 0.0, float(self.motion.yaw),
+                                            what='down into the crate')
+            yield from self._grip(False)
+            yield from self._carry(0.0)
+        except _Abort:
+            yield from self._grip(False)
+
+    # -- driving (Gripper 7's) -----------------------------------------------------------
+    def _drive_to(self, gx, gy, gth, timeout=60.0):
+        plan, kind = self.plan, self.plan['cart']
+        x, y, th = self._pose()
+        if math.hypot(gx - x, gy - y) < 0.01 and abs(_wrap(gth - th)) < 0.02:
+            return
+        start = self._now()
+        speed = 0.8 * float(self.drive.speed)
+        safe_y = plan['front'] - plan['half_diagonal'] - 0.04
+        d = np.array([math.cos(gth), math.sin(gth)])
+        n = np.array([-d[1], d[0]])
+        while True:
+            if self._now() - start > timeout:
+                raise _Abort('driving took too long (blocked?)')
+            x, y, th = self._pose()
+            rel = np.array([x, y]) - [gx, gy]
+            s_along, e_lat = float(rel @ d), float(rel @ n)
+            eth = _wrap(gth - th)
+            dist = math.hypot(*rel)
+            if kind == 'omni':
+                if dist < 0.008 and abs(eth) < 0.015:
+                    break
+                if abs(eth) > 0.15 and y > safe_y:
+                    vx, vy, w = 0.0, -speed, 0.0
+                else:
+                    v = min(speed, 1.5 * dist + 0.02)
+                    vx, vy = (-rel / max(dist, 1e-9) * v) if dist > 0.003 else (0.0, 0.0)
+                    w = max(-1.0, min(1.0, 2.5 * eth)) * float(self.drive.turn_speed)
+                c, s = math.cos(th), math.sin(th)
+                self.drive.forward, self.drive.sideways, self.drive.turn = c * vx + s * vy, -s * vx + c * vy, w
+                yield
+                continue
+            heading = np.array([math.cos(th), math.sin(th)])
+            if kind in ('diff', 'tank') and abs(float(heading @ d)) < math.cos(math.radians(25)):
+                if y > safe_y:
+                    self.drive.forward, self.drive.turn = (-speed if heading[1] > 0 else speed), 0.0
+                else:
+                    target = gth if float(heading @ d) >= 0 else gth + math.pi
+                    self.drive.forward = 0.0
+                    self.drive.turn = max(-1.0, min(1.0, 2.0 * _wrap(target - th))) * float(self.drive.turn_speed)
+                yield
+                continue
+            if abs(s_along) < 0.012 and abs(e_lat) < 0.03:
+                if kind == 'car' or abs(eth) < 0.03 or abs(_wrap(eth + math.pi)) < 0.03:
+                    break
+                self.drive.forward = 0.0
+                self.drive.turn = max(-1.0, min(1.0, 3.0 * eth)) * float(self.drive.turn_speed)
+                yield
+                continue
+            look = 0.45
+            if abs(e_lat) > 0.04:
+                way = -math.copysign(1.0, s_along) if abs(s_along) > 0.7 else (1.0 if float(heading @ d) >= 0 else -1.0)
+                target = np.array([gx, gy]) + d * (s_along + way * look)
+            else:
+                s_t = min(s_along + look, 0.0) if s_along < 0 else max(s_along - look, 0.0)
+                target = np.array([gx, gy]) + d * s_t
+            c, s = math.cos(th), math.sin(th)
+            tb = np.array([c * (target[0] - x) + s * (target[1] - y), -s * (target[0] - x) + c * (target[1] - y)])
+            kappa = 2.0 * tb[1] / max(float(tb @ tb), 1e-6)
+            v = math.copysign(min(speed, 1.2 * dist + 0.04), tb[0] if abs(tb[0]) > 1e-6 else 1.0)
+            if kind == 'car':
+                steer = math.atan(kappa * self.drive.wheelbase)
+                self.drive.turn = max(-1.0, min(1.0, steer / max(self.drive.steer_limit, 1e-3))) * \
+                    float(self.drive.turn_speed)
+                self.drive.forward = v * max(0.35, 1.0 - abs(steer) / 1.2)
+            else:
+                self.drive.forward = v
+                self.drive.turn = v * kappa
+            self.drive.sideways = 0.0
+            yield
+        self._stop_driving()
+        yield from self._wait(0.4)
+
+    def _goto_lane(self, base_x):
+        """The platform on the lane in front of the shelf (heading +x), the arm's base beside x = base_x."""
+        plan = self.plan
+        mx, _ = plan['mount']
+        gx = max(plan['floor_x'][0], min(plan['floor_x'][1], base_x - mx))
+        yield from self._drive_to(gx, plan['lane_y'], 0.0)
+
+    # -- choosing ---------------------------------------------------------------------
+    def _shelf_target(self, product):
+        """The front package of a lane of `product` to swap: still in its place, with the most room above it (to
+        lift it over the rail), the nearest the arm among those with enough room. None if there's none."""
+        plan, d = self.plan, self.data
+        states = package_states(d)
+        x, _, _ = self._pose()
+        base_x = x + plan['mount'][0]
+        best, key = None, None
+        for k in plan['lanes'].get(product, []):
+            if k in self.reserved or states[k] != 'place':
+                continue
+            s = plan['shelf'][k]
+            room = s['room'] >= plan['lift'] + 0.004
+            score = (0 if room else 1, abs(s['centre'][0] - base_x) - 0.2 * min(s['room'], 0.05))
+            if key is None or score < key:
+                best, key = k, score
+        return best
+
+    def _free_spot(self, foot, exclude):
+        """A free place in the crate (the platform's frame) for a footprint `foot` (x, y) [m] or turned a quarter
+        turn: (centre, turned); None if the crate is full. The other packages' footprints from where they are."""
+        plan, d = self.plan, self.data
+        c = plan['crate']
+        step = 0.01
+        nx, ny = int((c['x1'] - c['x0']) / step), int((c['y1'] - c['y0']) / step)
+        occ = np.zeros((nx, ny), bool)
+        x, y, th = self._pose()
+        cth, sth = math.cos(th), math.sin(th)
+        gap = 0.015
+        for j, it in enumerate(plan['items']):
+            if j in exclude:
+                continue
+            p = d.xpos[it['body']]
+            lx, ly = cth * (p[0] - x) + sth * (p[1] - y), -sth * (p[0] - x) + cth * (p[1] - y)
+            if not (c['x0'] - 0.1 < lx < c['x1'] + 0.1 and c['y0'] - 0.1 < ly < c['y1'] + 0.1):
+                continue
+            R = d.xmat[it['body']].reshape(3, 3)
+            ext = np.abs(R) @ it['half']  # (its box's extent in the world, about)
+            i0 = int((lx - ext[0] - gap - c['x0']) / step)
+            i1 = int(math.ceil((lx + ext[0] + gap - c['x0']) / step))
+            j0 = int((ly - ext[1] - gap - c['y0']) / step)
+            j1 = int(math.ceil((ly + ext[1] + gap - c['y0']) / step))
+            occ[max(i0, 0):max(min(i1, nx), 0), max(j0, 0):max(min(j1, ny), 0)] = True
+        best = None
+        for turned in (False, True):
+            fx, fy = (foot[1], foot[0]) if turned else (foot[0], foot[1])
+            w, h = int(math.ceil(fx / step)), int(math.ceil(fy / step))
+            if w > nx or h > ny:
+                continue
+            # (summed-area table: a free w x h block)
+            S = np.zeros((nx + 1, ny + 1), int)
+            S[1:, 1:] = np.cumsum(np.cumsum(occ, 0), 1)
+            free = (S[w:, h:] - S[:-w, h:] - S[w:, :-h] + S[:-w, :-h]) == 0
+            if not free.any():
+                continue
+            ii, jj = np.nonzero(free)
+            cx = c['x0'] + (ii + w / 2) * step
+            cy = c['y0'] + (jj + h / 2) * step
+            k = int(np.argmin(np.hypot(cx - plan['mount'][0], cy - plan['mount'][1])))  # nearest the arm
+            cand = (np.array([cx[k], cy[k]]), turned)
+            if best is None:
+                best = cand
+        return best
+
+    # -- the task ----------------------------------------------------------------------
+    def _stock(self, i):
+        plan, d = self.plan, self.data
+        it = plan['items'][i]
+        name = self._name(i)
+        empty = self.vacant.get(it['product']) or []
+        if empty:  # (a place emptied before, for a package of this product that didn't get there)
+            k = empty[0]
+        else:
+            k = self._shelf_target(it['product'])
+            if k is None:
+                raise _Abort('no place on the shelf for it (every front package of its lanes moved already)')
+        s = plan['shelf'][k]
+        self.reserved.add(k)
+        print(f'[auto] the {name}: ' + (f'into the empty place on shelf {s["level"]}' if empty else
+                                         f'swap it in for the front package of a lane on shelf {s["level"]}') +
+              f' (x {s["centre"][0] * 1000:.0f} mm)')
+        yield from self._grip(False)
+        yield from self._carry(0.0)
+        # (the arm's base a little to the side of the package: the cup reaches in at an angle from its base, not
+        # straight out from it, where the arm can't point sideways)
+        # (towards the shelf's middle: near an end the elbow would swing into the end panel)
+        side = plan['side'] if s['centre'][0] > plan['mid_x'] else -plan['side']
+        yield from self._goto_lane(float(s['centre'][0]) - side)
+        # ---- take the shelf's front package out, into the crate
+        if not empty:
+            yield from self._take_out(k)
+            yield from self._stow(k)
+            self.vacant.setdefault(it['product'], []).append(k)
+        # ---- the crate's package onto the shelf, in its place
+        yield from self._pick_lying(i)
+        yield from self._put_in(i, k)
+        self.vacant[it['product']].remove(k)
+        yield from self._carry(0.0)
+        p = d.xpos[it['body']]
+        R = d.xmat[it['body']].reshape(3, 3)
+        ok = abs(p[0] - s['centre'][0]) < 0.012 and abs(p[1] - s['centre'][1]) < 0.03 and abs(p[2] - s['centre'][2]) < 0.015 \
+            and R[2, 2] > 0.95
+        self.done += ok
+        self.failed += not ok
+        print(f'[auto] the {name}: ' + ('in its place' if ok else
+                                        f'put down, but not quite in its place ({np.linalg.norm(p - s["centre"]) * 1000:.0f} mm off)'))
+
+    def _press(self, curv):
+        """How far the tool point goes past the surface: the cup pressed on until its whole lip touches (Gripper 7's:
+        as deep as the surface curves away under the lip, within its travel), plus the cup's own lift."""
+        cup_r = self.plan['cup_r']
+        sag = 0.0
+        if curv is not None and cup_r > 0 and curv > cup_r:
+            sag = curv - math.sqrt(curv * curv - cup_r * cup_r)
+        return min(sag + 0.003, 0.0145) + self.plan['cup_lift']
+
+    def _take_out(self, k):
+        """The cup on the front package's front face (pointing into the shelf), suction, up over the rail, out."""
+        plan, d = self.plan, self.data
+        s = plan['shelf'][k]
+        body = plan['items'][k]['body']
+        c = d.xpos[body].copy()
+        face_y = c[1] - s['half'][1]
+        curv = s['half'][0] if s['shape'] == 'cylinder' else None
+        y_out = plan['y_out']
+        z = float(c[2])
+        x = float(c[0])
+        yield from self._move((x, y_out, z), ROLL_IN, what='in front of the shelf')
+        yield from self._move((x, face_y - 0.03, z), ROLL_IN, what='into the shelf, to the package')
+        yield from self._move((x, face_y + self._press(curv), z), ROLL_IN, what='onto its front', timeout=3.0)
+        yield from self._grip(True)
+        if not self._held(body):
+            raise _Abort('the cup doesn\'t seal on its front')
+        lift = min(plan['lift'], max(s['room'] - 0.004, 0.004))
+        yield from self._move((x, face_y + self._press(curv) - 0.004, z + lift), ROLL_IN, what='lifting it',
+                              timeout=4.0)
+        out_y = min(y_out, face_y - 2 * s['half'][1] - 0.06)
+        yield from self._move((x, out_y, z + lift), ROLL_IN, what='pulling it out', timeout=8.0)
+        if d.xpos[body][1] > c[1] - 0.05 or not self._held(body):
+            raise _Abort('it stayed on the shelf')
+        yield from self._move((x, out_y, z + max(lift, 0.03)), ROLL_IN, what='up', timeout=4.0)
+
+    def _stow(self, k):
+        """Into the crate: the cup turned down above a free spot (the package lies on its back, its front up), down,
+        let go."""
+        plan, d = self.plan, self.data
+        it = plan['items'][k]
+        body = it['body']
+        lying_h = 2 * (it['half'][0] if plan['shelf'][k]['shape'] == 'cylinder' else it['half'][1])
+        foot = (2 * it['half'][0], 2 * it['half'][2])  # (its width along x, its height along y when lying)
+        spot = self._free_spot(foot, exclude={k})
+        if spot is None:
+            raise _Abort('no room in the crate for the package taken out')
+        (sx, sy), turned = spot
+        travel = plan['carry'][2]
+        yaw = math.pi / 2 if turned else 0.0  # (its top towards the shelf, or along the platform)
+        # At the carrying pose (away from the arm's axis), still pointing in: turned about the vertical; then the cup
+        # down (the package swings under it, onto its back); then over the spot.
+        cx_, cy_, _ = plan['carry']
+        yield from self._move_local((cx_, cy_, travel), ROLL_IN, 0.0, what='back over the crate')
+        yield from self._move_local((cx_, cy_, travel), ROLL_IN, yaw, what='turning it round', timeout=8.0)
+        yield from self._move_local((cx_, cy_, travel), 0.0, yaw, what='turning it to lie', timeout=8.0)
+        yield from self._wait(0.5)
+        tcp, p = self._tcp_world(), d.xpos[body].copy()
+        off = self._to_local(p) - self._to_local(tcp)
+        below = float(tcp[2] - (p[2] - lying_h / 2))
+        goal = (sx - off[0], sy - off[1])
+        floor = plan['crate']['floor']
+        yield from self._move_local((*goal, travel), 0.0, yaw, what='over its spot')
+        yield from self._move_local((*goal, floor + below + 0.006), 0.0, yaw, what='down into the crate', timeout=10.0)
+        yield from self._grip(False)
+        yield from self._move_local((*goal, travel), 0.0, yaw, what='up from the crate')
+
+    def _pick_lying(self, i):
+        """The crate's package lying on its back: the cup from above on its front face, up, then turned to point into
+        the shelf (the package stands up, facing the aisle)."""
+        plan, d = self.plan, self.data
+        it = plan['items'][i]
+        body = it['body']
+        R = d.xmat[body].reshape(3, 3)
+        if R[2, 1] > -0.85:  # (its front, -y, isn't up)
+            raise _Abort('it doesn\'t lie on its back')
+        top = R[:2, 2]  # its top's direction, level
+        psi = math.atan2(-top[0], top[1])  # the turn about the vertical that points the tool that way once turned in
+        p = d.xpos[body].copy()
+        cyl = it['shape'] == 'cylinder'
+        lying_h = 2 * (it['half'][0] if cyl else it['half'][1])
+        local = self._to_local(p)
+        face_z = p[2] + lying_h / 2
+        travel = plan['carry'][2]
+        _, _, th = self._pose()
+        yaw = _wrap(psi - th)
+        yield from self._move_local((local[0], local[1], travel), 0.0, yaw, what='over the package')
+        yield from self._move_local((local[0], local[1], face_z - self._press(it['half'][0] if cyl else None)), 0.0, yaw,
+                                    what='down onto it', timeout=10.0)
+        yield from self._grip(True)
+        if not self._held(body):
+            raise _Abort('the cup doesn\'t seal on it')
+        yield from self._move_local((local[0], local[1], travel), 0.0, yaw, what='lifting it')
+        if d.xpos[body][2] < p[2] + 0.05:
+            raise _Abort('it slipped off the cup')
+        yield from self._move_local((local[0], local[1], travel), ROLL_IN, yaw, what='standing it up', timeout=8.0)
+        yield from self._move_local((local[0], local[1], travel), ROLL_IN, 0.0, what='facing it to the aisle', timeout=8.0)
+        yield from self._wait(0.5)
+        Rb = d.xmat[body].reshape(3, 3)
+        if Rb[2, 2] < 0.9:
+            raise _Abort('it hangs crooked from the cup')
+
+    def _put_in(self, i, k):
+        """Into the empty place of shelf package k: over the rail, in, down onto the shelf, let go, out."""
+        plan, d = self.plan, self.data
+        it = plan['items'][i]
+        body = it['body']
+        s = plan['shelf'][k]
+        tcp, p = self._tcp_world(), d.xpos[body].copy()
+        off = p - tcp  # (the platform heads +x: the world's axes, about)
+        target = np.array(s['centre'], float)
+        x = float(target[0] - off[0])
+        y_in = float(target[1] - off[1])
+        z_place = float(target[2] - off[2]) + 0.002
+        lift = min(plan['lift'], max(s['room'] - 0.004, 0.004))
+        y_out = plan['y_out']
+        out_y = min(y_out, s['centre'][1] - s['half'][1] - 2 * it['half'][1] - 0.06 - off[1])
+        yield from self._move((x, out_y, z_place + lift), ROLL_IN, what='in front of its place')
+        # Lined up: the place is only about a millimetre wider than the package (its neighbours stand edge to
+        # edge), so where it hangs is measured and the cup moved and turned until it's straight in front of it.
+        yaw = 0.0
+        for _ in range(3):
+            yield from self._wait(0.3)
+            Rb = d.xmat[body].reshape(3, 3)
+            yaw_err = _wrap(math.atan2(Rb[1, 0], Rb[0, 0]), math.pi / 2) if s['shape'] != 'cylinder' else 0.0
+            x_err = float(d.xpos[body][0] - target[0])
+            if abs(x_err) < 0.0008 and abs(yaw_err) < math.radians(0.4):
+                break
+            yaw -= yaw_err
+            x -= x_err
+            yield from self._move((x, out_y, z_place + lift), ROLL_IN, yaw, what='lining it up', timeout=4.0)
+        y_in = float(target[1] - (d.xpos[body][1] - self._tcp_world()[1]))
+        yield from self._move((x, y_in, z_place + lift), ROLL_IN, yaw, what='sliding it in', timeout=10.0)
+        yield from self._move((x, y_in, z_place), ROLL_IN, yaw, what='down onto the shelf', timeout=4.0)
+        yield from self._grip(False)
+        yield from self._move((x, y_in - 0.04, z_place), ROLL_IN, yaw, what='the cup off it', timeout=4.0)
+        yield from self._move((x, y_out, z_place + 0.01), ROLL_IN, what='out of the shelf')
 
 
 def main():

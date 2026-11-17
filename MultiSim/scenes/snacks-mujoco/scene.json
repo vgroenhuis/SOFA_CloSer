@@ -1,0 +1,10 @@
+{
+	"title": "Chips shelf (MuJoCo)",
+	"group": "realshelves",
+	"description": "Gripper 7's robot shop assistant at a real supermarket's chips and nuts shelf, modelled from photos: two bays with 715 packages (Pringles, Lay's and Doritos tins, crisps tubes, gwoon nut tubs) each a body of its own with its printed front; the front row's 34 bags of chips and nuts deformable.",
+	"thumbnail": "docs/thumbnail.jpg",
+	"port": 8000,
+	"cpus": 1.0,
+	"memory": "1g",
+	"visibility": "admin"
+}

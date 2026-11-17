@@ -179,8 +179,17 @@ select.group.group-archive { color: #b5b9c0; }
 .scene-body p { margin: 0; color: var(--text-2); font-size: 13px; flex: 1; }
 .scene-body .actions { display: flex; gap: 8px; }
 a.scene-thumb { display: block; }
-.run-card .actions { flex-wrap: wrap; align-items: center; }
+/* saved runs: compact cards, the picture at the side at half a scene card's size */
+.run-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; }
+.run-card { flex-direction: row; gap: 0; align-items: stretch; }
+.run-card .scene-thumb { flex: 0 0 150px; aspect-ratio: 16 / 9; align-self: flex-start; }
+.run-card .scene-body { padding: 8px 12px; gap: 4px; min-width: 0; }
+.run-card h3 { font-size: 14px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.run-card .scene-body p { font-size: 12px; }
+.run-card .actions { flex-wrap: wrap; align-items: center; gap: 6px; }
+.run-card .actions .button, .run-card .actions button { padding: 3px 8px; font-size: 12px; }
 .run-card select { font-size: 12px; padding: 3px 6px; }
+@media (max-width: 420px) { .run-card .scene-thumb { flex-basis: 110px; } }
 
 /* running list */
 .sim-list { display: flex; flex-direction: column; gap: 8px; }
@@ -282,3 +291,9 @@ pre.log {
 	.sim-row { grid-template-columns: 1fr; }
 	.key-box { font-size: 18px; }
 }
+
+/* the lobby's introduction and AI statement, folded under "Info" */
+.about-fold { margin: -6px 0 18px; }
+.about-fold > summary { list-style: none; display: inline-block; cursor: pointer; }
+.about-fold > summary::-webkit-details-marker { display: none; }
+.about-fold[open] > summary { margin-bottom: 12px; }

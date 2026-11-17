@@ -174,6 +174,242 @@ function applyLights() {
 		dir.position.normalize().multiplyScalar(100);
 		dir.target.position.set(0, 0, 0);
 	});
+	applyStyle();
+}
+
+// ---------------------------------------------------------------------------
+// Lighting styles (displayState "light:style"): "noir" -- film noir. A dark,
+// hazy scene in black and white with hard light: a key light through
+// venetian blinds from high at one side, spotlights following the robot's
+// cart and its end-effector (scenes with a manipulator; others: a lamp
+// overhead), a cold rim light from behind; the scene's own lights a faint
+// fill; contrast, a vignette and film grain on top. Everything is the
+// viewer's own: no scene changes, and back to normal when switched off.
+// ---------------------------------------------------------------------------
+
+const NOIR_KEY = 1.0 * DIRECTIONAL_INTENSITY; // (the key light through the blinds)
+const noir = { on: false, lights: [], saved: null, overlay: null, grain: null, grainTimer: null, frame: 0, flicker: 1 };
+
+function blindsTexture() {
+	// Venetian blinds: light slats with dark gaps (a spotlight's projected map).
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = 256;
+	const g = canvas.getContext("2d");
+	g.fillStyle = "#000";
+	g.fillRect(0, 0, 256, 256);
+	const slats = 11;
+	for (let i = 0; i < slats; i++) {
+		const y0 = (i / slats) * 256 + 4, h = (256 / slats) * 0.58;
+		const grad = g.createLinearGradient(0, y0, 0, y0 + h);
+		grad.addColorStop(0, "#9a9a9a");
+		grad.addColorStop(0.5, "#ffffff");
+		grad.addColorStop(1, "#b8b8b8");
+		g.fillStyle = grad;
+		g.fillRect(14, y0, 228, h);
+	}
+	// soft round edge of the window's light
+	const mask = g.createRadialGradient(128, 128, 60, 128, 128, 128);
+	mask.addColorStop(0, "rgba(0,0,0,0)");
+	mask.addColorStop(1, "rgba(0,0,0,1)");
+	g.fillStyle = mask;
+	g.fillRect(0, 0, 256, 256);
+	const tex = new THREE.CanvasTexture(canvas);
+	tex.colorSpace = THREE.NoColorSpace;
+	return tex;
+}
+
+// The scene's extent (its visible lit models): centre and size.
+function noirBounds() {
+	const box = new THREE.Box3();
+	for (const entry of models.values()) {
+		const o = entry.object;
+		if (!o?.isMesh || !o.visible || !o.geometry) continue;
+		o.geometry.computeBoundingBox();
+		const b = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);
+		if (Number.isFinite(b.min.x)) box.union(b);
+	}
+	if (box.isEmpty()) box.set(new THREE.Vector3(-1, -1, -1), new THREE.Vector3(1, 1, 1));
+	return { centre: box.getCenter(new THREE.Vector3()), size: Math.max(box.getSize(new THREE.Vector3()).length(), 1e-6), box };
+}
+
+function noirSpot({ color = 0xffffff, intensity, angle, penumbra = 0.25, shadow = true, map = null, mapSize = 1024 }) {
+	const s = new THREE.SpotLight(color, intensity, 0, angle, penumbra, 0);
+	s.castShadow = shadow;
+	if (shadow) {
+		s.shadow.mapSize.set(mapSize, mapSize);
+		s.shadow.bias = -0.0004;
+		s.shadow.normalBias = 0.02;
+	}
+	if (map) s.map = map;
+	scene.add(s);
+	scene.add(s.target);
+	noir.lights.push(s);
+	return s;
+}
+
+// The end-effector's and the cart's positions: the manipulator's grabbable models (the gripper) and its moving
+// frame (the cart, from the scene's scalars).
+const _noirBox = new THREE.Box3();
+function noirTargets() {
+	const out = {};
+	const spec = sceneInfo?.manipulator;
+	if (!spec) return out;
+	if (spec.models) {
+		const re = new RegExp(spec.models);
+		_noirBox.makeEmpty();
+		for (const entry of models.values()) {
+			const o = entry.object;
+			if (!o?.isMesh || !entry.info?.name || !re.test(entry.info.name)) continue;
+			o.geometry.computeBoundingBox();
+			_noirBox.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));
+		}
+		if (!_noirBox.isEmpty()) out.tool = _noirBox.getCenter(new THREE.Vector3());
+	}
+	if (spec.frame) {
+		const sc = shownScalars || {};
+		const k = spec.frame.scale ?? spec.scale ?? 1;
+		const x = Number(sc[spec.frame.x]), y = Number(sc[spec.frame.y]);
+		if (Number.isFinite(x) && Number.isFinite(y)) out.cart = new THREE.Vector3(x * k, y * k, 0);
+	}
+	return out;
+}
+
+function enableNoir() {
+	if (noir.on) return;
+	noir.on = true;
+	const { centre, size, box } = noirBounds();
+	noir.size = size;
+	noir.saved = { background: scene.background ? scene.background.clone() : null, fog: scene.fog, body: document.body.style.background };
+	scene.background = new THREE.Color(0x060606);
+	document.body.style.background = "#060606";
+	scene.fog = new THREE.FogExp2(0x0e0e0e, 0.9 / size);
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFShadowMap;
+	const { u, f, g } = upBasis();
+	const at = (a, b, c) => centre.clone().addScaledVector(f, a * size).addScaledVector(g, b * size).addScaledVector(u, c * size);
+	// The key: through the blinds, high at one side, raking across the scene.
+	const key = noirSpot({ intensity: NOIR_KEY, angle: 0.3, penumbra: 0.12, map: blindsTexture(), mapSize: 2048 });
+	key.position.copy(at(-0.75, -0.55, 0.6));
+	key.target.position.copy(centre);
+	noir.key = key;
+	// The cold rim light from behind and above: outlines.
+	const rim = noirSpot({ color: 0xcfd8ff, intensity: 0.35 * DIRECTIONAL_INTENSITY, angle: 0.5, penumbra: 0.5, shadow: false });
+	rim.position.copy(at(0.7, 0.8, 0.55));
+	rim.target.position.copy(centre);
+	const targets = noirTargets();
+	const shadowFar = size * 4;
+	if (targets.tool) {
+		noir.toolSpot = noirSpot({ intensity: 1.3 * DIRECTIONAL_INTENSITY, angle: 0.14, penumbra: 0.35, mapSize: 1024 });
+	}
+	if (targets.cart) {
+		noir.cartSpot = noirSpot({ intensity: 0.8 * DIRECTIONAL_INTENSITY, angle: 0.26, penumbra: 0.4, mapSize: 1024 });
+	}
+	if (!targets.tool && !targets.cart) {
+		// No robot to follow: an interrogation lamp overhead.
+		const lamp = noirSpot({ intensity: 1.0 * DIRECTIONAL_INTENSITY, angle: 0.3, penumbra: 0.3 });
+		lamp.position.copy(at(0.05, -0.05, 0.9));
+		lamp.target.position.copy(centre);
+	}
+	for (const l of noir.lights) {
+		if (!l.castShadow) continue;
+		l.shadow.camera.near = size * 0.02;
+		l.shadow.camera.far = shadowFar;
+	}
+	noir.boxTop = box.max.clone();
+	// The film: grey, contrasty; a vignette and grain over the view.
+	renderer.domElement.style.filter = "grayscale(1) contrast(1.35) brightness(0.9)";
+	const host = renderer.domElement.parentElement;
+	noir.overlay = document.createElement("div");
+	noir.overlay.className = "noir-vignette";
+	noir.grain = document.createElement("canvas");
+	noir.grain.className = "noir-grain";
+	noir.grain.width = 256;
+	noir.grain.height = 144;
+	host.append(noir.overlay, noir.grain);
+	const gctx = noir.grain.getContext("2d");
+	const img = gctx.createImageData(256, 144);
+	noir.grainTimer = setInterval(() => {
+		for (let i = 0; i < img.data.length; i += 4) {
+			const v = Math.random() * 255;
+			img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+			img.data[i + 3] = 255;
+		}
+		gctx.putImageData(img, 0, 0);
+		noir.flicker = 0.94 + Math.random() * 0.08;
+	}, 70);
+	noirShadows(true);
+}
+
+function disableNoir() {
+	if (!noir.on) return;
+	noir.on = false;
+	for (const l of noir.lights) {
+		scene.remove(l, l.target);
+		l.map?.dispose?.();
+		l.dispose?.();
+	}
+	noir.lights = [];
+	noir.toolSpot = noir.cartSpot = noir.key = null;
+	if (noir.saved) {
+		scene.background = noir.saved.background;
+		scene.fog = noir.saved.fog || null;
+		document.body.style.background = noir.saved.body;
+	}
+	renderer.shadowMap.enabled = false;
+	renderer.domElement.style.filter = "";
+	noir.overlay?.remove();
+	noir.grain?.remove();
+	clearInterval(noir.grainTimer);
+	noirShadows(false);
+}
+
+// Every model casts and takes shadows (only while the style is on: shadows cost a render per spotlight).
+function noirShadows(on) {
+	scene.traverse((o) => {
+		if (!o.isMesh || noir.lights.includes(o)) return;
+		o.castShadow = on;
+		o.receiveShadow = on;
+		if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => (m.needsUpdate = true));
+	});
+}
+
+// Each frame: the spotlights follow the gripper and the cart; the key flickers a little (an old projector).
+function updateNoir() {
+	if (noir.pending && models.size) {
+		noir.pending = false;
+		applyLights();
+	}
+	if (!noir.on) return;
+	noir.frame++;
+	if (noir.frame % 60 === 0) noirShadows(true); // (models built since)
+	if (noir.key) noir.key.intensity = NOIR_KEY * noir.flicker;
+	const t = noirTargets();
+	const { u } = upBasis();
+	const size = noir.size;
+	if (noir.toolSpot && t.tool) {
+		noir.toolSpot.target.position.copy(t.tool);
+		noir.toolSpot.position.copy(t.tool).addScaledVector(u, 0.9 * size).add(new THREE.Vector3(-0.15, -0.35, 0).multiplyScalar(size));
+	}
+	if (noir.cartSpot && t.cart) {
+		const c = t.cart.clone();
+		noir.cartSpot.target.position.copy(c);
+		noir.cartSpot.position.copy(c).addScaledVector(u, 1.1 * size).add(new THREE.Vector3(0.25, -0.3, 0).multiplyScalar(size));
+	}
+}
+
+function applyStyle() {
+	const style = displayState["light:style"];
+	if (style === "noir") {
+		if (!noir.on && !models.size) {
+			noir.pending = true; // (no models yet: laid out once they're there, see updateNoir)
+			return;
+		}
+		enableNoir();
+		if (ambientLight) ambientLight.intensity *= 0.08;
+		for (const d of directionalLights) d.intensity *= 0.06;
+	} else {
+		disableNoir();
+	}
 }
 
 // FEM elements, drawn like SOFA's showForceFields: each tetrahedron's 4
@@ -918,6 +1154,10 @@ function applySetup(message) {
 	document.body.style.background = `#${scene.background.getHexString()}`;
 	buildLights(message.ambient, message.lights);
 	message.models.forEach((info, order) => buildModel(info, order));
+	if (noir.on) {
+		disableNoir(); // (laid out again round the new models)
+		applyLights();
+	}
 	buildGauge(message.gauge);
 	buildMirrorCopies();
 	buildLightControls(message);
@@ -2337,6 +2577,26 @@ function buildLightingPanel(message, force = false) {
 	const box = $("lighting-controls");
 	box.replaceChildren();
 	lightSliders.length = 0;
+	{
+		// The style: the scene's own lights, or a look of the viewer's own (film noir).
+		const row = document.createElement("div");
+		row.className = "display-row";
+		const label = document.createElement("label");
+		label.textContent = "Style";
+		const select = document.createElement("select");
+		label.htmlFor = select.id = "lighting-style";
+		for (const [value, text] of [["", "The scene's lights"], ["noir", "Film noir"]]) select.add(new Option(text, value));
+		select.value = displayState["light:style"] || "";
+		select.addEventListener("change", () => {
+			if (select.value) displayState["light:style"] = select.value;
+			else delete displayState["light:style"];
+			markPresetModified("lighting");
+			saveDisplay();
+			applyLights();
+		});
+		row.append(label, select);
+		box.appendChild(row);
+	}
 	const degrees = (v) => `${Math.round(v)}°`;
 	for (const light of lights) {
 		box.appendChild(heading(light.label));
@@ -2420,7 +2680,15 @@ const PRESET_WHAT = { display: "these display settings", lighting: "these lighti
 const selectedPreset = { display: "Default", lighting: "Default", params: null };
 const presetModified = { display: false, lighting: false, params: false };
 const presetStoreKey = () => `sofaweb-presets:${sceneInfo.title}`;
-const presetList = (section) => (sceneInfo?.presets || {})[section] || [];
+// The viewer's own lighting presets, after the scene's: lighting styles every scene can use.
+const BUILTIN_LIGHTING = [
+	{ name: "Film noir", description: "Black and white, dark and hazy: a hard key light through venetian blinds, spotlights on the robot's cart and gripper (or a lamp overhead), a cold rim light, film grain.", values: { "light:style": "noir" } },
+];
+const presetList = (section) => {
+	const own = (sceneInfo?.presets || {})[section] || [];
+	if (section !== "lighting") return own;
+	return [...own, ...BUILTIN_LIGHTING.filter((b) => !own.some((p) => p.name === b.name))];
+};
 const isAdmin = () => document.body.classList.contains("admin");
 
 function restorePresetSelection() {
@@ -4012,6 +4280,7 @@ function animate() {
 		}
 	}
 	sortTransparent();
+	updateNoir();
 	renderer.render(scene, camera);
 }
 animate();

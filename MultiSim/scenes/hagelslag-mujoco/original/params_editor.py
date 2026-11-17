@@ -76,7 +76,7 @@ _DEFAULTS = {
     # -- the arm [mm], UR-like (at zero all links point up; the tool points along the shoulder axis) --
     'arm_mount_x': 250.0,        # where it stands on the platform (UR-like arm): forward of the platform's centre
     'arm_mount_y': 120.0,        #   and to the left (towards the shelves at the start)
-    'arm_column': 0.0,           # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
+    'arm_column': 600.0,          # [mm] a column under the arm's base, on the deck: raises the whole arm (and its
                                  # start pose) to reach high shelves; 0: on its 50 mm pedestal
     'arm_base_height': 160.0,    # base joint to shoulder joint
     'arm_shoulder_offset': 135.0,  # sideways
@@ -111,8 +111,8 @@ _DEFAULTS = {
     'dynamic_rows': 1,           # how many packages of each lane, from the front, are free bodies (0: all); the
                                  #   ones behind are fixed (they still collide). Masses and frictions:
                                  #   hagelslag_physics.json
-    'crate_length': 440.0,       # the platform's crate, inside, along the platform
-    'crate_width': 500.0,        # inside, across it
+    'crate_length': 520.0,       # the platform's crate, inside, along the platform
+    'crate_width': 600.0,        # inside, across it
     'crate_height': 80.0,
     'crate_wall': 6.0,
     'crate_gap': 30.0,           # [mm] between packages in a crate (room for the fingers)

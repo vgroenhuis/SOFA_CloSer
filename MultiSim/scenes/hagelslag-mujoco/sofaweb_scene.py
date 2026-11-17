@@ -64,6 +64,10 @@ class _Probes:
         values["in_crates"] = float(in_crate)
         values["on_floor"] = float(floor)
         values["contacts"] = float(data.ncon)
+        stocker = root.getObject("Stocker")
+        if stocker is not None:
+            values["auto_left"] = float(len(stocker.queue) + (stocker.current is not None))
+            values["auto_done"], values["auto_failed"] = float(stocker.done), float(stocker.failed)
         # The tactile skin: the contact force on each pad (its finger segment or jaw), all and the most on one.
         skin = build.get("skin_geoms") or {}
         if skin:
@@ -94,15 +98,26 @@ def _set(data_name, cast):
     return apply
 
 
+def _user(root):
+    """Something the user did: the automatic stocking stops."""
+    stocker = root.getObject("Stocker")
+    if stocker is not None:
+        stocker.cancel("stopped by hand")
+
+
 def _control_pressure(root, value):
     """The grip slider (kPa): the fingers' pressure, or the jaws' force, or the suction (the ramp smooths the
     change)."""
+    if abs(float(value) * 1000.0 - _ramp(root).targetPressure) > 1.0:
+        _user(root)
     _ramp(root).targetPressure = float(value) * 1000.0
 
 
 def _control_position(axis):
     def apply(root, value):
         flange = root.getObject("Flange")
+        if abs(getattr(flange, f"target{axis}") - float(value) * 1e-3) > 1e-4:
+            _user(root)
         setattr(flange, f"target{axis}", float(value) * 1e-3)
     return apply
 
@@ -110,6 +125,8 @@ def _control_position(axis):
 def _control_angle(name):
     def apply(root, value):
         flange = root.getObject("Flange")
+        if abs(getattr(flange, name) - math.radians(float(value))) > 1e-3:
+            _user(root)
         setattr(flange, name, math.radians(float(value)))
     return apply
 
@@ -117,7 +134,17 @@ def _control_angle(name):
 def _control_home(root):
     """The Home button (the manipulator's ⌂ Home, key H): the arm back to its start pose in joint space, the target
     with it -- also when it's stuck short of an unreachable target."""
+    _user(root)
     root.getObject("Arm").go_home()
+
+
+def _control_stock_all(root):
+    """Stock all: the crate's packages swapped in at the shelf's front, by themselves (a suction cup only)."""
+    root.getObject("Stocker").stock_all(root.data)
+
+
+def _control_auto_stop(root):
+    root.getObject("Stocker").cancel("stopped")
 
 
 def _control_repair(root):
@@ -129,6 +156,8 @@ def _control_drive(name, factor=1.0):
     """A drive slider: the platform's forward or sideways speed [m/s] or turn rate [deg/s] (a deadman: back to zero
     unless the browser keeps sending it)."""
     def apply(root, value):
+        if float(value) != 0.0:
+            _user(root)
         setattr(root.getObject("Drive"), name, float(value) * factor)
     return apply
 
@@ -178,14 +207,14 @@ _DEFAULT = {
     3.0, "wall_top": 1.5, "channel_separation": 2.0, "tips_enabled": True, "tip_length": 14.0, "tip_width": 3.0,
     "tip_thickness": 2.0, "joint_stiffness": 0.34, "joint_damping": 0.01, "joint_open_limit": 90.0,
     "side_stiffness": 5.0, "side_limit": 20.0, "joint_armature": 2e-06, "limit_timeconst": 0.002,
-    "pressure_torque_gain": 1.0, "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0, "arm_column": 0.0, "arm_base_height":
+    "pressure_torque_gain": 1.0, "tcp_depth": 50.0, "arm_mount_x": 250.0, "arm_mount_y": 120.0, "arm_column": 600.0, "arm_base_height":
     160.0, "arm_shoulder_offset": 135.0, "arm_upper": 450.0, "arm_elbow_offset": 120.0, "arm_fore": 400.0,
     "arm_wrist1": 100.0, "arm_wrist2": 100.0, "arm_wrist3": 100.0, "arm_gain": 3000.0, "ik_rate": 100.0,
     "ik_max_jump": 30.0, "platform_length": 1000.0, "platform_width": 700.0, "platform_height": 250.0,
     "platform_mass": 60.0, "start_x": -600.0, "start_y": -400.0, "drive_speed": 0.5, "drive_acceleration": 0.6,
     "turn_speed": 60.0, "turn_acceleration": 180.0, "flange_acceleration": 1.5, "flange_speed": 0.4,
     "angular_acceleration": 360.0, "angular_speed": 90.0, "flange_mass": 0.5, "shelf_distance": 300.0,
-    "shelf_x": 0.0, "dynamic_rows": 1, "crate_length": 440.0, "crate_width": 500.0, "crate_height": 80.0,
+    "shelf_x": 0.0, "dynamic_rows": 1, "crate_length": 520.0, "crate_width": 600.0, "crate_height": 80.0,
     "crate_wall": 6.0, "crate_gap": 30.0, "item_mass_scale": 1.0, "friction": 0.8,
     "torsional_friction": 0.005, "rolling_friction": 0.002, "impratio": 10.0, "noslip_iterations": 10,
     "finger_collisions": True, "sleep": True, "density": 1000.0, "gravity_enabled": True, "ramp_start": 0.0,
@@ -199,6 +228,11 @@ PRESETS = {
                         "a crate of nine packages, in front of the Hagelslag shelf (the front package of each lane "
                         "free).",
          "values": dict(_DEFAULT)},
+        {"name": "Automatic stocking (suction cup)",
+         "description": "The GripWiq SofTouch ST suction cup: press Stock all and the robot swaps the crate's "
+                        "packages in at the shelf's front by itself (the packages stand edge to edge, so it works on "
+                        "their front faces). A best attempt: some packages it can't get out or in.",
+         "values": {**_DEFAULT, "gripper": "gripwiq_st"}},
         {"name": "Franka, parallel jaws, two-wheel drive",
          "description": "A Franka Emika Panda with rigid parallel jaws on a differential-drive cart (it turns on the "
                         "spot but can't move sideways).",
@@ -389,6 +423,12 @@ CONFIG = SceneConfig(
         {"key": "repair", "label": "Repair the gripper", "type": "button", "apply": _control_repair,
          "description": "Straightens every finger and puts the arm back on its last solution, at rest: for a finger "
                         "jammed by a hard push."},
+        {"key": "stock_all", "label": "Stock all", "type": "button", "apply": _control_stock_all,
+         "description": "The robot stocks the crate's packages by itself: for each, it takes the front package of a "
+                        "lane of that product out (a suction cup on its front), lays it in the crate, and puts the "
+                        "crate's package in its place. Needs a gripper with a suction cup (the GripWiq ST does best)."},
+        {"key": "auto_stop", "label": "Stop stocking", "type": "button", "apply": _control_auto_stop,
+         "description": "Stops the automatic stocking (anything you do yourself stops it too)."},
         {"key": "home", "label": "Home", "type": "button", "apply": _control_home,
          "description": "The arm back to its start pose (moving its joints, not the gripper in a straight line), the "
                         "gripper's target with it: also when it's stuck short of a target it can't reach."},
@@ -405,7 +445,10 @@ CONFIG = SceneConfig(
         "grip": {"key": "pressure", "on": 80, "off": 0, "label": "Grip", "releaseLabel": "Let go"},
         "models": r"(^|/)bodies/(visu|base_layer|tips|joint_marks|trunk|rail|jaws|jaw_pads|cup|cup_stem|finray_[FBR]|mia_fingers|mia_joints|skin/[^/]+)/visual$",
         "jogSpeed": 150, "jogTurn": 60,
-        "buttons": [{"key": "repair", "label": "Repair", "title": "Straighten jammed fingers: every finger straight, "
+        "buttons": [{"key": "stock_all", "label": "Stock all", "title": "The robot swaps the crate's packages in at the "
+                     "shelf's front by itself (a suction cup only)"},
+                    {"key": "auto_stop", "label": "Stop", "title": "Stop the automatic stocking"},
+                    {"key": "repair", "label": "Repair", "title": "Straighten jammed fingers: every finger straight, "
                      "the arm on its last solution, at rest"}],
     },
     display=[
@@ -451,6 +494,9 @@ CONFIG = SceneConfig(
                     {"key": "applied", "label": "applied", "color": "#2a78d6"}]},
     ],
     readouts=[
+        {"key": "auto_left", "label": "stocking: packages to go", "digits": 0, "unit": ""},
+        {"key": "auto_done", "label": "stocking: in their place", "digits": 0, "unit": ""},
+        {"key": "auto_failed", "label": "stocking: given up or not quite placed", "digits": 0, "unit": ""},
         {"key": "moved", "label": "shelf packages moved", "digits": 0, "unit": ""},
         {"key": "in_crates", "label": "packages in the crate", "digits": 0, "unit": ""},
         {"key": "on_floor", "label": "packages on the floor", "digits": 0, "unit": ""},
@@ -487,8 +533,14 @@ CONFIG = SceneConfig(
         "By hand, as in Gripper 6 and 7: drive with the joystick at the left of the view or the arrow keys (, . "
         "turn), steer the gripper by dragging it, the gizmo, the height slider, the keys WASD R F Q E, and Space to "
         "grip. The arm follows by inverse kinematics while it can reach (the target dot turns red when it can't). "
-        "There is no automatic stocking here: the shelves are 20 to 26 cm apart, too close for Gripper 7's grasps "
-        "from above, and the top shelves are out of the arms' reach from the cart.",
+        "Stock all (a gripper with a suction cup): the robot stocks the crate's packages by itself. The lanes are "
+        "full and the packages stand edge to edge with a few centimetres above them, so it works on their front "
+        "faces: it drives along the shelf, takes the front package of a lane of that product out with the cup on "
+        "its front (lifted over the shelf's front rail), lays it on its back in the crate, takes the crate's package "
+        "(lying on its back) by its front, turns the cup to stand it up facing the aisle, lines it up and slides it "
+        "into the empty place. The arm stands on a 600 mm column so it reaches the top and the bottom shelves. A "
+        "best attempt: packages without room above them can't be lifted over the rail, and the empty place is only "
+        "a millimetre wider than the package, so some end up a little short of their place.",
         "The model: as Gripper 7 (the cart on x, y and yaw joints held by stiff position actuators; the arms' "
         "position actuators and inverse kinematics; MuJoCo's no-slip solver and island sleeping). The packages start "
         "asleep and wake when something touches them. The shelf's collision shapes are the boxes of its fixture "

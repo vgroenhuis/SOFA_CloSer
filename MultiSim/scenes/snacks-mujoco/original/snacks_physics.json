@@ -1,0 +1,84 @@
+{
+  "_about": [
+    "Placeholder physics for the snack shelf's packages (snack_shelf/placements.json): estimates, not measured.",
+    "A package's mass = density x the volume of its bounding box (placements.json's size_m), so a bigger package of a",
+    "kind weighs more. 'density' is in kg per litre of that box: the contents and the packaging, divided by the box.",
+    "'friction' is MuJoCo's sliding friction coefficient (the larger of two touching surfaces' values counts).",
+    "'shape' is the collision shape: 'box' (placements.json's box; a bag's untilted box) or 'cylinder' (upright, its",
+    "diameter the smaller of the box's width and depth). Bags in the front row are deformable (a flex) when the",
+    "parameter 'deformable_bags' is on; the rest are boxes.",
+    "'products' overrides a kind's values for one product (its id in placements.json), e.g.",
+    "  \"prg_orig\": {\"mass\": 0.19, \"friction\": 0.35}   (mass in kg)",
+    "'fixtures': the friction of the shelf's parts (shelf.glb's fx_* nodes)."
+  ],
+  "kinds": {
+    "can": {
+      "density": 0.15,
+      "friction": 0.35,
+      "shape": "cylinder",
+      "_note": "Pringles, crisps tubes: 165 g in a 7.5 x 23.5 cm can"
+    },
+    "box": {
+      "density": 0.11,
+      "friction": 0.45,
+      "shape": "box",
+      "_note": "Lay's / Doritos paper tins: ~170 g"
+    },
+    "tub": {
+      "density": 0.32,
+      "friction": 0.35,
+      "shape": "cylinder",
+      "_note": "gwoon nut tubs: ~225 g (choco melange per spar.nl) + ~25 g tub"
+    },
+    "bag": {
+      "density": 0.07,
+      "friction": 0.45,
+      "shape": "box",
+      "_note": "chips and nut bags: 150-300 g of contents and air in plastic film"
+    }
+  },
+  "products": {
+    "b_peanuts": {
+      "mass": 0.5
+    },
+    "b_bbq": {
+      "mass": 0.25
+    },
+    "b_borrelmix": {
+      "mass": 0.2
+    },
+    "b_crackers": {
+      "mass": 0.2
+    },
+    "prg_orig": {
+      "mass": 0.205
+    },
+    "prg_papr": {
+      "mass": 0.205
+    },
+    "prg_sco": {
+      "mass": 0.205
+    },
+    "prg_hot": {
+      "mass": 0.205
+    },
+    "prg_s_orig": {
+      "mass": 0.1
+    },
+    "prg_s_papr": {
+      "mass": 0.1
+    },
+    "t_choco": {
+      "mass": 0.25
+    }
+  },
+  "fixtures": {
+    "wire": 0.3,
+    "glass": 0.2,
+    "panel": 0.4,
+    "rail": 0.3
+  },
+  "clearance_mm": 1.0,
+  "_clearance": "each package's collision shape is this much smaller than its box (half on each side), so neighbours don't start touching",
+  "_pringles": "Pringles: 165 g (large can) and 70 g (small), per spar.nl; plus ~40 g / ~30 g of can"
+}

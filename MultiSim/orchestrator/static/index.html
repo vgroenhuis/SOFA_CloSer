@@ -21,11 +21,26 @@
 			</div>
 		</header>
 
-		<p class="intro">A collection of simplistic simulations primarily developed within the CloSer project: soft robots as finite-element (FEM) models in SOFA, and grippers and mobile manipulators as multibody models in MuJoCo. The scenes are generally designed to be simulated approximately in real-time and therefore rather simplistic. Multiple visitors can simultaneously interact with the simulations and adjust the settings etc. as each simulation runs in a separate process. If the server becomes overloaded by too many visitors then the maximum number of concurrent simulations may be constrained, or other measures applied. The <a href="https://github.com/vgroenhuis/SOFA_CloSer" target="_blank" rel="noopener">source is public</a>, so you can also clone it and run simulations locally, either natively (SOFA, MuJoCo) or in a container. More complex and realistic simulations are conducted offline by the team on different computers.</p>
+		<details class="about-fold">
+			<summary class="button secondary small">Info</summary>
+			<p class="intro">A collection of simplistic simulations primarily developed within the CloSer project: soft robots as finite-element (FEM) models in SOFA, and grippers and mobile manipulators as multibody models in MuJoCo. The scenes are generally designed to be simulated approximately in real-time and therefore rather simplistic. Multiple visitors can simultaneously interact with the simulations and adjust the settings etc. as each simulation runs in a separate process. If the server becomes overloaded by too many visitors then the maximum number of concurrent simulations may be constrained, or other measures applied. The <a href="https://github.com/vgroenhuis/SOFA_CloSer" target="_blank" rel="noopener">source is public</a>, so you can also clone it and run simulations locally, either natively (SOFA, MuJoCo) or in a container. More complex and realistic simulations are conducted offline by the team on different computers.</p>
 
-		<section class="ai-statement">
-			<h2>AI statement</h2>
-			<p class="intro">Simulations on this website are AI-generated, mostly by Claude Opus 5.5 in agentic mode, using less than half of the weekly credits of a single Claude Pro plan since Sept 2026. While we understand the implications of AI use including but not limited to the environmental impact of datacenters, we believe that the benefits of quickly developing simulations for study and visualization purposes clearly outweigh the cost.</p>
+			<section class="ai-statement">
+				<h2>AI statement</h2>
+				<p class="intro">Simulations on this website are AI-generated, mostly by Claude Opus 5.5 in agentic mode, using less than half of the weekly credits of a single Claude Pro plan since Sept 2026. While we understand the implications of AI use including but not limited to the environmental impact of datacenters, we believe that the benefits of quickly developing simulations for study and visualization purposes clearly outweigh the cost.</p>
+			</section>
+		</details>
+
+		<section>
+			<h2>Running now</h2>
+			<div class="sim-list" id="running-list"></div>
+		</section>
+
+		<section id="runs-section" class="hidden">
+			<h2>Saved runs</h2>
+			<p class="muted small" style="margin: -4px 0 12px">Simulations saved after they ran: play them back with the timeline, look around and change the display, without simulating. Anyone with a run's link can watch it.</p>
+			<div class="run-grid" id="runs-list"></div>
+			<button type="button" class="secondary small hidden" id="runs-more" style="margin-top: 12px"></button>
 		</section>
 
 		<section id="mine-section" class="hidden">
@@ -42,18 +57,6 @@
 			</div>
 			<div id="start-notice" class="notice hidden"></div>
 			<div id="scene-groups"></div>
-		</section>
-
-		<section>
-			<h2>Running now</h2>
-			<div class="sim-list" id="running-list"></div>
-		</section>
-
-		<section id="runs-section" class="hidden">
-			<h2>Saved runs</h2>
-			<p class="muted small" style="margin: -4px 0 12px">Simulations saved after they ran: play them back with the timeline, look around and change the display, without simulating. Anyone with a run's link can watch it.</p>
-			<div class="grid" id="runs-list"></div>
-			<button type="button" class="secondary small hidden" id="runs-more" style="margin-top: 12px"></button>
 		</section>
 
 		<section>

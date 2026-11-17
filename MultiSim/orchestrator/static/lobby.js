@@ -299,7 +299,7 @@ if (fragment.get("reclaim")) {
 const runsSection = document.getElementById("runs-section");
 const runsList = document.getElementById("runs-list");
 const runsMore = document.getElementById("runs-more");
-const RUNS_SHOWN = 8; // the newest; "Show all" for the rest
+const RUNS_SHOWN = 6; // the newest; "Show all" for the rest
 let runs = [];
 let runsAll = false;
 let isAdmin = false;

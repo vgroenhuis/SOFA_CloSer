@@ -145,11 +145,14 @@ class MjScene:
 
     def add_dynamic_visual(self, path: str, compute: Callable, points, triangles, color=(1.0, 1.0, 1.0, 1.0),
                            texture: Optional[str] = None, texture_scale: Optional[float] = None,
-                           label: Optional[dict] = None) -> MjDynamicVisual:
+                           label: Optional[dict] = None, image: Optional[str] = None, uv=None) -> MjDynamicVisual:
         """A mesh that deforms: `compute(data)` gives its points' world positions each frame (see MjDynamicVisual);
-        `points` are where they are at rest (for the texture and the label)."""
+        `points` are where they are at rest (for the texture and the label); `image` and `uv` as add_visual's (the
+        image moves with the material)."""
+        if image is not None and image not in self.images:
+            raise ValueError(f"add_dynamic_visual({path!r}): no image {image!r} in the scene's images")
         visual = MjDynamicVisual(self, path, compute, points, triangles, texture=texture, texture_scale=texture_scale,
-                                 label=label)
+                                 label=label, image=image, uv=uv)
         rgba = list(color) + [1.0] * (4 - len(color))
         self.visuals.append(VisualRecord(visual, [float(c) for c in rgba[:4]]))
         return visual

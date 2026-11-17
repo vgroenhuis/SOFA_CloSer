@@ -1,0 +1,12178 @@
+{
+"frame": "metres; origin on the floor at the back-left corner; +x along the shelf, +y up, +z towards the aisle",
+"shelves": {
+"left_heights_cm": [
+126,
+102,
+78,
+57,
+36,
+12
+],
+"right_heights_cm": [
+126,
+102,
+77,
+56,
+36,
+12
+]
+},
+"units": [
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.073,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.183,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_chocopinda",
+"name": "Gwoon chocolade pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.293,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.413,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.523,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.2925,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.3575,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.4225,
+0.37
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.2925,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.3575,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.4225,
+0.26
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.2925,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.3575,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_choco",
+"name": "Gwoon choco melange",
+"kind": "tub",
+"bay": "L",
+"shelf": 1,
+"center_m": [
+0.633,
+1.4225,
+0.15
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.073,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.183,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pinda",
+"name": "Gwoon pinda's",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.293,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.408,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_cashew",
+"name": "Gwoon cashewnoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.518,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.633,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.743,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.0525,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.1175,
+0.4037
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.0525,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.1175,
+0.2937
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.0525,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 2,
+"center_m": [
+0.853,
+1.1175,
+0.1837
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.073,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.183,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_kalpang",
+"name": "Gwoon katjang pedis",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.293,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.408,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.518,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_macadamia",
+"name": "Gwoon macadamia",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.628,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.743,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8125,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8775,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.9425,
+0.4374
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8125,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8775,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.9425,
+0.3274
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8125,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8775,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.9425,
+0.2174
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8125,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.8775,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "t_pistache",
+"name": "Gwoon pistachenoten",
+"kind": "tub",
+"bay": "L",
+"shelf": 3,
+"center_m": [
+0.853,
+0.9425,
+0.1074
+],
+"size_m": [
+0.11,
+0.065,
+0.11
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.4918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.4318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.3718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.3118
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.2518
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.1918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.1318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.093,
+0.665,
+0.0718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.4918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.4318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.3718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.3118
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.2518
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.1918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.1318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.243,
+0.665,
+0.0718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.4918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.4318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.3718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.3118
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.2518
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.1918
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.1318
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_crackers",
+"name": "Zoute crackers",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.393,
+0.665,
+0.0718
+],
+"size_m": [
+0.15,
+0.19,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.4918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.4318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.3718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.3118
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.2518
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.1918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.1318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.548,
+0.655,
+0.0718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.4918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.4318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.3718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.3118
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.2518
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.1918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.1318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.688,
+0.655,
+0.0718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.4918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.4318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.3718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.3118
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.2518
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.1918
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.1318
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_borrelmix",
+"name": "Borrelmix",
+"kind": "bag",
+"bay": "L",
+"shelf": 4,
+"center_m": [
+0.828,
+0.655,
+0.0718
+],
+"size_m": [
+0.14,
+0.17,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.5213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.4613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.4013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.3413
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.2813
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.2213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.1613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.098,
+0.45,
+0.1013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.5213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.4613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.4013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.3413
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.2813
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.2213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.1613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.258,
+0.45,
+0.1013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.5213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.4613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.4013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.3413
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.2813
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.2213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.1613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.418,
+0.45,
+0.1013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.5213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.4613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.4013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.3413
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.2813
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.2213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.1613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.578,
+0.45,
+0.1013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.5213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.4613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.4013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.3413
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.2813
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.2213
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.1613
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_bbq",
+"name": "BBQ paprika borrelnoten",
+"kind": "bag",
+"bay": "L",
+"shelf": 5,
+"center_m": [
+0.738,
+0.45,
+0.1013
+],
+"size_m": [
+0.16,
+0.18,
+0.06
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.56
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.47
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.38
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.29
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.2
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.153,
+0.215,
+0.11
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.56
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.47
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.38
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.29
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.2
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.403,
+0.215,
+0.11
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.56
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.47
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.38
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.29
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.2
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "b_peanuts",
+"name": "Gwoon pinda's in de dop",
+"kind": "bag",
+"bay": "L",
+"shelf": 6,
+"center_m": [
+0.653,
+0.215,
+0.11
+],
+"size_m": [
+0.25,
+0.19,
+0.09
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.0555,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.1305,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_orig",
+"name": "Pringles Original",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2055,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.8475,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.8475,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.8475,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.8475,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.2805,
+1.8475,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.8475,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.8475,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.8475,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.8475,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.3555,
+1.8475,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_papr",
+"name": "Pringles Paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.4305,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5055,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_sco",
+"name": "Pringles Sour Cream & Onion",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.5805,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.6555,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.3775,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.6125,
+0.3875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.3775,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.6125,
+0.3125
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.3775,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.6125,
+0.2375
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.3775,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.6125,
+0.1625
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.3775,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_hot",
+"name": "Pringles Hot & Spicy",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.7305,
+1.6125,
+0.0875
+],
+"size_m": [
+0.075,
+0.235,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.3175,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.4325,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.3175,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.4325,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.3175,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.4325,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.3175,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.4325,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.3175,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8155,
+1.4325,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.3175,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.4325,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.3175,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.4325,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.3175,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.4325,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.3175,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.4325,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.3175,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_orig",
+"name": "Pringles Original 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.8905,
+1.4325,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.3175,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.4325,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.3175,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.4325,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.3175,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.4325,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.3175,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.4325,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.3175,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+1.9655,
+1.4325,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.3175,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.4325,
+0.3875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.3175,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.4325,
+0.3125
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.3175,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.4325,
+0.2375
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.3175,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.4325,
+0.1625
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.3175,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "prg_s_papr",
+"name": "Pringles Paprika 70 g",
+"kind": "can",
+"bay": "R",
+"shelf": 1,
+"center_m": [
+2.0405,
+1.4325,
+0.0875
+],
+"size_m": [
+0.075,
+0.115,
+0.075
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.063,
+1.1175,
+0.4137
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.063,
+1.1175,
+0.3237
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.063,
+1.1175,
+0.2337
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.063,
+1.1175,
+0.1437
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.153,
+1.1175,
+0.4137
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.153,
+1.1175,
+0.3237
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.153,
+1.1175,
+0.2337
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "lays_max",
+"name": "Lay's Max paprika",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.153,
+1.1175,
+0.1437
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.248,
+1.1175,
+0.4137
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.248,
+1.1175,
+0.3237
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.248,
+1.1175,
+0.2337
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.248,
+1.1175,
+0.1437
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.338,
+1.1175,
+0.4137
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.338,
+1.1175,
+0.3237
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.338,
+1.1175,
+0.2337
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "bugles",
+"name": "Lay's Bugles nacho cheese",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.338,
+1.1175,
+0.1437
+],
+"size_m": [
+0.09,
+0.195,
+0.09
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.4355,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.4355,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.4355,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.4355,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.5305,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.5305,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.5305,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.5305,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6255,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6255,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6255,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "doritos_tin",
+"name": "Doritos nacho cheese (tin)",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.6255,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7255,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7255,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7255,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.7255,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.8205,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.8205,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.8205,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.8205,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.9155,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.9155,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.9155,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ched",
+"name": "Lay's Wavy mature cheddar & onion",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+1.9155,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.0155,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.0155,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.0155,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.0155,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.1105,
+1.1175,
+0.4112
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.1105,
+1.1175,
+0.3162
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.1105,
+1.1175,
+0.2212
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "wavy_ham",
+"name": "Lay's Wavy roasted ham",
+"kind": "box",
+"bay": "R",
+"shelf": 2,
+"center_m": [
+2.1105,
+1.1175,
+0.1262
+],
+"size_m": [
+0.095,
+0.195,
+0.095
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.4588
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.3888
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.3188
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.2488
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.1788
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.053,
+0.885,
+0.1088
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.4588
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.3888
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.3188
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.2488
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.1788
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_red",
+"name": "Potato crisps original (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.123,
+0.885,
+0.1088
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.4588
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.3888
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.3188
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.2488
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.1788
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.203,
+0.885,
+0.1088
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.4588
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.3888
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.3188
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.2488
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.1788
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_green",
+"name": "Potato crisps sour cream (tube)",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.273,
+0.885,
+0.1088
+],
+"size_m": [
+0.07,
+0.23,
+0.07
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.4563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.3813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.3063
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.2313
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.1563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.3555,
+0.885,
+0.0813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.4563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.3813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.3063
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.2313
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.1563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.4305,
+0.885,
+0.0813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.4563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.3813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.3063
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.2313
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.1563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5055,
+0.885,
+0.0813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.4563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.3813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.3063
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.2313
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.1563
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "tube_orange",
+"name": "Spar Potato Crisps paprika",
+"kind": "can",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.5805,
+0.885,
+0.0813
+],
+"size_m": [
+0.075,
+0.23,
+0.075
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.4638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.4038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.3438
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.2838
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.2238
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.1638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.733,
+0.875,
+0.1038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.4638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.4038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.3438
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.2838
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.2238
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.1638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+1.923,
+0.875,
+0.1038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.4638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.4038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.3438
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.2838
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.2238
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.1638
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "doritos_bag",
+"name": "Doritos Flamin' Hot",
+"kind": "bag",
+"bay": "R",
+"shelf": 3,
+"center_m": [
+2.113,
+0.875,
+0.1038
+],
+"size_m": [
+0.19,
+0.21,
+0.06
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.4882
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.4182
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.3482
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.2782
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.2082
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.133,
+0.655,
+0.1382
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.4882
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.4182
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.3482
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.2782
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.2082
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.343,
+0.655,
+0.1382
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.4882
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.4182
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.3482
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.2782
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.2082
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nat",
+"name": "Gwoon tortilla chips naturel",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.553,
+0.655,
+0.1382
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.4882
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.4182
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.3482
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.2782
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.2082
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+1.793,
+0.655,
+0.1382
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.4882
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.4182
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.3482
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.2782
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.2082
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "gwoon_nacho",
+"name": "Gwoon tortilla chips nacho cheese",
+"kind": "bag",
+"bay": "R",
+"shelf": 4,
+"center_m": [
+2.003,
+0.655,
+0.1382
+],
+"size_m": [
+0.21,
+0.19,
+0.07
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.5213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.4613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.4013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.3413
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.2813
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.2213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.1613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.133,
+0.445,
+0.1013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.5213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.4613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.4013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.3413
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.2813
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.2213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.1613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.353,
+0.445,
+0.1013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.5213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.4613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.4013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.3413
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.2813
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.2213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.1613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.573,
+0.445,
+0.1013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.5213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.4613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.4013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.3413
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.2813
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.2213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.1613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+1.793,
+0.445,
+0.1013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.5213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.4613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.4013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.3413
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.2813
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.2213
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.1613
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "chio",
+"name": "Chio chips",
+"kind": "bag",
+"bay": "R",
+"shelf": 5,
+"center_m": [
+2.013,
+0.445,
+0.1013
+],
+"size_m": [
+0.22,
+0.17,
+0.06
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.098,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_nacho",
+"name": "Takis Intense Nacho",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.248,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.408,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_blue",
+"name": "Takis Blue Heat",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.558,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.718,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.58
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.53
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.48
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.43
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.38
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.33
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.28
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.23
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.18
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.13
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "takis_fuego",
+"name": "Takis Fuego",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+1.868,
+0.225,
+0.08
+],
+"size_m": [
+0.15,
+0.21,
+0.05
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.57
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.5
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.43
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.36
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.29
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.22
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.15
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+},
+{
+"product": "breakers",
+"name": "Breakers paprika",
+"kind": "bag",
+"bay": "R",
+"shelf": 6,
+"center_m": [
+2.073,
+0.225,
+0.08
+],
+"size_m": [
+0.2,
+0.21,
+0.07
+]
+}
+]
+}
