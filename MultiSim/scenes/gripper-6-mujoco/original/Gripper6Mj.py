@@ -27,6 +27,7 @@ Parameters: params.json next to this script (edit by hand, or with params_editor
 """
 import json
 import math
+import re
 import os
 import subprocess
 import sys
@@ -837,6 +838,44 @@ class ArmIK:
         self.jp = np.zeros((3, model.nv))
         self.jr = np.zeros((3, model.nv))
         self.target_mat = np.zeros(9)
+        # Self-collision (the IK model's geoms: the links' capsules, the gripper's box, the arm's pedestal and the
+        # cart's deck): a pose where two of them come closer than their margin is refused, except pairs
+        # that do so in (nearly) every pose (parts meeting at a joint: found in random poses). Joint limits alone
+        # don't keep the arm off itself: which poses collide depends on all the joints together.
+        self.cdata = mujoco.MjData(model)
+        self.allowed = set()
+        if model.ngeom:
+            rng, count, n = np.random.default_rng(7), {}, 300
+            lo, hi = np.maximum(self.lo, -math.pi), np.minimum(self.hi, math.pi)
+            for _ in range(n):
+                for pair in set(self._contacts(rng.uniform(lo, hi))):
+                    count[pair] = count.get(pair, 0) + 1
+            self.allowed = {pair for pair, c in count.items() if c >= 0.97 * n}
+        self.hit = None  # (the last colliding pair, by name)
+
+    def _contacts(self, q):
+        m, d = self.model, self.cdata
+        d.qpos[:] = q
+        mujoco.mj_kinematics(m, d)
+        mujoco.mj_collision(m, d)
+        return [tuple(sorted((int(a), int(b)))) for a, b in d.contact.geom[:d.ncon]]
+
+    def collision(self, q):
+        """The first pair of the arm's parts (or the arm and its cart) too close in pose `q`, as (name, name), or
+        None."""
+        if q is None or not self.model.ngeom:
+            return None
+        for pair in self._contacts(q):
+            if pair not in self.allowed:
+                return tuple(mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_GEOM, g) or f'geom{g}' for g in pair)
+        return None
+
+    def path_clear(self, q0, q1, step=0.04):
+        """Whether the straight joint-space move from q0 to q1 keeps clear (checked every `step` rad)."""
+        q0, q1 = np.asarray(q0, float), np.asarray(q1, float)
+        n = max(1, int(math.ceil(float(np.max(np.abs(q1 - q0))) / step)))
+        return all(self.collision(q0 + (q1 - q0) * (i / n)) is None for i in range(1, n + 1))
+
 
     def solve(self, pos, quat, seed):
         """Joint angles putting the tool point at `pos` turned by `quat` (w, x, y, z), from `seed`; None if none is
@@ -875,12 +914,43 @@ class ArmIK:
                  for w5 in (-math.pi / 2, math.pi / 2)]
         for seed in seeds:
             q = self.solve(pos, quat, seed)
-            if q is not None:
+            if q is not None and self.collision(q) is None:
                 # The same pose with each fully turning joint within half a turn of zero (an unwound wrist).
                 full = (self.hi - self.lo) > 2 * math.pi + 1e-6
                 q[full] = (q[full] + math.pi) % (2 * math.pi) - math.pi
                 return q
         return None
+
+
+IK_GEOM = 'contype="1" conaffinity="1" margin="0.008"'  # (the self-collision check's: 8 mm clearance)
+
+
+def gripper_envelope(model, flange):
+    """The gripper's box: (centre, half sizes) in the flange body's frame, of every colliding geom on it (its
+    bounding boxes, the fingers at rest)."""
+    d = mujoco.MjData(model)
+    mujoco.mj_kinematics(model, d)
+    xf, Rf = d.xpos[flange], d.xmat[flange].reshape(3, 3)
+    inside = set()
+    for b in range(model.nbody):
+        a = b
+        while a > 0 and a != flange:
+            a = int(model.body_parentid[a])
+        if a == flange:
+            inside.add(b)
+    corners = []
+    signs = np.array([[i, j, k] for i in (-1, 1) for j in (-1, 1) for k in (-1, 1)], float)
+    for g in range(model.ngeom):
+        if int(model.geom_bodyid[g]) not in inside or not (model.geom_contype[g] or model.geom_conaffinity[g]):
+            continue
+        c, half = model.geom_aabb[g, :3], model.geom_aabb[g, 3:]
+        pts = d.geom_xpos[g] + (c + signs * half) @ d.geom_xmat[g].reshape(3, 3).T
+        corners.append((pts - xf) @ Rf)
+    if not corners:
+        return np.zeros(3), np.full(3, 0.02)
+    pts = np.vstack(corners)
+    lo, hi = pts.min(axis=0), pts.max(axis=0)
+    return (lo + hi) / 2, np.maximum((hi - lo) / 2, 0.005)
 
 
 class ArmController:
@@ -901,19 +971,43 @@ class ArmController:
         self.elapsed = 0.0
         self.period = 1.0 / max(rate, 1.0)
         self.q_home, self.home = None, None
-        self._reconf = None  # (from, to, elapsed, duration, goal position, goal quaternion): a move in joint space  # (set once built: the start configuration, the start pose)
+        self._reconf = None  # (waypoints, elapsed, durations, goal position, goal quat): a move in joint space
+        self.blocked = None  # (the pair of parts that would collide, while it waits short of its target for that)
+
+    def _path(self, q_from, q_to):
+        """Joint-space waypoints from q_from to q_to keeping the arm clear of itself and its cart: straight, the
+        wrist first, the shoulder first, or through the start configuration; None if none is clear."""
+        q_from, q_to = np.asarray(q_from, float), np.asarray(q_to, float)
+        k = min(3, len(q_from))
+        options = [[], [np.concatenate([q_from[:k], q_to[k:]])], [np.concatenate([q_to[:k], q_from[k:]])]]
+        if self.q_home is not None:
+            options.append([np.asarray(self.q_home, float)])
+        for mid in options:
+            points = [q_from, *mid, q_to]
+            if all(self.ik.path_clear(a, b) for a, b in zip(points, points[1:])):
+                return points
+        return None
+
+    def _move(self, points, goal, gq):
+        durations = [max(0.5, float(np.max(np.abs(b - a))) / 0.8) for a, b in zip(points, points[1:])]  # (0.8 rad/s)
+        self._reconf = ([p.copy() for p in points], 0.0, durations, np.array(goal, float), np.array(gq, float))
 
     def __call__(self, scene, h):
         self.elapsed += h
-        if self._reconf is not None:  # going to a fresh solution in joint space
-            q_from, q_to, t, dur, goal, gq = self._reconf
+        if self._reconf is not None:  # going to a fresh solution in joint space (by its waypoints)
+            points, t, durations, goal, gq = self._reconf
             t += h
-            f = min(1.0, t / dur)
+            i, t0 = 0, 0.0
+            while i < len(durations) - 1 and t > t0 + durations[i]:
+                t0 += durations[i]
+                i += 1
+            f = min(1.0, (t - t0) / durations[i])
             f = f * f * (3 - 2 * f)
-            scene.data.ctrl[self.actuators] = q_from + (q_to - q_from) * f
-            self._reconf = (q_from, q_to, t, dur, goal, gq)
-            self.reachable = True
-            if t >= dur:
+            scene.data.ctrl[self.actuators] = points[i] + (points[i + 1] - points[i]) * f
+            self._reconf = (points, t, durations, goal, gq)
+            self.reachable, self.blocked = True, None
+            q_to = points[-1]
+            if t >= sum(durations):
                 self._reconf = None
                 self.q_prev = self.q_next = q_to.copy()
                 m = self.motion
@@ -924,16 +1018,24 @@ class ArmController:
         if self.elapsed >= self.period - 1e-9:
             self.elapsed = 0.0
             q = self.ik.solve(self.motion.position, self.motion.quat, self.q_next)
-            if q is not None and np.max(np.abs(q - self.q_next)) <= self.max_jump:
+            hit = None
+            if q is not None and np.max(np.abs(q - self.q_next)) > self.max_jump:
+                q = None
+            if q is not None:
+                hit = self.ik.collision(q)
+                if hit is not None:
+                    q = None
+            if q is not None:
                 self.q_prev, self.q_next = self.q_next, q
                 self.good = (list(self.motion.position), self.motion.quat.copy())
-                self.reachable = True
+                self.reachable, self.blocked = True, None
             else:
                 m = self.motion
                 m.position, m.quat = list(self.good[0]), self.good[1].copy()
                 m.velocity, m.omega = [0.0, 0.0, 0.0], 0.0
                 self.q_prev = self.q_next.copy()
                 self.reachable = False
+                self.blocked = hit
         frac = min(1.0, self.elapsed / self.period)
         scene.data.ctrl[self.actuators] = self.q_prev + (self.q_next - self.q_prev) * frac
 
@@ -947,9 +1049,8 @@ class ArmController:
         m = self.motion
         m.targetX, m.targetY, m.targetZ = (float(c) for c in pos)
         m.roll = m.pitch = m.yaw = 0.0
-        span = float(np.max(np.abs(self.q_home - self.q_next)))
-        self._reconf = (self.q_next.copy(), self.q_home.copy(), 0.0, max(0.5, span / 0.8),
-                        np.array(pos, dtype=np.float64), np.array(quat, dtype=np.float64))
+        points = self._path(self.q_next, self.q_home) or [self.q_next.copy(), np.array(self.q_home, float)]
+        self._move(points, pos, quat)
 
     def hold(self, scene, qpos):
         """Back on its current solution (Repair): the joints at it, at rest."""
@@ -1338,13 +1439,17 @@ def createScene():
     flange_in_link6 = (0.0, A['wrist3'] + grip_top, 0.0)
     flange_quat = (math.cos(math.pi / 4), math.sin(math.pi / 4), 0.0, 0.0)  # Rx(90): gripper z -> link6 -y
 
-    def arm_bodies(ik):
+    def arm_bodies(ik, envelope=None):
         """The arm's bodies (from its base on the platform); the gripper on its flange, or (for the IK model) only
-        a site at the tool point."""
+        a site at the tool point, the links' collision shapes and the gripper's box (`envelope`: its centre and
+        half sizes in the flange's frame) for the self-collision check."""
         out = [f'<body name="arm_base" pos="{_v(mount)}">']
         if not ik:
             out.append(f'<geom name="arm_pedestal" type="cylinder" size="0.075 {pedestal / 2:.9g}" '
                        f'pos="0 0 {pedestal / 2:.9g}" mass="2" class="platform"/>')
+        else:
+            out.append(f'<geom name="pedestal" type="cylinder" size="0.075 {pedestal / 2:.9g}" '
+                       f'pos="0 0 {pedestal / 2:.9g}" {IK_GEOM}/>')
         for i, (axis, offset, (p0, p1), r) in enumerate(links):
             lo, hi = limits[i]
             out.append(f'<body name="arm_l{i + 1}" pos="{_v(offset)}"{"" if ik else " gravcomp=\"1\""}>')
@@ -1352,11 +1457,18 @@ def createScene():
                        f'armature="{0.05 if i < 3 else 0.01}" damping="{0.5 if i < 3 else 0.05}"/>')
             if ik:  # (kinematics only, but a moving body needs some inertia)
                 out.append('<inertial pos="0 0 0" mass="1" diaginertia="0.01 0.01 0.01"/>')
+                out.append(f'<geom name="link{i + 1}" type="capsule" fromto="{_v(p0)} {_v(p1)}" size="{r}" {IK_GEOM}/>')
             else:
                 out.append(f'<geom name="arm_l{i + 1}" type="capsule" fromto="{_v(p0)} {_v(p1)}" size="{r}" '
                            f'mass="{link_mass[i]}" class="arm"/>')
         if ik:
             out.append(f'<site name="tcp" pos="{_v(flange_in_link6)}" quat="{_v(flange_quat)}"/>')
+            if envelope is not None:
+                R = np.zeros(9)
+                mujoco.mju_quat2Mat(R, np.array(flange_quat, float))
+                centre = np.array(flange_in_link6) + R.reshape(3, 3) @ envelope[0]
+                out.append(f'<geom name="gripper" type="box" size="{_v(envelope[1])}" pos="{_v(centre)}" '
+                           f'quat="{_v(flange_quat)}" {IK_GEOM}/>')
         else:
             out.append(f'<body name="flange" pos="{_v(flange_in_link6)}" quat="{_v(flange_quat)}">')
             out += gripper
@@ -1489,9 +1601,18 @@ def createScene():
     flange_id = body('flange')
     platform_id = body('platform')
 
-    # The arm alone, for the inverse kinematics: its base where it stands in the platform's frame.
+    # The arm alone, for the inverse kinematics: its base where it stands in the platform's frame; with the cart's
+    # deck (and tracks) for the self-collision check (not the crate: the gripper reaches into it, and its contacts
+    # with the gripper are simulated).
+    ik_world = [re.sub(r' mass="[^"]*"', '', g_).replace('class="platform"', IK_GEOM) for g_ in plat
+                if re.match(r'<geom name="(deck|track)', g_)]
+    # (the deck's top 30 mm lower: a gripper's fingertips reach down to the floor of the crate standing on it)
+    ik_world = [re.sub(r'name="deck" type="box" size="(\S+) (\S+) ([^"]+)" pos="0 0 ([^"]+)"',
+                       lambda m_: f'name="deck" type="box" size="{m_.group(1)} {m_.group(2)} '
+                                  f'{max(float(m_.group(3)) - 0.015, 0.005):.9g}" pos="0 0 {float(m_.group(4)) - 0.015:.9g}"',
+                       g_) for g_ in ik_world]
     ik_xml = f"""<mujoco model="gripper6_ik"><compiler angle="radian" autolimits="true"/>
-  <worldbody>{chr(10).join(arm_bodies(True))}</worldbody></mujoco>"""
+  <worldbody>{chr(10).join(ik_world + arm_bodies(True, gripper_envelope(model, flange_id)))}</worldbody></mujoco>"""
     ik_model = mujoco.MjModel.from_xml_string(ik_xml)
 
     def body_of(k, j):

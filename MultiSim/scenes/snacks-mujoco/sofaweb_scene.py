@@ -50,7 +50,8 @@ class _Probes:
         values["tcp_x"], values["tcp_y"], values["tcp_z"] = (float(c) * 1000.0 for c in p)
         roll, pitch, yaw = module.matrix_to_euler(R.T @ data.xmat[f].reshape(3, 3))
         values["roll"], values["pitch"], values["yaw"] = math.degrees(roll), math.degrees(pitch), math.degrees(yaw)
-        values["ik_ok"] = 1.0 if root.getObject("Arm").reachable else 0.0
+        arm = root.getObject("Arm")
+        values["ik_ok"] = 1.0 if arm.reachable else (-1.0 if getattr(arm, "blocked", None) else 0.0)
         for i, a in enumerate(build["arm_qpos"]):
             values[f"q{i + 1}"] = math.degrees(float(data.qpos[a]))
         states = module.package_states(data)
@@ -138,6 +139,10 @@ def _control_home(root):
     root.getObject("Arm").go_home()
 
 
+# The grippers that can stock the shelf by themselves (the scene's STOCK_MODE): Stock all is grayed out for others.
+STOCKING_GRIPPERS = ["gripwiq_st", "gripwiq_cs", "softgripping_suction", "suction", "parallel", "festo_finray"]
+
+
 def _control_stock_all(root):
     """Stock all: the crate's packages swapped in at the shelf's front, by themselves (a suction cup only)."""
     root.getObject("Stocker").stock_all(root.data)
@@ -214,7 +219,7 @@ _DEFAULT = {
     "platform_mass": 60.0, "start_x": -600.0, "start_y": -400.0, "drive_speed": 0.5, "drive_acceleration": 0.6,
     "turn_speed": 60.0, "turn_acceleration": 180.0, "flange_acceleration": 1.5, "flange_speed": 0.4,
     "angular_acceleration": 360.0, "angular_speed": 90.0, "flange_mass": 0.5, "shelf_distance": 300.0,
-    "shelf_x": 0.0, "dynamic_rows": 1, "deformable_bags": True, "bag_stiffness": 60.0, "bag_poisson": 0.45, "sleep_tolerance": 0.015, "crate_length": 520.0, "crate_width": 600.0, "crate_height": 80.0,
+    "shelf_x": 0.0, "facing_gap": 0.0, "dynamic_rows": 1, "deformable_bags": True, "bag_stiffness": 60.0, "bag_poisson": 0.45, "sleep_tolerance": 0.015, "crate_length": 520.0, "crate_width": 600.0, "crate_height": 80.0,
     "crate_wall": 6.0, "crate_gap": 30.0, "item_mass_scale": 1.0, "friction": 0.8,
     "torsional_friction": 0.005, "rolling_friction": 0.002, "impratio": 10.0, "noslip_iterations": 10,
     "finger_collisions": True, "sleep": True, "density": 1000.0, "gravity_enabled": True, "ramp_start": 0.0,
@@ -233,6 +238,15 @@ PRESETS = {
                         "packages in at the shelf's front by itself (the packages stand edge to edge, so it works on "
                         "their front faces). A best attempt: some packages it can't get out or in.",
          "values": {**_DEFAULT, "gripper": "gripwiq_st"}},
+        {"name": "Automatic stocking (parallel jaws)",
+         "description": "Rigid parallel jaws: press Stock all and the robot swaps the crate's packages in, holding "
+                        "each across its width from the front. The lanes stand 20 mm apart (Shelf: gap between "
+                        "facings) so the jaws fit in beside the packages; a few lanes at the shelves' ends drop out.",
+         "values": {**_DEFAULT, "gripper": "parallel", "facing_gap": 20.0}},
+        {"name": "Automatic stocking (Fin Ray fingers)",
+         "description": "Festo Fin Ray fingers: as the parallel jaws, the lanes 25 mm apart (the fingers are thicker "
+                        "towards their root, so they go less deep in beside a package).",
+         "values": {**_DEFAULT, "gripper": "festo_finray", "facing_gap": 25.0}},
         {"name": "Franka, parallel jaws, two-wheel drive",
          "description": "A Franka Emika Panda with rigid parallel jaws on a differential-drive cart (it turns on the "
                         "spot but can't move sideways).",
@@ -327,7 +341,7 @@ _LIMITS = {
     "platform_mass": (1.0, 1000.0), "start_x": (-3000.0, 3000.0), "start_y": (-3000.0, 3000.0),
     "drive_speed": (0.01, 3.0), "drive_acceleration": (0.01, 10.0), "turn_speed": (1.0, 360.0),
     "turn_acceleration": (1.0, 3600.0),
-    "shelf_distance": (125.0, 2000.0), "shelf_x": (-3000.0, 3000.0), "dynamic_rows": (0, 20), "bag_stiffness": (1.0, 2000.0), "bag_poisson": (0.0, 0.49), "sleep_tolerance": (1e-5, 0.1),
+    "shelf_distance": (125.0, 2000.0), "shelf_x": (-3000.0, 3000.0), "facing_gap": (0.0, 80.0), "dynamic_rows": (0, 20), "bag_stiffness": (1.0, 2000.0), "bag_poisson": (0.0, 0.49), "sleep_tolerance": (1e-5, 0.1),
     "crate_length": (80.0, 900.0), "crate_width": (60.0, 700.0),
     "crate_height": (20.0, 300.0), "crate_wall": (2.0, 40.0), "crate_gap": (0.0, 100.0),
     "item_mass_scale": (0.05, 20.0), "friction": (0.0, 3.0), "torsional_friction": (0.0, 0.05),
@@ -376,7 +390,7 @@ CONFIG = SceneConfig(
                                    "channel_separation"]),
         ("Joints", ["joint_stiffness", "joint_damping", "joint_open_limit", "side_stiffness", "side_limit",
                     "joint_armature", "limit_timeconst", "pressure_torque_gain"]),
-        ("Shelf", ["shelf_distance", "shelf_x", "dynamic_rows", "deformable_bags", "bag_stiffness", "bag_poisson"]),
+        ("Shelf", ["shelf_distance", "shelf_x", "facing_gap", "dynamic_rows", "deformable_bags", "bag_stiffness", "bag_poisson"]),
         ("Platform's crate", ["crate_length", "crate_width", "crate_height", "crate_wall", "crate_gap"]),
         ("Packages (masses, frictions: original/snacks_physics.json)", ["item_mass_scale"]),
         ("Contact", ["friction", "torsional_friction", "rolling_friction", "impratio", "noslip_iterations",
@@ -427,9 +441,14 @@ CONFIG = SceneConfig(
          "description": "Straightens every finger and puts the arm back on its last solution, at rest: for a finger "
                         "jammed by a hard push."},
         {"key": "stock_all", "label": "Stock all", "type": "button", "apply": _control_stock_all,
+         "enabled_when": {"gripper": STOCKING_GRIPPERS},
+         "disabled_note": "Stock all needs a gripper that can stock this shelf: a suction cup (GripWiq, SoftGripping "
+                          "with cup, simple cup), or parallel jaws or Fin Ray fingers with a gap between the facings "
+                          "(Parameters: Gripper, and Shelf: gap between facings)",
          "description": "The robot stocks the crate's packages by itself: for each, it takes the front package of a "
-                        "lane of that product out (a suction cup on its front), lays it in the crate, and puts the "
-                        "crate's package in its place. Needs a gripper with a suction cup (the GripWiq ST does best)."},
+                        "lane of that product out, lays it in the crate, and puts the crate's package in its place. "
+                        "A suction cup works on the packages' fronts; parallel jaws or Fin Ray fingers hold them across "
+                        "their width (they need room beside them: Shelf: gap between facings, 20 mm)."},
         {"key": "auto_stop", "label": "Stop stocking", "type": "button", "apply": _control_auto_stop,
          "description": "Stops the automatic stocking (anything you do yourself stops it too)."},
         {"key": "home", "label": "Home", "type": "button", "apply": _control_home,
@@ -449,7 +468,7 @@ CONFIG = SceneConfig(
         "models": r"(^|/)bodies/(visu|base_layer|tips|joint_marks|trunk|rail|jaws|jaw_pads|cup|cup_stem|finray_[FBR]|mia_fingers|mia_joints|skin/[^/]+)/visual$",
         "jogSpeed": 150, "jogTurn": 60,
         "buttons": [{"key": "stock_all", "label": "Stock all", "title": "The robot swaps the crate's packages in at the "
-                     "shelf's front by itself (a suction cup only)"},
+                     "shelf's front by itself (suction cups; parallel jaws and Fin Ray with a gap between the facings)"},
                     {"key": "auto_stop", "label": "Stop", "title": "Stop the automatic stocking"},
                     {"key": "repair", "label": "Repair", "title": "Straighten jammed fingers: every finger straight, "
                      "the arm on its last solution, at rest"}],
@@ -503,7 +522,7 @@ CONFIG = SceneConfig(
         {"key": "moved", "label": "shelf packages moved", "digits": 0, "unit": ""},
         {"key": "in_crates", "label": "packages in the crate", "digits": 0, "unit": ""},
         {"key": "on_floor", "label": "packages on the floor", "digits": 0, "unit": ""},
-        {"key": "ik_ok", "label": "target reachable (1 yes, 0 no)", "digits": 0, "unit": ""},
+        {"key": "ik_ok", "label": "target reachable (1 yes, 0 no, -1 the arm would hit itself)", "digits": 0, "unit": ""},
         {"key": "base_x", "label": "platform x", "digits": 0, "unit": "mm"},
         {"key": "base_y", "label": "platform y", "digits": 0, "unit": "mm"},
         {"key": "base_yaw", "label": "platform heading", "digits": 0, "unit": "deg"},

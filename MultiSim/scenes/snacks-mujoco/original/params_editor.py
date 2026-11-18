@@ -108,6 +108,7 @@ _DEFAULTS = {
     # -- the store [mm] --
     'shelf_distance': 300.0,     # the shelf's front edge (its deck's; y = this)
     'shelf_x': 0.0,              # the shelf's middle, along x
+    'facing_gap': 0.0,           # at least this gap between neighbouring facings (0: as in the photos)
     'sleep_tolerance': 0.015,    # MuJoCo's sleep tolerance: below it a resting body sleeps (the bags: cheaper);
                                  # too high and slow movements freeze
     'deformable_bags': True,     # the front row's bags deformable (a coarse flex each: 12 nodes; slower), or boxes
@@ -277,6 +278,7 @@ _FIELDS = [
     ('Turn acceleration',                      'turn_acceleration',   1, 0, 'deg/s2'),
     ('Shelf front edge (y)',                   'shelf_distance',      1, 0, 'mm'),
     ('Shelf middle (x)',                       'shelf_x',             1, 0, 'mm'),
+    ('Shelf: gap between facings (jaws: 20)',  'facing_gap',          1, 0, 'mm'),
     ('Free packages per lane, from the front (0: all)', 'dynamic_rows', 1, 0, ''),
     ('Bags: stiffness (Young\'s modulus)', 'bag_stiffness', 1, 1, 'kPa'),
     ('Bags: Poisson\'s ratio (0.5: constant volume)', 'bag_poisson', 1, 2, ''),

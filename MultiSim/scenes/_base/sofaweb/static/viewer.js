@@ -1717,6 +1717,7 @@ function buildControlsPanel(controls) {
 		form.appendChild(row);
 		controlRows.set(c.key, { control: c, row, show });
 	}
+	updateControlAvailability();
 }
 
 // The scene's manipulator (SceneConfig.manipulator), if it has one: see manipulator.js.
@@ -1738,6 +1739,7 @@ function buildManipulator(spec, controlSpecs) {
 		}).catch(() => {}),
 		show: (key, value) => controlRows.get(key)?.show(value),
 		scalars: () => shownScalars,
+		params: () => currentParams,
 		mount: (row, side) => {
 			if (row) $("bottom").prepend(row);
 			if (side) document.body.appendChild(side);
@@ -1933,9 +1935,23 @@ function updateDisplayAvailability() {
 	}
 }
 
+// Controls that work only with certain parameter values (`enabled_when`: {param: [values]}, e.g. Stock all with
+// the grippers it can use) are grayed out otherwise, in the running scene.
+function updateControlAvailability() {
+	for (const { control: c, row } of controlRows.values()) {
+		if (!c.enabled_when) continue;
+		const ok = Object.entries(c.enabled_when).every(([key, values]) => !(key in currentParams) || values.map(String).includes(String(currentParams[key])));
+		const input = row.querySelector("button, input");
+		if (input) input.disabled = isViewer || !ok;
+		row.classList.toggle("disabled", !ok);
+		row.title = ok ? c.description || "" : c.disabled_note || "No effect with the current parameters";
+	}
+}
+
 function showParams(params) {
 	currentParams = params;
 	updateDisplayAvailability();
+	updateControlAvailability();
 	for (const [key, { field, input }] of fieldInputs) {
 		if (!(key in params)) continue;
 		if (document.activeElement === input && !isViewer) continue;

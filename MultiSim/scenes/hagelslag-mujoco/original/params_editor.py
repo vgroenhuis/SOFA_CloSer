@@ -108,6 +108,7 @@ _DEFAULTS = {
     # -- the store [mm] --
     'shelf_distance': 300.0,     # the shelf's front edge (its deck's; y = this)
     'shelf_x': 0.0,              # the shelf's middle, along x
+    'facing_gap': 0.0,           # at least this gap between neighbouring facings (0: as in the photos)
     'dynamic_rows': 1,           # how many packages of each lane, from the front, are free bodies (0: all); the
                                  #   ones behind are fixed (they still collide). Masses and frictions:
                                  #   hagelslag_physics.json
@@ -272,6 +273,7 @@ _FIELDS = [
     ('Turn acceleration',                      'turn_acceleration',   1, 0, 'deg/s2'),
     ('Shelf front edge (y)',                   'shelf_distance',      1, 0, 'mm'),
     ('Shelf middle (x)',                       'shelf_x',             1, 0, 'mm'),
+    ('Shelf: gap between facings (jaws: 20)',  'facing_gap',          1, 0, 'mm'),
     ('Free packages per lane, from the front (0: all)', 'dynamic_rows', 1, 0, ''),
     ('Crate: inside length (along the platform)', 'crate_length',     1, 0, 'mm'),
     ('Crate: inside width (across it)',        'crate_width',         1, 0, 'mm'),

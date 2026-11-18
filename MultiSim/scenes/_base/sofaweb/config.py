@@ -60,7 +60,9 @@ class SceneConfig:
     #          the owner's browser stops confirming it, e.g. disconnects);
     #   {"key", "label", "type": "button", "apply": fn(root)}
     #       -- one action per click (e.g. a kick).
-    # Optional "description" (tooltip). Every build starts them at their
+    # Optional "description" (tooltip); "enabled_when": {param: [values]} grays it
+    # out unless the running scene's parameters have one of those values
+    # ("disabled_note": the tooltip then, e.g. what to choose). Every build starts them at their
     # default (applied after the scene is built). A run that used them is
     # never kept as a preset's recorded run.
     controls: list[dict] = field(default_factory=list)

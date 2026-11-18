@@ -48,7 +48,8 @@ class _Probes:
         values["tcp_x"], values["tcp_y"], values["tcp_z"] = (float(c) * 1000.0 for c in p)
         roll, pitch, yaw = module.matrix_to_euler(R.T @ data.xmat[f].reshape(3, 3))
         values["roll"], values["pitch"], values["yaw"] = math.degrees(roll), math.degrees(pitch), math.degrees(yaw)
-        values["ik_ok"] = 1.0 if root.getObject("Arm").reachable else 0.0
+        arm = root.getObject("Arm")
+        values["ik_ok"] = 1.0 if arm.reachable else (-1.0 if getattr(arm, "blocked", None) else 0.0)
         for i, a in enumerate(build["arm_qpos"]):
             values[f"q{i + 1}"] = math.degrees(float(data.qpos[a]))
         states = module.item_states(data)
@@ -385,7 +386,7 @@ CONFIG = SceneConfig(
         {"key": "in_crates", "label": "still in the crate", "digits": 0, "unit": ""},
         {"key": "displaced", "label": "shelf items out of place", "digits": 0, "unit": ""},
         {"key": "on_floor", "label": "items on the floor", "digits": 0, "unit": ""},
-        {"key": "ik_ok", "label": "target reachable (1 yes, 0 no)", "digits": 0, "unit": ""},
+        {"key": "ik_ok", "label": "target reachable (1 yes, 0 no, -1 the arm would hit itself)", "digits": 0, "unit": ""},
         {"key": "base_x", "label": "platform x", "digits": 0, "unit": "mm"},
         {"key": "base_y", "label": "platform y", "digits": 0, "unit": "mm"},
         {"key": "base_yaw", "label": "platform heading", "digits": 0, "unit": "deg"},

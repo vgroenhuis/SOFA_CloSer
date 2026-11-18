@@ -21,7 +21,7 @@
 //    and turn buttons (keys , and .): deadman sliders, sent again while held,
 //    zero when let go.
 //  - `reach`: a scalar that is 0 while the target can't be reached (the
-//    marker turns red). Grabbing the end-effector then first puts the target
+//    marker turns red; -1: the arm would hit itself or its cart there). Grabbing the end-effector then first puts the target
 //    where the end-effector is (the scene's scalars of the same names as the
 //    position and rotation controls: its actual pose), so dragging moves it
 //    at once instead of the far-away target.
@@ -191,6 +191,7 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	const homeBtn = button("⌂ Home", spec.homeTitle || "Back to the start pose (keyboard: H)", goHome);
 	const gripBtn = grip ? button(grip.label || "Grip", "Close the fingers / let go (keyboard: Space)", toggleGrip, "") : null;
 	// The scene's own buttons (button controls, e.g. a repair): one press each.
+	const gated = []; // (buttons whose control has `enabled_when`: grayed out unless the running parameters fit)
 	for (const b of spec.buttons || []) {
 		if (byKey.get(b.key)?.type !== "button") continue;
 		const el = button(b.label || byKey.get(b.key).label, b.title || byKey.get(b.key).description || "", () => {
@@ -198,6 +199,16 @@ export function createManipulator(ctx, spec, controlSpecs) {
 			el.classList.add("active");
 			setTimeout(() => el.classList.remove("active"), 200);
 		});
+		const c = byKey.get(b.key);
+		if (c.enabled_when) gated.push({ el, c, title: el.title });
+	}
+	function updateGated() {
+		const params = ctx.params ? ctx.params() || {} : {};
+		for (const g of gated) {
+			const ok = Object.entries(g.c.enabled_when).every(([key, values]) => !(key in params) || values.map(String).includes(String(params[key])));
+			if (g.el.disabled !== (!ok || ctx.isViewer)) g.el.disabled = !ok || ctx.isViewer;
+			g.el.title = ok ? g.title : g.c.disabled_note || "No effect with the current parameters";
+		}
 	}
 	const reachNote = document.createElement("span");
 	reachNote.className = "manip-reach hidden";
@@ -659,10 +670,18 @@ export function createManipulator(ctx, spec, controlSpecs) {
 	function frame() {
 		gizmo.camera = ctx.camera();
 		placeFrame();
+		updateGated();
 		if (spec.reach) {
 			const out = outOfReach();
 			marker.material.color.setHex(out ? 0xe02424 : 0xff8a1f);
 			reachNote.classList.toggle("hidden", !out);
+			if (out) {
+				const self = Number((ctx.scalars() || {})[spec.reach]) < -0.5;
+				reachNote.textContent = self ? "Would hit itself" : "Out of reach";
+				reachNote.title = self
+					? "The arm would hit itself or its cart on the way to the target: the gripper waits where it got to (the red dot is the target). Drag the gripper to go on from where it is, or press Home."
+					: "The arm can't reach the target: the gripper waits where it got to (the red dot is the target). Drag the gripper to go on from where it is, or press Home.";
+			}
 		}
 		tick();
 	}

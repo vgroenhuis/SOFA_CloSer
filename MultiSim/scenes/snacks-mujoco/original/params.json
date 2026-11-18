@@ -102,5 +102,6 @@
   "joint_alpha": 1.0,
   "item_alpha": 1.0,
   "show_joint_marks": true,
-  "theme": "System"
+  "theme": "System",
+  "facing_gap": 0.0
 }

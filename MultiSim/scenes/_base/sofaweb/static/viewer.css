@@ -353,7 +353,8 @@ body.viewer .param-note { display: none; }
 	font-size: 11px;
 	line-height: 1.4;
 	color: #cfd3da;
-	white-space: pre;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 }
 
 #info-overlay {

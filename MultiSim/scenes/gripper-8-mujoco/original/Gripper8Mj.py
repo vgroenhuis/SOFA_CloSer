@@ -447,7 +447,42 @@ GRIPPER_CHOICES = [('pneunet', 'Soft PneuNet fingers (Gripper 5)'),
                    ('festo_finray', 'Festo Fin Ray fingers (DHAS) on parallel jaws'),
                    ('mia', 'Prensilia Mia hand'),
                    ('parallel', 'Rigid parallel jaws'), ('three_jaw', 'Rigid three-jaw chuck'),
-                   ('suction', 'Simple suction cup (adhesion)')]
+                   ('suction', 'Simple suction cup (adhesion)'),
+                   # Large versions, for big items (a 150 g bag of chips, a bag of potatoes): see XL_SCALE
+                   ('festo_finray_xl', 'Festo Fin Ray, large (2x)'),
+                   ('parallel_xl', 'Rigid parallel jaws, large (2x)'),
+                   ('softgripping_parallel_xl', 'SoftGripping SoftGripper, parallel base, large (2x)'),
+                   ('softgripping_suction_xl', 'SoftGripping SoftGripper, centric with suction cup, large (2x)'),
+                   ('mia_xl', 'Prensilia Mia hand, large (2x)')]
+
+XL_SCALE = 2.0  # a large ('_xl') gripper's jaws or fingers: this many times as long and as far apart
+
+
+def xl_params(P, kind):
+    """The parameters of a large version of gripper `kind` (its base kind): lengths and spacings times XL_SCALE; a
+    soft finger's cross-section times sqrt(XL_SCALE) (so it is in proportion and its chambers' torque grows with
+    its stiffness: it bends as far at a given pressure); grip forces up with the size."""
+    s = XL_SCALE
+    c = math.sqrt(s)
+    Q = dict(P)
+    Q['jaw_stroke'] = P['jaw_stroke'] * s
+    Q['tcp_depth'] = P['tcp_depth'] * s
+    if kind in ('parallel', 'festo_finray'):
+        Q.update(jaw_length=P['jaw_length'] * s, jaw_width=P['jaw_width'] * c, jaw_force=P['jaw_force'] * s,
+                 finray_length=P['finray_length'] * s, finray_base=P['finray_base'] * c,
+                 finray_stiffness=P['finray_stiffness'] * s * s)
+        Q['tcp_depth'] = P['tcp_depth']  # (the jaws hang from the palm: the tool point stays at their rail)
+    elif kind.startswith('softgripping'):
+        Q.update(length=P['length'] * s, channel_separation=P['channel_separation'] * s,
+                 tip_length=P['tip_length'] * s, finger_radius=P['finger_radius'] * s, sg_spacing=P['sg_spacing'] * s,
+                 width=P['width'] * c, height=P['height'] * c, tip_width=P['tip_width'] * c,
+                 tip_thickness=P['tip_thickness'] * c,
+                 joint_stiffness=P['joint_stiffness'] * c ** 3)
+        for k in ('wall_end', 'wall_side', 'wall_bottom', 'wall_top'):
+            Q[k] = P[k] * c
+    elif kind == 'mia':
+        Q['mia_torque'] = P['mia_torque'] * s ** 3  # (its fingers' forces: twice as far out, four times as strong)
+    return Q
 
 
 JAW_KINDS = ('parallel', 'three_jaw', 'festo_finray')
@@ -1030,7 +1065,14 @@ def build_gripper(P, gkind):
     """One gripper (GRIPPER_CHOICES' `gkind`) in its own frame, the tool point at the origin, the fingers pointing
     down (-z); its root body 'flange' (a free body, welded to a mocap target that the test moves). Returns its MJCF pieces (names
     unprefixed: see _prefixed) and two functions to call once the model is built: visuals(scene, body, path) draws
-    it, controllers(scene, model, jnt, act, body, geom) makes its grip controllers. `body`, `jnt`, `act`, `geom`: name -> id."""
+    it, controllers(scene, model, jnt, act, body, geom) makes its grip controllers. `body`, `jnt`, `act`, `geom`: name -> id. A large version ('<kind>_xl') is that kind
+    built from xl_params."""
+    full_kind = gkind
+    big = gkind.endswith('_xl')
+    if big:
+        gkind = gkind[:-3]
+        P = xl_params(P, gkind)
+    ms = XL_SCALE if big and gkind == 'mia' else 1.0  # (the Mia hand: every size)
     F = max(1, int(P['fingers']))
     N = max(2, int(P['segments']))
     L, W, H = float(P['length']) * MM, float(P['width']) * MM, float(P['height']) * MM
@@ -1219,6 +1261,8 @@ def build_gripper(P, gkind):
     lip_names, cup_r, cup_lift = [], 0.0, 0.0
     if gkind in VACUUM_CUPS:
         cup_r, n_lip = VACUUM_CUPS[gkind]
+        if big:  # (a larger cup, for the large SoftGripper)
+            cup_r, n_lip = 1.5 * cup_r, n_lip + 4
         lip_h, lip_t = 0.006, 0.0028
         k_lip = max(float(P['cup_lip_stiffness']), 1.0)
         # Between soft fingers the cup is short (25 mm from the palm), its lip above the tool point: the fingers,
@@ -1249,36 +1293,38 @@ def build_gripper(P, gkind):
     # index to little finger along y, the thumb opposite them (at -x), fixed in opposition. Three motors (servos
     # with a torque limit): the thumb, the index, and the middle finger with the ring and little fingers coupled to
     # it; in each finger the distal joint follows the proximal one.
-    MIA_FINGERS = [('index', 0.03, 0.045, 0.040, 0.0085), ('middle', 0.01, 0.048, 0.043, 0.0085),
-                   ('ring', -0.01, 0.045, 0.040, 0.0082), ('little', -0.03, 0.037, 0.032, 0.0075)]
-    MIA_THUMB = ('thumb', 0.0, 0.048, 0.040, 0.0095)  # (opposite the middle of the fingers, as long)
+    MIA_FINGERS = [(n_, *(ms * v for v in vals)) for n_, *vals in
+                   [('index', 0.03, 0.045, 0.040, 0.0085), ('middle', 0.01, 0.048, 0.043, 0.0085),
+                    ('ring', -0.01, 0.045, 0.040, 0.0082), ('little', -0.03, 0.037, 0.032, 0.0075)]]
+    MIA_THUMB = ('thumb', *(ms * v for v in (0.0, 0.048, 0.040, 0.0095)))  # (opposite the fingers' middle, as long)
     mia = {}
     if gkind == 'mia':
         gripper = [g_ for g_ in gripper if 'name="plate"' not in g_]
         zr = z_palm
-        grip_top = zr + 0.09 + 0.025
-        gripper += [f'<geom name="mia_palm" type="box" size="0.016 0.043 0.045" pos="0.026 0 {zr + 0.045:.9g}" '
-                    f'mass="0.35" class="finger"/>',
-                    f'<geom name="mia_wrist" type="cylinder" size="0.024 {0.0125:.9g}" pos="0.026 0 {zr + 0.1025:.9g}" '
-                    f'mass="0.1" class="finger"/>',
+        grip_top = zr + ms * (0.09 + 0.025)
+        m3 = ms ** 3
+        gripper += [f'<geom name="mia_palm" type="box" size="{_v(ms * np.array([0.016, 0.043, 0.045]))}" '
+                    f'pos="{ms * 0.026:.9g} 0 {zr + ms * 0.045:.9g}" mass="{0.35 * m3:.9g}" class="finger"/>',
+                    f'<geom name="mia_wrist" type="cylinder" size="{ms * 0.024:.9g} {ms * 0.0125:.9g}" '
+                    f'pos="{ms * 0.026:.9g} 0 {zr + ms * 0.1025:.9g}" mass="{0.1 * m3:.9g}" class="finger"/>',
                     # the thumb's housing (the thenar side), from the palm out to the thumb's root
-                    f'<geom name="mia_thenar" type="box" size="0.027 0.016 0.023" pos="-0.017 0 {zr + 0.027:.9g}" '
-                    f'mass="0.08" class="finger"/>']
+                    f'<geom name="mia_thenar" type="box" size="{_v(ms * np.array([0.027, 0.016, 0.023]))}" '
+                    f'pos="{-ms * 0.017:.9g} 0 {zr + ms * 0.027:.9g}" mass="{0.08 * m3:.9g}" class="finger"/>']
         for name, y, l1, l2, r in MIA_FINGERS + [MIA_THUMB]:
             thumb = name == 'thumb'
-            root = np.array([-0.03, y, zr]) if thumb else np.array([0.025, y, zr])
+            root = np.array([-ms * 0.03, y, zr]) if thumb else np.array([ms * 0.025, y, zr])
             axis = '0 -1 0' if thumb else '0 1 0'  # (positive: curl towards the other side)
             mia[name] = {'root': root, 'l': (l1, l2), 'r': r, 'thumb': thumb}
             gripper += [f'<body name="mia_{name}1" pos="{_v(root)}">',
-                        f'<joint name="mia_{name}_mcp" type="hinge" axis="{axis}" range="-0.6 1.6" damping="0.02" '
-                        f'armature="1e-4"/>',
+                        f'<joint name="mia_{name}_mcp" type="hinge" axis="{axis}" range="-0.6 1.6" '
+                        f'damping="{0.02 * ms ** 4:.9g}" armature="{1e-4 * ms ** 5:.9g}"/>',
                         f'<geom name="mia_{name}1" type="capsule" fromto="0 0 0 0 0 {-l1:.9g}" size="{r:.9g}" '
-                        f'mass="0.015" friction="1.2 0.01 0.0001" class="finger"/>',
+                        f'mass="{0.015 * m3:.9g}" friction="1.2 0.01 0.0001" class="finger"/>',
                         f'<body name="mia_{name}2" pos="0 0 {-l1:.9g}">',
-                        f'<joint name="mia_{name}_pip" type="hinge" axis="{axis}" range="-0.2 1.7" damping="0.01" '
-                        f'armature="5e-5"/>',
+                        f'<joint name="mia_{name}_pip" type="hinge" axis="{axis}" range="-0.2 1.7" '
+                        f'damping="{0.01 * ms ** 4:.9g}" armature="{5e-5 * ms ** 5:.9g}"/>',
                         f'<geom name="mia_{name}2" type="capsule" fromto="0 0 0 0 0 {-l2:.9g}" size="{0.92 * r:.9g}" '
-                        f'mass="0.01" friction="1.2 0.01 0.0001" class="finger"/>', '</body>', '</body>']
+                        f'mass="{0.01 * m3:.9g}" friction="1.2 0.01 0.0001" class="finger"/>', '</body>', '</body>']
             equalities.append(f'<joint joint1="mia_{name}_pip" joint2="mia_{name}_mcp" polycoef="0 1 0 0 0" '
                               f'solref="0.005 1"/>')
         for name in ('ring', 'little'):
@@ -1301,7 +1347,7 @@ def build_gripper(P, gkind):
     actuators = []
     if gkind == 'mia':
         t_max = max(float(P['mia_torque']), 0.01)
-        actuators += [f'<position name="mia_{n}" joint="mia_{n}_mcp" kp="3" kv="0.06" '
+        actuators += [f'<position name="mia_{n}" joint="mia_{n}_mcp" kp="{3 * ms ** 3:.9g}" kv="{0.06 * ms ** 4:.9g}" '
                       f'forcerange="{-t_max:.9g} {t_max:.9g}"/>' for n in ('thumb', 'index', 'middle')]
     if gkind == 'suction':
         actuators.append(f'<adhesion name="suction" body="cup" ctrlrange="0 1" '
@@ -1388,12 +1434,16 @@ def build_gripper(P, gkind):
                              texture='printed')
         else:  # the hand: palm and wrist, rounded phalanges, a skin pad on each phalanx's palmar side
             zr = z_palm
-            palm_v = _merge([_box(0.010, -0.043, zr, 0.042, 0.043, zr + 0.09),
-                             _cylinder_along([0.026, 0, zr + 0.09], [0.026, 0, zr + 0.115], 0.024, n=28),
+            def sc(*v):
+                return [ms * c for c in v]
+            palm_v = _merge([_box(*sc(0.010, -0.043), zr, *sc(0.042, 0.043), zr + ms * 0.09),
+                             _cylinder_along([ms * 0.026, 0, zr + ms * 0.09], [ms * 0.026, 0, zr + ms * 0.115],
+                                             ms * 0.024, n=28),
                              # the thumb's housing: out from the palm to the thumb's root, round over its joint
-                             _box(-0.03, -0.016, zr + 0.004, 0.0105, 0.016, zr + 0.05),
-                             _box(-0.044, -0.016, zr + 0.017, -0.0295, 0.016, zr + 0.05),
-                             _cylinder_along([-0.03, -0.016, zr + 0.017], [-0.03, 0.016, zr + 0.017], 0.014, n=24)])
+                             _box(*sc(-0.03, -0.016), zr + ms * 0.004, *sc(0.0105, 0.016), zr + ms * 0.05),
+                             _box(*sc(-0.044, -0.016), zr + ms * 0.017, *sc(-0.0295, 0.016), zr + ms * 0.05),
+                             _cylinder_along([ms * -0.03, ms * -0.016, zr + ms * 0.017],
+                                             [ms * -0.03, ms * 0.016, zr + ms * 0.017], ms * 0.014, n=24)])
             scene.add_visual(f'{path}/bodies/trunk/visual', *_smooth_shaded(*palm_v), flange_id,
                              [0.86, 0.87, 0.89, 1.0], texture='plastic')
             shells, knuckles = [], []
@@ -1492,7 +1542,7 @@ def build_gripper(P, gkind):
                 scene.add_visual(f'{path}/bodies/{vname}/visual', pts, tris, bodies,
                                  rgba + [float(P['wall_alpha'])], texture=tex)
         for pad, pp, tt, b in skin_pads:
-            scene.add_visual(f'{path}/bodies/skin/{gkind}.{pad}/visual', *_flat_shaded(pp, tt), b,
+            scene.add_visual(f'{path}/bodies/skin/{full_kind}.{pad}/visual', *_flat_shaded(pp, tt), b,
                              [0.22, 0.24, 0.27, float(P['wall_alpha'])], texture='plastic')
         if lip_names:
             hub = _frustum_z(0, 0, 0.006, z_palm - cup_lift, 0.75 * cup_r, 0.4 * cup_r, n=32)
@@ -1563,12 +1613,12 @@ def build_gripper(P, gkind):
     elif finray:
         below, palm = max(float(P['finray_length']), 20.0) * MM + 0.02 - tcp_depth, tcp_depth - 0.02
     elif mia:
-        below, palm = 0.085 - tcp_depth + 0.004, tcp_depth
+        below, palm = ms * 0.085 - tcp_depth + 0.004, tcp_depth
     elif jaw_names:
         below, palm = jaw_l + 0.02 - tcp_depth, tcp_depth - 0.02
     else:
         below, palm = 0.0, tcp_depth
-    return {'kind': gkind, 'bodies': gripper, 'assets': assets, 'equalities': equalities, 'excludes': excludes,
+    return {'kind': full_kind, 'base': gkind, 'big': big, 'bodies': gripper, 'assets': assets, 'equalities': equalities, 'excludes': excludes,
             'actuators': actuators, 'visuals': visuals, 'controllers': controllers, 'grip_top': grip_top,
             'hinges': hinge_names + side_names, 'stroke': stroke, 'jaws': bool(jaw_names), 'cup_r': cup_r,
             'cup_lift': cup_lift, 'vacuum': gkind == 'suction' or gkind in VACUUM_CUPS, 'fingers': len(frames),
@@ -1732,7 +1782,7 @@ def grasp_plan(g, it):
         dx = dy = 2 * max(dims[0], dims[1])
     else:
         dx = dy = 2 * dims[0]
-    kind, note = g['kind'], ''
+    kind, note = g['base'], ''
     yaw, open_to = 0.0, None
     if kind in ('parallel', 'festo_finray', 'mia', 'softgripping_parallel'):  # (they squeeze along their x)
         yaw = 0.0 if dx <= dy else math.pi / 2
@@ -1749,6 +1799,9 @@ def grasp_plan(g, it):
     if open_to is not None and open_to > g['stroke'] - 0.002:
         note = f"too big for the jaws ({2 * open_to * 1000:.0f} mm across)"
         open_to = g['stroke']
+    if open_to is not None and kind == 'festo_finray' and it['kind'] in ('chips', 'potatoes'):
+        open_to = None  # a bag lying down bulges out wider than its nominal size, and the long Fin Ray fingers come
+                        # down beside it where it's widest: they stay fully open
     if g['vacuum']:
         cup_r = g['cup_r'] if g['cup_r'] > 0 else 0.019
         curv = {'sphere': lambda: dims[0], 'apple': lambda: dims[0] ** 2 / dims[1], 'egg': lambda: dims[1],
@@ -2110,8 +2163,11 @@ def createScene():
     it = item_spec(P, str(P['item']))
     grippers = [build_gripper(P, k) for k in kinds]
     plans = [grasp_plan(gr, it) for gr in grippers]
-    xs = [(i - (n - 1) / 2) * spacing for i in range(n)]
-    half_x = xs[-1] + spacing
+    # (a large gripper takes half as much room again on each side)
+    room = [spacing * (1.5 if gr['big'] else 1.0) for gr in grippers]
+    xs = list(np.cumsum([0.0] + [(a + b) / 2 for a, b in zip(room, room[1:])]))
+    xs = [x - (xs[0] + xs[-1]) / 2 for x in xs]
+    half_x = xs[-1] + room[-1]
     travel = float(P['travel']) * MM
     print(f"[model] {n} grippers in a row, {spacing / MM:.0f} mm apart, each over a {it['label']}")
     for k, pl in zip(kinds, plans):

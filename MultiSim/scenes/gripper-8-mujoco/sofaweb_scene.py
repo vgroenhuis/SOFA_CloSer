@@ -21,6 +21,11 @@ GRIPPERS = [
     ("parallel", "Parallel jaws"),
     ("three_jaw", "Three-jaw chuck"),
     ("suction", "Simple suction cup"),
+    ("festo_finray_xl", "Festo Fin Ray, large"),
+    ("parallel_xl", "Parallel jaws, large"),
+    ("softgripping_parallel_xl", "SoftGripping parallel, large"),
+    ("softgripping_suction_xl", "SoftGripping + cup, large"),
+    ("mia_xl", "Mia hand, large"),
 ]
 PHASES = ["settle", "down", "grip", "lift", "turn", "hold", "carry", "lower", "release", "rise", "done"]
 
@@ -234,7 +239,7 @@ CONFIG = SceneConfig(
         {"key": "dropped", "label": "dropped it, or not at its goal", "digits": 0, "unit": ""},
     ] + [{"key": f"status_{k}", "label": f"{label} ({_STATUS})", "digits": 0, "unit": ""} for k, label in GRIPPERS]
       + [{"key": f"seal_{k}", "label": f"{label}: lip sealed", "digits": 0, "unit": "%"}
-         for k, label in GRIPPERS if k in ("softgripping_suction", "gripwiq_st", "gripwiq_cs")]
+         for k, label in GRIPPERS if k in ("softgripping_suction", "gripwiq_st", "gripwiq_cs", "softgripping_suction_xl")]
       + [{"key": "contacts", "label": "contacts", "digits": 0, "unit": ""}],
     stop_at=None,
     about=[
