@@ -76,10 +76,26 @@ def verify_admin_session(secret: bytes, value: str | None) -> bool:
     return verify_session(secret, "admin", value)
 
 
+def hash_password(password: str, n: int = 2**15, r: int = 8, p: int = 1) -> str:
+    """A setting value that stands for `password` without containing it: scrypt$n$r$p$salt$hash (hex)."""
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(password.encode(), salt=salt, n=n, r=r, p=p, maxmem=2**26, dklen=32)
+    return f"scrypt${n}${r}${p}${salt.hex()}${digest.hex()}"
+
+
 def check_password(configured: str, supplied: str) -> bool:
-    """Constant-time compare; an unset (empty) password never matches."""
+    """Constant-time compare; an unset (empty) password never matches. `configured` is the password itself or a
+    hash_password() value."""
     if not configured:
         return False
+    if configured.startswith("scrypt$"):
+        try:
+            _, n, r, p, salt, digest = configured.split("$")
+            got = hashlib.scrypt(supplied.encode()[:1024], salt=bytes.fromhex(salt), n=int(n), r=int(r), p=int(p),
+                                 maxmem=2**26, dklen=len(digest) // 2)
+        except (ValueError, TypeError):
+            return False
+        return hmac.compare_digest(got.hex(), digest)
     return hmac.compare_digest(configured.encode(), supplied.encode())
 
 

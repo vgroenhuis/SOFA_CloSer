@@ -101,6 +101,14 @@ ACCESS_PASSWORD = os.environ.get("MSD_ACCESS_PASSWORD", "")
 ACCESS_SESSION_HOURS = _env_float("MSD_ACCESS_SESSION_HOURS", 24.0 * 7)
 # Shown under the lobby's access password field, e.g. where to find the password.
 ACCESS_HINT = os.environ.get("MSD_ACCESS_HINT", "")
+# The whole site behind the access password (an instance for confidential simulations): without it every page shows
+# only a password form, and the API, simulations and saved runs answer 401. The admin password works too.
+REQUIRE_ACCESS = _env_bool("MSD_REQUIRE_ACCESS", False)
+# Every scene's visibility until an admin changes it, overriding scene.json's "visibility" (public, private or
+# admin; empty: scene.json decides). The confidential instance sets public: the site password guards it all.
+DEFAULT_VISIBILITY = os.environ.get("MSD_DEFAULT_VISIBILITY", "").strip().lower()
+# Names the lobby and login page, e.g. "Confidential simulations" (default: MultiSim).
+SITE_TITLE = os.environ.get("MSD_SITE_TITLE", "")
 
 # Per-simulation resource caps (a scene's scene.json may override these).
 SIM_CPUS = _env_float("MSD_SIM_CPUS", 1.0)

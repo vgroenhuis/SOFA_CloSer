@@ -13,6 +13,7 @@ One FastAPI process that
 from __future__ import annotations
 
 import asyncio
+import html as _html
 import json
 import logging
 import posixpath
@@ -130,7 +131,8 @@ def is_admin(conn: HTTPConnection) -> bool:
 def has_access(conn: HTTPConnection) -> bool:
     """May see and use private scenes: logged in with the access password, or admin."""
     return is_admin(conn) or (
-        bool(config.ACCESS_PASSWORD) and auth.verify_session(S.secret, "access", conn.cookies.get(ACCESS_COOKIE))
+        bool(config.ACCESS_PASSWORD or config.REQUIRE_ACCESS)
+        and auth.verify_session(S.secret, "access", conn.cookies.get(ACCESS_COOKIE))
     )
 
 
@@ -431,6 +433,38 @@ async def revalidate_by_default(request: Request, call_next):
     return response
 
 
+class SiteLock:
+    """With config.REQUIRE_ACCESS: nothing but the password form (and its login call) without the access password.
+    Plain ASGI, so it covers WebSockets (the simulations' streams) as well as HTTP."""
+
+    OPEN = {("POST", "/api/access"), ("GET", "/healthz"), ("GET", "/favicon.ico"), ("GET", "/assets/favicon.svg")}
+
+    def __init__(self, inner) -> None:
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send) -> None:
+        if not config.REQUIRE_ACCESS or scope["type"] not in ("http", "websocket"):
+            return await self.inner(scope, receive, send)
+        path = scope.get("path", "/")
+        if (scope.get("method", "GET"), path) in self.OPEN or has_access(HTTPConnection(scope)):
+            return await self.inner(scope, receive, send)
+        if scope["type"] == "websocket":
+            await send({"type": "websocket.close", "code": 1008})
+            return
+        if scope.get("method") == "GET" and not path.startswith(("/api/", "/admin/api/", "/sim/", "/run/", "/assets/")):
+            html = (config.STATIC_DIR / "locked.html").read_text(encoding="utf-8")
+            title = config.SITE_TITLE or "MultiSim"
+            html = (html.replace("<head>", f'<head>\n\t<base href="{config.BASE_PATH}" />', 1)
+                    .replace("{{title}}", _html.escape(title)).replace("{{hint}}", _html.escape(config.ACCESS_HINT)))
+            response: Response = HTMLResponse(html, status_code=401, headers={"Cache-Control": "no-store"})
+        else:
+            response = JSONResponse({"detail": {"message": "Password required."}}, status_code=401)
+        await response(scope, receive, send)
+
+
+app.add_middleware(SiteLock)
+
+
 # -- pages -----------------------------------------------------------------
 
 
@@ -547,6 +581,7 @@ async def api_status(request: Request) -> dict:
         "access": has_access(request),
         "accessLogin": bool(config.ACCESS_PASSWORD),
         "accessHint": config.ACCESS_HINT,
+        "requireAccess": config.REQUIRE_ACCESS,
         "serverTime": time.time(),
     }
 
@@ -558,12 +593,13 @@ class AccessRequest(BaseModel):
 @app.post("/api/access")
 async def api_access_login(body: AccessRequest, request: Request) -> JSONResponse:
     """Unlock private scenes in this browser with the access password."""
-    if not config.ACCESS_PASSWORD:
+    if not config.ACCESS_PASSWORD and not config.REQUIRE_ACCESS:
         raise api_error(503, "Private simulations aren't enabled here.")
     addr = client_addr(request)
     if not S.login_limiter.allow(addr):
         raise api_error(429, "Too many attempts. Wait a few minutes.")
-    if not auth.check_password(config.ACCESS_PASSWORD, body.password):
+    if not (auth.check_password(config.ACCESS_PASSWORD, body.password) or
+            (config.REQUIRE_ACCESS and auth.check_password(config.ADMIN_PASSWORD, body.password))):
         S.store.log("access-login-failed", detail=f"from={addr}")
         raise api_error(401, "Wrong password.")
     S.store.log("access-login", detail=f"from={addr}")

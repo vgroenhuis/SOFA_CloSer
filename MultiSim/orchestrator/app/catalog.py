@@ -91,6 +91,8 @@ def _group(meta: dict) -> str:
 
 
 def _visibility(meta: dict) -> str:
+    if config.DEFAULT_VISIBILITY in ("public", "private", "admin"):
+        return config.DEFAULT_VISIBILITY
     level = str(meta.get("visibility", "")).lower()
     if level in ("public", "private", "admin"):
         return level

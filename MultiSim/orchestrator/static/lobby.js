@@ -444,6 +444,7 @@ document.getElementById("access-form").addEventListener("submit", async (event) 
 
 document.getElementById("access-lock").addEventListener("click", async () => {
 	await api("api/access", { method: "DELETE" }).catch(() => {});
+	if (status && status.requireAccess) { location.reload(); return; }  // (the whole site is behind the password)
 	await reloadAll();
 });
 
